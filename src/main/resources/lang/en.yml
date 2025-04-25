@@ -3,6 +3,8 @@
 ## Info
 
 ## Error
+error-item-not-found: "<red>Item '<key>' doesn't exist!"
 
 ## Success
 success-plugin-reload: "<green>Plugin reloaded!"
+success-item-give: "<item-name> [<item-amount>] given to <targets>!"
