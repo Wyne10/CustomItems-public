@@ -19,6 +19,7 @@ import net.kyori.adventure.platform.bukkit.BukkitAudiences
 import org.bigcraft.customitems.CustomItems.Companion.EMPTY_CONFIGURATION
 import org.bigcraft.customitems.CustomItems.Companion.log
 import org.bigcraft.customitems.module.CommandModule
+import org.bigcraft.customitems.module.CustomItemModule
 import org.bigcraft.customitems.module.PlaceholderModule
 import org.bigcraft.customitems.module.PluginModule
 import java.io.File
@@ -101,6 +102,7 @@ object InitializeInjector : PluginStep<CustomItems> {
             CustomItems.instance.injector = Guice.createInjector(
                 Stage.PRODUCTION,
                 PluginModule(plugin),
+                CustomItemModule,
                 PlaceholderModule,
                 CommandModule
             )

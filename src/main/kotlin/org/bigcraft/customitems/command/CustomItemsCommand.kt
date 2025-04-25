@@ -18,7 +18,8 @@ class CustomItemsCommand @Inject constructor(private val plugin: CustomItems) {
     }
 
     private fun registerCommand() {
-        CommandTree("customitems")
+        CommandTree("ci")
+            .then(GiveCommand())
             .then(LiteralArgument("reload")
                     .withPermission("customitems.reload")
                     .executes(CommandExecutor { sender: CommandSender, _: CommandArguments? ->
