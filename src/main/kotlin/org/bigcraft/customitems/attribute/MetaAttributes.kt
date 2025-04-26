@@ -3,14 +3,18 @@ package org.bigcraft.customitems.attribute
 import com.destroystokyo.paper.profile.ProfileProperty
 import me.wyne.wutils.common.Args
 import me.wyne.wutils.i18n.I18n
+import org.bigcraft.customitems.attribute.EnchantmentAttribute.EnchantmentData
 import org.bigcraft.customitems.extension.COLON_DELIMITER
+import org.bigcraft.customitems.extension.SPACE_DELIMITER
 import org.bigcraft.customitems.extension.getIntNullable
 import org.bukkit.Bukkit
 import org.bukkit.NamespacedKey
 import org.bukkit.OfflinePlayer
+import org.bukkit.attribute.AttributeModifier
 import org.bukkit.configuration.ConfigurationSection
 import org.bukkit.enchantments.Enchantment
 import org.bukkit.entity.Player
+import org.bukkit.inventory.EquipmentSlot
 import org.bukkit.inventory.ItemFlag
 import org.bukkit.inventory.ItemStack
 import org.bukkit.inventory.meta.Damageable
@@ -31,6 +35,8 @@ val MetaAttributes = AttributeMap(
         "unbreakable" to AttributeFactory { key, config -> UnbreakableAttribute(config.getBoolean(key, false)) },
         "enchantment" to EnchantmentAttribute.Factory,
         "enchantments" to AttributeFactory { key, config -> CompositeAttribute(key, config, EnchantmentAttribute.Factory) },
+        "attribute" to GenericAttribute.Factory,
+        "attributes" to AttributeFactory { key, config -> CompositeAttribute(key, config, GenericAttribute.Factory) },
         "glow" to AttributeFactory { key, config -> GlowAttribute(config.getBoolean(key, false)) },
         "durability" to AttributeFactory { key, config -> DurabilityAttribute(config.getInt(key, 1)) },
         "damage" to AttributeFactory { key, config -> DamageAttribute(config.getInt(key, 0)) },
@@ -188,7 +194,7 @@ class RepairableAttribute(
 
 class EnchantmentAttribute(
     enchantment: EnchantmentData
-) : MetaAttribute<EnchantmentAttribute.EnchantmentData>("enchantment", enchantment) {
+) : MetaAttribute<EnchantmentData>("enchantment", enchantment) {
 
     override fun apply(meta: ItemMeta) {
         meta.addEnchant(value.enchantment, value.level, true)
@@ -196,7 +202,7 @@ class EnchantmentAttribute(
 
     data class EnchantmentData(val enchantment: Enchantment, val level: Int)
 
-    object Factory : CompositeAttributeFactory<EnchantmentAttribute> {
+    object Factory : CompositeAttributeFactory {
         override fun fromSection(key: String, section: ConfigurationSection): EnchantmentAttribute {
             return EnchantmentAttribute(
                 EnchantmentData(
@@ -215,6 +221,56 @@ class EnchantmentAttribute(
                 )
             )
         }
+    }
+
+}
+
+class GenericAttribute(
+    attribute: AttributeData
+) : MetaAttribute<GenericAttribute.AttributeData>("attribute", attribute) {
+
+    override fun apply(meta: ItemMeta) {
+        meta.addAttributeModifier(value.attribute, value.modifier)
+    }
+
+    data class AttributeData(val attribute: org.bukkit.attribute.Attribute, val modifier: AttributeModifier)
+
+    object Factory : CompositeAttributeFactory {
+        override fun fromSection(key: String, section: ConfigurationSection): GenericAttribute {
+            return GenericAttribute(
+                AttributeData(
+                    getByKey(NamespacedKey.fromString(section.getString("attribute", "generic.armor")!!)!!)
+                        ?: org.bukkit.attribute.Attribute.GENERIC_ARMOR,
+                    AttributeModifier(
+                        UUID.fromString(section.getString("uuid", UUID.randomUUID().toString())),
+                        section.getString("name", "CI Attribute")!!,
+                        section.getDouble("amount", 1.0),
+                        AttributeModifier.Operation.valueOf(section.getString("operation", "ADD_NUMBER")!!),
+                        EquipmentSlot.valueOf(section.getString("slot", "HAND")!!),
+                    )
+                )
+            )
+        }
+
+        override fun fromString(key: String, string: String): GenericAttribute {
+            val args = Args(string, SPACE_DELIMITER)
+            return GenericAttribute(
+                AttributeData(
+                    getByKey(NamespacedKey.fromString(args.get(0, "generic.armor"))!!)
+                        ?: org.bukkit.attribute.Attribute.GENERIC_ARMOR,
+                    AttributeModifier(
+                        UUID.randomUUID(),
+                        "CI Attribute",
+                        args.get(1, "1.0").toDouble(),
+                        AttributeModifier.Operation.valueOf(args.get(2, "ADD_NUMBER")),
+                        EquipmentSlot.valueOf(args.get(3, "HAND"))
+                    )
+                )
+            )
+        }
+
+        private fun getByKey(key: NamespacedKey): org.bukkit.attribute.Attribute? =
+            org.bukkit.attribute.Attribute.values().firstOrNull { it.key == key }
     }
 
 }

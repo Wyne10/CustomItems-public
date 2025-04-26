@@ -43,16 +43,16 @@ fun interface AttributeFactory {
     fun create(key: String, config: ConfigurationSection): Attribute<*>
 }
 
-interface CompositeAttributeFactory<T : Attribute<*>> : AttributeFactory {
-    override fun create(key: String, config: ConfigurationSection): T {
+interface CompositeAttributeFactory : AttributeFactory {
+    override fun create(key: String, config: ConfigurationSection): Attribute<*> {
         return if (config.isConfigurationSection(key))
             fromSection(key, config.getConfigurationSection(key)!!)
         else
             fromString(key, config.getString(key)!!)
     }
 
-    fun fromSection(key: String, section: ConfigurationSection): T
-    fun fromString(key: String, string: String): T
+    fun fromSection(key: String, section: ConfigurationSection): Attribute<*>
+    fun fromString(key: String, string: String): Attribute<*>
 }
 
 class AttributeMap(private val keyMap: MutableMap<String, AttributeFactory>) {
