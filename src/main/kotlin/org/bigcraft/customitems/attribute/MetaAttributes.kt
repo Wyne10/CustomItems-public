@@ -48,7 +48,8 @@ val MetaAttributes = AttributeMap(
         "potionType" to AttributeFactory { key, config -> PotionTypeAttribute(PotionType.valueOf(config.getString(key, "UNCRAFTABLE")!!)) },
         "potionModifier" to AttributeFactory { key, config -> PotionModifierAttribute(PotionModifierAttribute.PotionModifier.valueOf(config.getString(key, "NONE")!!)) },
         "potionEffect" to PotionEffectAttribute.Factory,
-        "potionEffects" to AttributeFactory { key, config -> CompositeAttribute(key, config, PotionEffectAttribute.Factory) }
+        "potionEffects" to AttributeFactory { key, config -> CompositeAttribute(key, config, PotionEffectAttribute.Factory) },
+        "armorColor" to AttributeFactory { key, config -> ArmorColorAttribute(Color.fromRGB(config.getInt(key, 0))) },
     )
 )
 
@@ -378,6 +379,17 @@ class PotionEffectAttribute(
                 )
             )
         }
+    }
+
+}
+
+class ArmorColorAttribute(
+    color: Color
+) : MetaAttribute<Color>("armorColor", color) {
+
+    override fun apply(meta: ItemMeta) {
+        if (meta !is LeatherArmorMeta) return
+        meta.setColor(value)
     }
 
 }
