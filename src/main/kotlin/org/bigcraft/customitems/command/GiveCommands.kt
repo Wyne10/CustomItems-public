@@ -29,9 +29,9 @@ object GiveCommand : SubCommand("give") {
                 .then(StringArgument("key")
                         .replaceSuggestions(ArgumentSuggestions.stringCollection { CustomItemManager.instance.mapKeys })
                         .then(IntegerArgument("amount", 1).setOptional(true)
-                                .executes(::giveTnt))))
+                                .executes(::giveItem))))
 
-    private fun giveTnt(sender: CommandSender, args: CommandArguments) {
+    private fun giveItem(sender: CommandSender, args: CommandArguments) {
         val item = CustomItemManager.instance.getItem(args.getItemKey(sender))!!
         val amount = args.amount
         val targets = args.targets

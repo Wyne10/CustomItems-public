@@ -2,6 +2,7 @@ package org.bigcraft.customitems.item
 
 import org.bigcraft.customitems.ConfigurableFactory
 import org.bigcraft.customitems.attribute.Attribute
+import org.bigcraft.customitems.attribute.ItemAttributes
 import org.bigcraft.customitems.attribute.MetaAttributes
 import org.bigcraft.customitems.attribute.PlayerAwareAttribute
 import org.bukkit.Material
@@ -38,7 +39,8 @@ class CustomItem(
         override fun fromConfig(config: ConfigurationSection): CustomItem =
             CustomItem(
                 config.name,
-                MetaAttributes.createAllMap(config)
+                ItemAttributes.createAllMap(config) +
+                        MetaAttributes.createAllMap(config)
             )
     }
 
