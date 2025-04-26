@@ -12,7 +12,14 @@ interface Attribute<V> {
 
 abstract class AttributeBase<V>(
     override val key: String,
+    override val value: V,
 ) : Attribute<V>
+
+class EmptyAttribute(
+    key: String,
+) : AttributeBase<Unit>(key, Unit) {
+    override fun apply(item: ItemStack): ItemStack = item
+}
 
 interface PlayerAwareAttribute<V> : Attribute<V> {
     fun apply(item: ItemStack, player: Player): ItemStack
