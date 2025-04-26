@@ -15,6 +15,7 @@ dependencies {
     compileOnly(libs.paperApi)
     compileOnly(libs.placeholderApi)
     compileOnly(libs.commandApi)
+    compileOnly(libs.nbtApi)
 
     implementation(libs.guice)
     implementation(libs.adventureMini)
@@ -46,6 +47,7 @@ tasks {
             github("ViaVersion", "ViaVersion", "5.2.1", "ViaVersion-5.2.1.jar")
             github("ViaVersion", "ViaBackwards", "5.2.1", "ViaBackwards-5.2.1.jar")
             github("CommandAPI", "CommandAPI", "9.7.0", "CommandAPI-9.7.0.jar")
+            modrinth("nbtapi", "2.15.0")
         }
         minecraftVersion("1.21.3")
     }
@@ -70,7 +72,7 @@ bukkit {
     author = findProperty("author").toString()
     main = "org.bigcraft.customitems.CustomItems"
     apiVersion = "1.16"
-    softDepend = listOf("PlaceholderAPI", "CommandAPI")
+    softDepend = listOf("PlaceholderAPI", "CommandAPI", "NBTAPI")
     permissions {
         register("customitems.*") {
             children = listOf("customitems.reload")
