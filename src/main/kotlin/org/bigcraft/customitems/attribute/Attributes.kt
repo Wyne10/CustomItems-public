@@ -25,13 +25,13 @@ class CompositeAttribute(
     key: String,
     config: ConfigurationSection,
     factory: AttributeFactory
-) : AttributeBase<Set<Attribute<*>>>(
+) : AttributeBase<Map<String, Attribute<*>>>(
     key,
-    config.getConfigurationSection(key)!!.getKeys(false).mapNotNull { factory.create(it, config.getConfigurationSection(key)!!) }.toSet()
+    config.getConfigurationSection(key)!!.getKeys(false).mapNotNull { factory.create(it, config.getConfigurationSection(key)!!) }.associateBy { it.key }
 ) {
 
     override fun apply(item: ItemStack): ItemStack =
-        item.also { value.forEach { it.apply(item) } }
+        item.also { value.values.forEach { it.apply(item) } }
 
 }
 
