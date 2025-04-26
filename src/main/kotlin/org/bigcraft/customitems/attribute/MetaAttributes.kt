@@ -193,8 +193,9 @@ class RepairableAttribute(
 }
 
 class EnchantmentAttribute(
+    key: String,
     enchantment: EnchantmentData
-) : MetaAttribute<EnchantmentData>("enchantment", enchantment) {
+) : MetaAttribute<EnchantmentData>(key, enchantment) {
 
     override fun apply(meta: ItemMeta) {
         meta.addEnchant(value.enchantment, value.level, true)
@@ -205,6 +206,7 @@ class EnchantmentAttribute(
     object Factory : CompositeAttributeFactory {
         override fun fromSection(key: String, section: ConfigurationSection): EnchantmentAttribute {
             return EnchantmentAttribute(
+                key,
                 EnchantmentData(
                     Enchantment.getByKey(NamespacedKey.fromString(section.getString("enchantment", "lure")!!))!!,
                     section.getInt("level", 1)
@@ -215,6 +217,7 @@ class EnchantmentAttribute(
         override fun fromString(key: String, string: String): EnchantmentAttribute {
             val args = Args(string, COLON_DELIMITER)
             return EnchantmentAttribute(
+                key,
                 EnchantmentData(
                     Enchantment.getByKey(NamespacedKey.fromString(args.get(0, "lure")))!!,
                     args.get(1, "1").toInt()
@@ -226,8 +229,9 @@ class EnchantmentAttribute(
 }
 
 class GenericAttribute(
+    key: String,
     attribute: AttributeData
-) : MetaAttribute<GenericAttribute.AttributeData>("attribute", attribute) {
+) : MetaAttribute<GenericAttribute.AttributeData>(key, attribute) {
 
     override fun apply(meta: ItemMeta) {
         meta.addAttributeModifier(value.attribute, value.modifier)
@@ -238,6 +242,7 @@ class GenericAttribute(
     object Factory : CompositeAttributeFactory {
         override fun fromSection(key: String, section: ConfigurationSection): GenericAttribute {
             return GenericAttribute(
+                key,
                 AttributeData(
                     getByKey(NamespacedKey.fromString(section.getString("attribute", "generic.armor")!!)!!)
                         ?: org.bukkit.attribute.Attribute.GENERIC_ARMOR,
@@ -255,6 +260,7 @@ class GenericAttribute(
         override fun fromString(key: String, string: String): GenericAttribute {
             val args = Args(string, SPACE_DELIMITER)
             return GenericAttribute(
+                key,
                 AttributeData(
                     getByKey(NamespacedKey.fromString(args.get(0, "generic.armor"))!!)
                         ?: org.bukkit.attribute.Attribute.GENERIC_ARMOR,
