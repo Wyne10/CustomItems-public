@@ -6,6 +6,7 @@ import org.bukkit.util.Vector
 
 const val RANGE_DELIMITER = ".."
 const val COMMA_DELIMITER = ","
+const val COLON_DELIMITER = ":"
 
 val SINGLE_RANGE = 1..1
 val ZERO_VECTOR = Vector()

@@ -21,12 +21,38 @@ class EmptyAttribute(
     override fun apply(item: ItemStack): ItemStack = item
 }
 
+class CompositeAttribute(
+    key: String,
+    config: ConfigurationSection,
+    factory: AttributeFactory
+) : AttributeBase<Set<Attribute<*>>>(
+    key,
+    config.getConfigurationSection(key)!!.getKeys(false).mapNotNull { factory.create(it, config.getConfigurationSection(key)!!) }.toSet()
+) {
+
+    override fun apply(item: ItemStack): ItemStack =
+        item.also { value.forEach { it.apply(item) } }
+
+}
+
 interface PlayerAwareAttribute<V> : Attribute<V> {
     fun apply(item: ItemStack, player: Player): ItemStack
 }
 
 fun interface AttributeFactory {
     fun create(key: String, config: ConfigurationSection): Attribute<*>
+}
+
+interface CompositeAttributeFactory<T : Attribute<*>> : AttributeFactory {
+    override fun create(key: String, config: ConfigurationSection): T {
+        return if (config.isConfigurationSection(key))
+            fromSection(key, config.getConfigurationSection(key)!!)
+        else
+            fromString(key, config.getString(key)!!)
+    }
+
+    fun fromSection(key: String, section: ConfigurationSection): T
+    fun fromString(key: String, string: String): T
 }
 
 class AttributeMap(private val keyMap: MutableMap<String, AttributeFactory>) {

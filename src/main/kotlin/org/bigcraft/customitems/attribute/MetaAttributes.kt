@@ -1,10 +1,14 @@
 package org.bigcraft.customitems.attribute
 
 import com.destroystokyo.paper.profile.ProfileProperty
+import me.wyne.wutils.common.Args
 import me.wyne.wutils.i18n.I18n
+import org.bigcraft.customitems.extension.COLON_DELIMITER
 import org.bigcraft.customitems.extension.getIntNullable
 import org.bukkit.Bukkit
+import org.bukkit.NamespacedKey
 import org.bukkit.OfflinePlayer
+import org.bukkit.configuration.ConfigurationSection
 import org.bukkit.enchantments.Enchantment
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemFlag
@@ -25,6 +29,8 @@ val MetaAttributes = AttributeMap(
         "skull64" to AttributeFactory { key, config -> Skull64Attribute(config.getString(key)!!) },
         "skullPlayer" to AttributeFactory { _, _ -> PlayerSkullAttribute },
         "unbreakable" to AttributeFactory { key, config -> UnbreakableAttribute(config.getBoolean(key, false)) },
+        "enchantment" to EnchantmentAttribute.Factory,
+        "enchantments" to AttributeFactory { key, config -> CompositeAttribute(key, config, EnchantmentAttribute.Factory) },
         "glow" to AttributeFactory { key, config -> GlowAttribute(config.getBoolean(key, false)) },
         "durability" to AttributeFactory { key, config -> DurabilityAttribute(config.getInt(key, 1)) },
         "damage" to AttributeFactory { key, config -> DamageAttribute(config.getInt(key, 0)) },
@@ -176,6 +182,39 @@ class RepairableAttribute(
     override fun apply(meta: ItemMeta) {
         if (meta !is Repairable) return
         meta.repairCost = value
+    }
+
+}
+
+class EnchantmentAttribute(
+    enchantment: EnchantmentData
+) : MetaAttribute<EnchantmentAttribute.EnchantmentData>("enchantment", enchantment) {
+
+    override fun apply(meta: ItemMeta) {
+        meta.addEnchant(value.enchantment, value.level, true)
+    }
+
+    data class EnchantmentData(val enchantment: Enchantment, val level: Int)
+
+    object Factory : CompositeAttributeFactory<EnchantmentAttribute> {
+        override fun fromSection(key: String, section: ConfigurationSection): EnchantmentAttribute {
+            return EnchantmentAttribute(
+                EnchantmentData(
+                    Enchantment.getByKey(NamespacedKey.fromString(section.getString("enchantment", "lure")!!))!!,
+                    section.getInt("level", 1)
+                )
+            )
+        }
+
+        override fun fromString(key: String, string: String): EnchantmentAttribute {
+            val args = Args(string, COLON_DELIMITER)
+            return EnchantmentAttribute(
+                EnchantmentData(
+                    Enchantment.getByKey(NamespacedKey.fromString(args.get(0, "lure")))!!,
+                    args.get(1, "1").toInt()
+                )
+            )
+        }
     }
 
 }
