@@ -2,14 +2,19 @@ package org.bigcraft.customitems.attribute
 
 import com.destroystokyo.paper.profile.ProfileProperty
 import me.wyne.wutils.i18n.I18n
+import org.bigcraft.customitems.extension.getIntNullable
 import org.bukkit.Bukkit
 import org.bukkit.OfflinePlayer
+import org.bukkit.enchantments.Enchantment
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemFlag
 import org.bukkit.inventory.ItemStack
+import org.bukkit.inventory.meta.Damageable
 import org.bukkit.inventory.meta.ItemMeta
+import org.bukkit.inventory.meta.Repairable
 import org.bukkit.inventory.meta.SkullMeta
 import java.util.*
+import kotlin.math.min
 
 val MetaAttributes = AttributeMap(
     mutableMapOf(
@@ -18,7 +23,13 @@ val MetaAttributes = AttributeMap(
         "flags" to AttributeFactory { key, config -> FlagsAttribute(config.getStringList(key).mapNotNull { ItemFlag.valueOf(it) }.toTypedArray()) },
         "skull" to AttributeFactory { key, config -> SkullAttribute(Bukkit.getPlayerUniqueId(config.getString(key)!!)?.let { Bukkit.getOfflinePlayer(it) }) },
         "skull64" to AttributeFactory { key, config -> Skull64Attribute(config.getString(key)!!) },
-        "skullPlayer" to AttributeFactory { _, _ -> PlayerSkullAttribute }
+        "skullPlayer" to AttributeFactory { _, _ -> PlayerSkullAttribute },
+        "unbreakable" to AttributeFactory { key, config -> UnbreakableAttribute(config.getBoolean(key, false)) },
+        "glow" to AttributeFactory { key, config -> GlowAttribute(config.getBoolean(key, false)) },
+        "durability" to AttributeFactory { key, config -> DurabilityAttribute(config.getInt(key, 1)) },
+        "damage" to AttributeFactory { key, config -> DamageAttribute(config.getInt(key, 0)) },
+        "model" to AttributeFactory { key, config -> CustomModelDataAttribute(config.getIntNullable(key, null)) },
+        "repairCost" to AttributeFactory { key, config -> RepairableAttribute(config.getInt(key, 1)) }
     )
 )
 
@@ -92,6 +103,79 @@ object PlayerSkullAttribute : Attribute<Unit> by EmptyAttribute("skullPlayer"), 
         if (item.itemMeta !is SkullMeta) return item
         item.editMeta { meta -> (meta as SkullMeta).owningPlayer = player }
         return item
+    }
+
+}
+
+class UnbreakableAttribute(
+    unbreakable: Boolean
+) : MetaAttribute<Boolean>("unbreakable", unbreakable) {
+
+    override fun apply(meta: ItemMeta) {
+        meta.isUnbreakable = value
+    }
+
+}
+
+class GlowAttribute(
+    glow: Boolean
+) : MetaAttribute<Boolean>("glow", glow) {
+
+    override fun apply(meta: ItemMeta) {
+        if (meta.hasEnchants()) return
+        if (!value) return
+        meta.addEnchant(Enchantment.LURE, 1, true)
+        meta.addItemFlags(ItemFlag.HIDE_ENCHANTS)
+    }
+
+}
+
+class DurabilityAttribute(
+    durability: Int
+) : MetaAttribute<Int>("durability", durability) {
+
+    private var item: ItemStack? = null
+
+    override fun apply(item: ItemStack): ItemStack {
+        this.item = item
+        return super.apply(item)
+    }
+
+    override fun apply(meta: ItemMeta) {
+        if (meta !is Damageable) return
+        val maxDurability = item?.type?.maxDurability?.toInt() ?: 0
+        meta.damage = maxDurability - min(maxDurability, value)
+    }
+
+}
+
+class DamageAttribute(
+    damage: Int
+) : MetaAttribute<Int>("damage", damage) {
+
+    override fun apply(meta: ItemMeta) {
+        if (meta !is Damageable) return
+        meta.damage = value
+    }
+
+}
+
+class CustomModelDataAttribute(
+    model: Int?
+) : MetaAttribute<Int?>("model", model) {
+
+    override fun apply(meta: ItemMeta) =
+        meta.setCustomModelData(value)
+
+}
+
+class RepairableAttribute(
+    cost: Int
+) : MetaAttribute<Int>("repairCost", cost) {
+
+    override fun apply(meta: ItemMeta) {
+        if (meta !is Repairable) return
+        meta.repairCost = value
     }
 
 }

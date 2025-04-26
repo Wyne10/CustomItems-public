@@ -32,3 +32,6 @@ fun ConfigurationSection.getMaterial(path: String, def: Material = Material.STON
 fun ConfigurationSection.getBlockMaterial(path: String, def: Material = Material.STONE): Material =
     getMaterial(path, def)
         .also { if (!it.isBlock) throw IllegalArgumentException("Expected block at path ${"$currentPath.$path"}") }
+
+fun ConfigurationSection.getIntNullable(path: String, def: Int? = null): Int? =
+    if (contains(path)) getInt(path) else def
