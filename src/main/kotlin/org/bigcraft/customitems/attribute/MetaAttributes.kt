@@ -58,34 +58,46 @@ val MetaAttributes = AttributeMap(
     )
 )
 
-abstract class MetaAttribute<V>(key: String, value: V) : AttributeBase<V>(key, value) {
-    override fun apply(item: ItemStack): ItemStack = item.also { it.editMeta(::apply) }
+abstract class MetaAttribute<V>(key: String, value: V) : AttributeBase<ItemStack, V>(key, value) {
+    override fun apply(obj: ItemStack) {
+        obj.editMeta(::apply)
+    }
+
     abstract fun apply(meta: ItemMeta)
 }
 
 @Suppress("DEPRECATION")
 class DisplayNameAttribute(
     name: String
-) : MetaAttribute<String>("name", name), PlayerAwareAttribute<String> {
+) : MetaAttribute<String>("name", name), PlayerAwareAttribute<ItemStack, String> {
 
     override fun apply(meta: ItemMeta) =
         meta.setDisplayNameComponent(I18n.global.getPlaceholderComponent(null, value).bungee())
 
-    override fun apply(item: ItemStack, player: Player): ItemStack =
-        item.also { it.editMeta { meta -> meta.setDisplayNameComponent(I18n.global.getPlaceholderComponent(player.locale(), player, value).bungee()) } }
+    override fun apply(obj: ItemStack, player: Player) {
+        obj.editMeta { meta ->
+            meta.setDisplayNameComponent(I18n.global.getPlaceholderComponent(player.locale(), player, value).bungee())
+        }
+    }
 
 }
 
 @Suppress("DEPRECATION")
 class LoreAttribute(
     lore: List<String>
-) : MetaAttribute<List<String>>("lore", lore), PlayerAwareAttribute<List<String>> {
+) : MetaAttribute<List<String>>("lore", lore), PlayerAwareAttribute<ItemStack, List<String>> {
 
-    override fun apply(meta: ItemMeta) =
-        meta.setLoreComponents(value.map { I18n.global.getPlaceholderComponent(null, it).bungee() })
+    override fun apply(meta: ItemMeta) {
+        meta.loreComponents = value.map { I18n.global.getPlaceholderComponent(null, it).bungee() }
+    }
 
-    override fun apply(item: ItemStack, player: Player): ItemStack =
-        item.also { it.editMeta { meta -> meta.setLoreComponents(value.map { I18n.global.getPlaceholderComponent(null, it).bungee() } ) } }
+    override fun apply(obj: ItemStack, player: Player) {
+        obj.editMeta { meta ->
+            meta.loreComponents = value.map {
+                I18n.global.getPlaceholderComponent(null, it).bungee()
+            }
+        }
+    }
 
 }
 
@@ -122,12 +134,12 @@ class Skull64Attribute(
 
 }
 
-object PlayerSkullAttribute : Attribute<Unit> by EmptyAttribute("skullPlayer"), PlayerAwareAttribute<Unit> {
+object PlayerSkullAttribute : Attribute<ItemStack, Unit> by EmptyAttribute("skullPlayer"),
+    PlayerAwareAttribute<ItemStack, Unit> {
 
-    override fun apply(item: ItemStack, player: Player): ItemStack {
-        if (item.itemMeta !is SkullMeta) return item
-        item.editMeta { meta -> (meta as SkullMeta).owningPlayer = player }
-        return item
+    override fun apply(obj: ItemStack, player: Player) {
+        if (obj.itemMeta !is SkullMeta) return
+        obj.editMeta { meta -> (meta as SkullMeta).owningPlayer = player }
     }
 
 }
@@ -161,9 +173,9 @@ class DurabilityAttribute(
 
     private var item: ItemStack? = null
 
-    override fun apply(item: ItemStack): ItemStack {
-        this.item = item
-        return super.apply(item)
+    override fun apply(obj: ItemStack) {
+        this.item = obj
+        return super.apply(obj)
     }
 
     override fun apply(meta: ItemMeta) {
@@ -216,7 +228,7 @@ class EnchantmentAttribute(
 
     data class EnchantmentData(val enchantment: Enchantment, val level: Int)
 
-    object Factory : CompositeAttributeFactory {
+    object Factory : CompositeAttributeFactory<ItemStack> {
         override fun fromSection(key: String, section: ConfigurationSection): EnchantmentAttribute {
             return EnchantmentAttribute(
                 key,
@@ -252,7 +264,7 @@ class GenericAttribute(
 
     data class AttributeData(val attribute: org.bukkit.attribute.Attribute, val modifier: AttributeModifier)
 
-    object Factory : CompositeAttributeFactory {
+    object Factory : CompositeAttributeFactory<ItemStack> {
         override fun fromSection(key: String, section: ConfigurationSection): GenericAttribute {
             return GenericAttribute(
                 key,
@@ -353,7 +365,7 @@ class PotionEffectAttribute(
         meta.addCustomEffect(value, false)
     }
 
-    object Factory : CompositeAttributeFactory {
+    object Factory : CompositeAttributeFactory<ItemStack> {
         override fun fromSection(key: String, section: ConfigurationSection): PotionEffectAttribute {
             return PotionEffectAttribute(
                 key,
@@ -411,8 +423,8 @@ class PdcTagAttribute(
     data class PdcTag(val type: PersistentDataType<Any, Any>, val value: Any)
 
     @Suppress("UNCHECKED_CAST")
-    object Factory : CompositeAttributeFactory {
-        override fun fromSection(key: String, section: ConfigurationSection): Attribute<*> {
+    object Factory : CompositeAttributeFactory<ItemStack> {
+        override fun fromSection(key: String, section: ConfigurationSection): PdcTagAttribute {
             return PdcTagAttribute(
                 key,
                 PdcTag(
@@ -422,7 +434,7 @@ class PdcTagAttribute(
             )
         }
 
-        override fun fromString(key: String, string: String): Attribute<*> {
+        override fun fromString(key: String, string: String): PdcTagAttribute {
             val args = Args(string, COLON_DELIMITER)
             return PdcTagAttribute(
                 key,
