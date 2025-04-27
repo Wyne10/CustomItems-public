@@ -33,7 +33,7 @@ val MetaAttributes = AttributeMap(
     mutableMapOf(
         "name" to AttributeFactory { key, config -> DisplayNameAttribute(config.getString(key)!!) },
         "lore" to AttributeFactory { key, config -> LoreAttribute(config.getStringList(key)) },
-        "flags" to AttributeFactory { key, config -> FlagsAttribute(config.getStringList(key).mapNotNull { ItemFlag.valueOf(it) }.toTypedArray()) },
+        "flags" to AttributeFactory { key, config -> FlagsAttribute(config.getStringList(key).mapNotNull { runCatching { ItemFlag.valueOf(it) }.getOrNull() }.toTypedArray()) },
         "skull" to AttributeFactory { key, config -> SkullAttribute(Bukkit.getPlayerUniqueId(config.getString(key)!!)?.let { Bukkit.getOfflinePlayer(it) }) },
         "skull64" to AttributeFactory { key, config -> Skull64Attribute(config.getString(key)!!) },
         "skullPlayer" to AttributeFactory { _, _ -> PlayerSkullAttribute },
@@ -48,8 +48,8 @@ val MetaAttributes = AttributeMap(
         "model" to AttributeFactory { key, config -> CustomModelDataAttribute(config.getIntNullable(key, null)) },
         "repairCost" to AttributeFactory { key, config -> RepairableAttribute(config.getInt(key, 1)) },
         "potionColor" to AttributeFactory { key, config -> PotionColorAttribute(Color.fromRGB(config.getInt(key, 0))) },
-        "potionType" to AttributeFactory { key, config -> PotionTypeAttribute(PotionType.valueOf(config.getString(key, "UNCRAFTABLE")!!)) },
-        "potionModifier" to AttributeFactory { key, config -> PotionModifierAttribute(PotionModifierAttribute.PotionModifier.valueOf(config.getString(key, "NONE")!!)) },
+        "potionType" to AttributeFactory { key, config -> PotionTypeAttribute(runCatching { PotionType.valueOf(config.getString(key, "UNCRAFTABLE")!!) }.getOrDefault(PotionType.UNCRAFTABLE)) },
+        "potionModifier" to AttributeFactory { key, config -> PotionModifierAttribute(runCatching { PotionModifierAttribute.PotionModifier.valueOf(config.getString(key, "NONE")!!) }.getOrDefault(PotionModifierAttribute.PotionModifier.NONE)) },
         "potionEffect" to PotionEffectAttribute.Factory,
         "potionEffects" to AttributeFactory { key, config -> CompositeAttribute(key, config, PotionEffectAttribute.Factory) },
         "armorColor" to AttributeFactory { key, config -> ArmorColorAttribute(Color.fromRGB(config.getInt(key, 0))) },
@@ -275,8 +275,8 @@ class GenericAttribute(
                         UUID.fromString(section.getString("uuid", UUID.randomUUID().toString())),
                         section.getString("name", "CI Attribute")!!,
                         section.getDouble("amount", 1.0),
-                        AttributeModifier.Operation.valueOf(section.getString("operation", "ADD_NUMBER")!!),
-                        EquipmentSlot.valueOf(section.getString("slot", "HAND")!!),
+                        runCatching { AttributeModifier.Operation.valueOf(section.getString("operation", "ADD_NUMBER")!!) }.getOrDefault(AttributeModifier.Operation.ADD_NUMBER),
+                        runCatching { EquipmentSlot.valueOf(section.getString("slot", "HAND")!!) }.getOrDefault(EquipmentSlot.HAND),
                     )
                 )
             )
@@ -293,8 +293,8 @@ class GenericAttribute(
                         UUID.randomUUID(),
                         "CI Attribute",
                         args.get(1, "1.0").toDouble(),
-                        AttributeModifier.Operation.valueOf(args.get(2, "ADD_NUMBER")),
-                        EquipmentSlot.valueOf(args.get(3, "HAND"))
+                        runCatching { AttributeModifier.Operation.valueOf(args.get(2, "ADD_NUMBER")) }.getOrDefault(AttributeModifier.Operation.ADD_NUMBER),
+                        runCatching { EquipmentSlot.valueOf(args.get(3, "HAND")) }.getOrDefault(EquipmentSlot.HAND)
                     )
                 )
             )
