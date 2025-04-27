@@ -37,3 +37,13 @@ fun ConfigurationSection.getBlockMaterial(path: String, def: Material = Material
 
 fun ConfigurationSection.getIntNullable(path: String, def: Int? = null): Int? =
     if (contains(path)) getInt(path) else def
+
+inline fun <reified E : Enum<E>> ConfigurationSection.getEnumSet(key: String): Set<E> {
+    return if (isBoolean(key) && getBoolean(key)) {
+        enumValues<E>().toSet()
+    } else {
+        getStringList(key)
+            .mapNotNull { runCatching { enumValueOf<E>(it) }.getOrNull() }
+            .toSet()
+    }
+}

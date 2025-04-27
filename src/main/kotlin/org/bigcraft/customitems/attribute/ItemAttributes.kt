@@ -15,18 +15,19 @@ val ItemAttributes = AttributeMap(
 
 class MaterialAttribute(
     material: Material,
-) : AttributeBase<Material>("material", material) {
+) : AttributeBase<ItemStack, Material>("material", material) {
 
-    override fun apply(item: ItemStack): ItemStack =
-        item.also { it.type = value }
+    override fun apply(obj: ItemStack) {
+        obj.type = value
+    }
 
 }
 
 class NbtTagAttribute(
     tag: ReadableNBT,
-) : AttributeBase<ReadableNBT>("nbt", tag) {
+) : AttributeBase<ItemStack, ReadableNBT>("nbt", tag) {
 
-    override fun apply(item: ItemStack): ItemStack =
-        item.also { NBT.modify(it) { nbt -> nbt.mergeCompound(value) } }
+    override fun apply(obj: ItemStack) =
+        NBT.modify(obj) { nbt -> nbt.mergeCompound(value) }
 
 }
