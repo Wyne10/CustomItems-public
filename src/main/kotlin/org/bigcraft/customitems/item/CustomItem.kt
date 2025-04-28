@@ -43,8 +43,8 @@ class CustomItem(
         return itemStack
     }
 
-    fun isCustomItem(item: ItemStack?): Boolean =
-        item?.itemMeta?.persistentDataContainer?.has(ITEM_TAG_KEY, PersistentDataType.STRING) ?: false
+    infix fun isCustomItem(item: ItemStack?): Boolean =
+        item?.itemMeta?.persistentDataContainer?.get(ITEM_TAG_KEY, PersistentDataType.STRING) == key
 
     object Factory : ConfigurableFactory<CustomItem> {
         override fun fromConfig(config: ConfigurationSection): CustomItem =

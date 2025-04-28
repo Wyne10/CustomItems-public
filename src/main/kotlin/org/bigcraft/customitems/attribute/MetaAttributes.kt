@@ -48,7 +48,7 @@ val MetaAttributes = AttributeMap(
         "model" to AttributeFactory { key, config -> CustomModelDataAttribute(config.getIntNullable(key, null)) },
         "repairCost" to AttributeFactory { key, config -> RepairableAttribute(config.getInt(key, 1)) },
         "potionColor" to AttributeFactory { key, config -> PotionColorAttribute(Color.fromRGB(config.getInt(key, 0))) },
-        "potionType" to AttributeFactory { key, config -> PotionTypeAttribute(runCatching { PotionType.valueOf(config.getString(key, "UNCRAFTABLE")!!) }.getOrDefault(PotionType.UNCRAFTABLE)) },
+        "potionType" to AttributeFactory { key, config -> PotionTypeAttribute(runCatching { PotionType.valueOf(config.getString(key, "WATER")!!) }.getOrDefault(PotionType.WATER)) },
         "potionModifier" to AttributeFactory { key, config -> PotionModifierAttribute(runCatching { PotionModifierAttribute.PotionModifier.valueOf(config.getString(key, "NONE")!!) }.getOrDefault(PotionModifierAttribute.PotionModifier.NONE)) },
         "potionEffect" to PotionEffectAttribute.Factory,
         "potionEffects" to AttributeFactory { key, config -> CompositeAttribute(key, config, PotionEffectAttribute.Factory) },
@@ -335,7 +335,7 @@ class PotionModifierAttribute(
 
     override fun apply(meta: ItemMeta) {
         if (meta !is PotionMeta) return
-        val baseData = meta.basePotionData ?: PotionData(PotionType.UNCRAFTABLE, false, false)
+        val baseData = meta.basePotionData ?: PotionData(PotionType.WATER, false, false)
         meta.basePotionData = when (value) {
             PotionModifier.NONE -> PotionData(baseData.type, false, false)
 
