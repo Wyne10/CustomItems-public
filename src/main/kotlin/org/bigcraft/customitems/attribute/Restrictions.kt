@@ -72,14 +72,14 @@ object RestrictionListener : Listener, AutoCloseable {
         registry.values.forEach { it.clear() }
     }
 
+    @Suppress("UNCHECKED_CAST")
     private fun <T : Event> registerEvent(event: Class<out T>) {
         Bukkit.getPluginManager().registerEvent(
             event,
             this,
             EventPriority.NORMAL,
             { _, calledEvent ->
-                if (calledEvent.javaClass.isAssignableFrom(event))
-                    registry[event]!!.forEach { (it as Restriction<T>).onEvent(calledEvent as T) }
+                registry[event]!!.forEach { (it as Restriction<T>).onEvent(calledEvent as T) }
             },
             CustomItems.instance,
             true

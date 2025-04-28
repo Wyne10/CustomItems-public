@@ -25,7 +25,6 @@ class CustomItem(
         val itemStack = ItemStack(DEFAULT_MATERIAL)
         itemStack.editMeta { meta -> meta.persistentDataContainer.set(ITEM_TAG_KEY, PersistentDataType.STRING, key) }
         itemAttributes.forEach { it.value.apply(itemStack) }
-        customItemAttributes.forEach { it.value.apply(this) }
         return itemStack
     }
 
@@ -39,7 +38,6 @@ class CustomItem(
                     else -> attribute.apply(itemStack)
                 }
             }
-        customItemAttributes.forEach { it.value.apply(this) }
         return itemStack
     }
 
@@ -55,7 +53,9 @@ class CustomItem(
                     Restrictions.createAllMap(config.getConfigurationSection(RESTRICTION_SECTION_KEY)!!)
                 else
                     emptyMap()
-            )
+            ).apply {
+                customItemAttributes.forEach { it.value.apply(this) }
+            }
     }
 
 }
