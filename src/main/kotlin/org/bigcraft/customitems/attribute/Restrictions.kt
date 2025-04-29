@@ -36,7 +36,8 @@ val Restrictions = AttributeMap(
         "cancel-enchant" to AttributeFactory { _, _ -> EnchantRestriction },
         "cancel-enchant-prepare" to AttributeFactory { _, _ -> EnchantPrepareRestriction },
         "cancel-consumption" to AttributeFactory { _, _ -> ConsumptionRestriction },
-        "cancel-rename" to AttributeFactory { _, _ -> RenameRestriction }
+        "cancel-rename" to AttributeFactory { _, _ -> RenameRestriction },
+        "cancel-anvil" to AttributeFactory { _, _ -> AnvilRestriction }
     )
 )
 
@@ -79,7 +80,8 @@ object RestrictionListener : Listener, AutoCloseable {
             this,
             EventPriority.NORMAL,
             { _, calledEvent ->
-                registry[event]!!.forEach { (it as Restriction<T>).onEvent(calledEvent as T) }
+                if (calledEvent.javaClass == event)
+                    registry[event]!!.forEach { (it as Restriction<T>).onEvent(calledEvent as T) }
             },
             CustomItems.instance,
             true
@@ -172,7 +174,16 @@ object RenameRestriction : Restriction<InventoryClickEvent>("cancel-rename", Inv
     override fun onEvent(event: InventoryClickEvent) {
         if (event.clickedInventory !is AnvilInventory) return
         val inventory = event.clickedInventory as AnvilInventory
-        if (inventory.renameText != null || inventory.renameText?.isNotEmpty() == true)
+        if (event.slot == 2 && (inventory.renameText != null || inventory.renameText?.isNotEmpty() == true))
+            event.isCancelled = true
+    }
+}
+
+object AnvilRestriction : Restriction<InventoryClickEvent>("cancel-anvil", InventoryClickEvent::class.java) {
+    override fun onEvent(event: InventoryClickEvent) {
+        if (event.clickedInventory !is AnvilInventory) return
+        val inventory = event.clickedInventory as AnvilInventory
+        if (event.slot == 2 && (item isCustomItem inventory.firstItem || item isCustomItem inventory.secondItem))
             event.isCancelled = true
     }
 }
