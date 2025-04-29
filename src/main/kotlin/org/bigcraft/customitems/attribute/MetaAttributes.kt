@@ -181,7 +181,7 @@ class DurabilityAttribute(
     override fun apply(meta: ItemMeta) {
         if (meta !is Damageable) return
         val maxDurability = item?.type?.maxDurability?.toInt() ?: 0
-        meta.damage = maxDurability - min(maxDurability, value)
+        meta.damage = maxDurability - value
     }
 
 }
