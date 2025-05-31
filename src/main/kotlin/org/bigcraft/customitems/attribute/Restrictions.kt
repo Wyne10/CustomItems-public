@@ -1,8 +1,12 @@
 package org.bigcraft.customitems.attribute
 
+import me.wyne.wutils.config.configurables.attribute.AttributeBase
+import me.wyne.wutils.config.configurables.attribute.AttributeFactory
+import me.wyne.wutils.config.configurables.attribute.AttributeMap
 import org.bigcraft.customitems.CustomItems
 import org.bigcraft.customitems.extension.getEnumSet
 import org.bigcraft.customitems.item.CustomItem
+import org.bigcraft.customitems.item.CustomItemAttribute
 import org.bukkit.Bukkit
 import org.bukkit.Keyed
 import org.bukkit.NamespacedKey
@@ -24,37 +28,38 @@ import org.bukkit.event.player.PlayerDropItemEvent
 import org.bukkit.event.player.PlayerItemConsumeEvent
 import org.bukkit.inventory.AnvilInventory
 
-val Restrictions = AttributeMap(
+val ITEM_RESTRICTION_MAP = AttributeMap(
     mutableMapOf(
-        "cancel-drop" to AttributeFactory { _, _ -> DropRestriction },
-        "cancel-place" to AttributeFactory { _, _ -> PlaceRestriction },
-        "cancel-craft" to AttributeFactory { _, _ -> CraftRestriction() },
-        "cancel-craft-vanilla" to AttributeFactory { _, _ -> VanillaCraftRestriction },
-        "cancel-storage" to AttributeFactory { key, config -> StorageRestriction(config.getEnumSet<InventoryType>(key)) },
-        "cancel-damage" to AttributeFactory { key, config -> DamageRestriction(config.getEnumSet<DamageCause>(key)) },
-        "cancel-despawn" to AttributeFactory { _, _ -> DespawnRestriction },
-        "cancel-enchant" to AttributeFactory { _, _ -> EnchantRestriction },
-        "cancel-enchant-prepare" to AttributeFactory { _, _ -> EnchantPrepareRestriction },
-        "cancel-consumption" to AttributeFactory { _, _ -> ConsumptionRestriction },
-        "cancel-rename" to AttributeFactory { _, _ -> RenameRestriction },
-        "cancel-anvil" to AttributeFactory { _, _ -> AnvilRestriction }
+        "cancel-drop" to AttributeFactory { key, _ -> DropRestriction(key) },
+        "cancel-place" to AttributeFactory { key, _ -> PlaceRestriction(key) },
+        "cancel-craft" to AttributeFactory { key, _ -> CraftRestriction(key) },
+        "cancel-craft-vanilla" to AttributeFactory { key, _ -> VanillaCraftRestriction(key) },
+        "cancel-storage" to AttributeFactory { key, config -> StorageRestriction(key, config.getEnumSet<InventoryType>(key)) },
+        "cancel-damage" to AttributeFactory { key, config -> DamageRestriction(key, config.getEnumSet<DamageCause>(key)) },
+        "cancel-despawn" to AttributeFactory { key, _ -> DespawnRestriction(key) },
+        "cancel-enchant" to AttributeFactory { key, _ -> EnchantRestriction(key) },
+        "cancel-enchant-prepare" to AttributeFactory { key, _ -> EnchantPrepareRestriction(key) },
+        "cancel-consumption" to AttributeFactory { key, _ -> ConsumptionRestriction(key) },
+        "cancel-rename" to AttributeFactory { key, _ -> RenameRestriction(key) },
+        "cancel-anvil" to AttributeFactory { key, _ -> AnvilRestriction(key) }
     )
 )
 
 abstract class Restriction<T : Event>(
     key: String,
     val event: Class<out T>
-) : AttributeBase<CustomItem, Boolean>(key, true) {
+) : AttributeBase<Boolean>(key, true), CustomItemAttribute {
 
     protected lateinit var item: CustomItem
         private set
 
-    final override fun apply(obj: CustomItem) {
-        item = obj
+    final override fun apply(item: CustomItem) {
+        this.item = item
         RestrictionListener.register(this)
     }
 
     abstract fun onEvent(event: T)
+
 }
 
 object RestrictionListener : Listener, AutoCloseable {
@@ -90,34 +95,28 @@ object RestrictionListener : Listener, AutoCloseable {
 
 }
 
-object DropRestriction : Restriction<PlayerDropItemEvent>("cancel-drop", PlayerDropItemEvent::class.java) {
+class DropRestriction(key: String) : Restriction<PlayerDropItemEvent>(key, PlayerDropItemEvent::class.java) {
     override fun onEvent(event: PlayerDropItemEvent) {
         if (item isCustomItem event.itemDrop.itemStack)
             event.isCancelled = true
     }
 }
 
-object PlaceRestriction : Restriction<BlockPlaceEvent>("cancel-place", BlockPlaceEvent::class.java) {
+class PlaceRestriction(key: String) : Restriction<BlockPlaceEvent>(key, BlockPlaceEvent::class.java) {
     override fun onEvent(event: BlockPlaceEvent) {
         if (item isCustomItem event.itemInHand && event.itemInHand.type.isBlock)
             event.isCancelled = true
     }
 }
 
-open class CraftRestriction(
-    key: String,
-) : Restriction<CraftItemEvent>(key, CraftItemEvent::class.java) {
-
-    constructor() : this("cancel-craft")
-
+open class CraftRestriction(key: String) : Restriction<CraftItemEvent>(key, CraftItemEvent::class.java) {
     override fun onEvent(event: CraftItemEvent) {
         if (event.inventory.any(item::isCustomItem))
             event.isCancelled = true
     }
-
 }
 
-object VanillaCraftRestriction : CraftRestriction("cancel-craft-vanilla") {
+class VanillaCraftRestriction(key: String) : CraftRestriction(key) {
     override fun onEvent(event: CraftItemEvent) {
         if (event.recipe is Keyed && (event.recipe as Keyed).key.namespace() == NamespacedKey.MINECRAFT)
             super.onEvent(event)
@@ -125,8 +124,9 @@ object VanillaCraftRestriction : CraftRestriction("cancel-craft-vanilla") {
 }
 
 class StorageRestriction(
+    key: String,
     private val types: Set<InventoryType>
-) : Restriction<InventoryClickEvent>("cancel-storage", InventoryClickEvent::class.java) {
+) : Restriction<InventoryClickEvent>(key, InventoryClickEvent::class.java) {
     override fun onEvent(event: InventoryClickEvent) {
         if (item isCustomItem event.currentItem && types.contains(event.view.topInventory.type))
             event.isCancelled = true
@@ -134,43 +134,44 @@ class StorageRestriction(
 }
 
 class DamageRestriction(
+    key: String,
     private val causes: Set<DamageCause>
-) : Restriction<EntityDamageEvent>("cancel-damage", EntityDamageEvent::class.java) {
+) : Restriction<EntityDamageEvent>(key, EntityDamageEvent::class.java) {
     override fun onEvent(event: EntityDamageEvent) {
         if (event.entityType == EntityType.DROPPED_ITEM && item isCustomItem (event.entity as Item).itemStack && causes.contains(event.cause))
             event.isCancelled = true
     }
 }
 
-object DespawnRestriction : Restriction<ItemDespawnEvent>("cancel-despawn", ItemDespawnEvent::class.java) {
+class DespawnRestriction(key: String) : Restriction<ItemDespawnEvent>(key, ItemDespawnEvent::class.java) {
     override fun onEvent(event: ItemDespawnEvent) {
         if (item isCustomItem event.entity.itemStack)
             event.isCancelled = true
     }
 }
 
-object EnchantRestriction : Restriction<EnchantItemEvent>("cancel-enchant", EnchantItemEvent::class.java) {
+class EnchantRestriction(key: String) : Restriction<EnchantItemEvent>(key, EnchantItemEvent::class.java) {
     override fun onEvent(event: EnchantItemEvent) {
         if (item isCustomItem event.item)
             event.isCancelled = true
     }
 }
 
-object EnchantPrepareRestriction : Restriction<PrepareItemEnchantEvent>("cancel-enchant-prepare", PrepareItemEnchantEvent::class.java) {
+class EnchantPrepareRestriction(key: String) : Restriction<PrepareItemEnchantEvent>(key, PrepareItemEnchantEvent::class.java) {
     override fun onEvent(event: PrepareItemEnchantEvent) {
         if (item isCustomItem event.item)
             event.isCancelled = true
     }
 }
 
-object ConsumptionRestriction : Restriction<PlayerItemConsumeEvent>("cancel-consumption", PlayerItemConsumeEvent::class.java) {
+class ConsumptionRestriction(key: String) : Restriction<PlayerItemConsumeEvent>(key, PlayerItemConsumeEvent::class.java) {
     override fun onEvent(event: PlayerItemConsumeEvent) {
         if (item isCustomItem event.item)
             event.isCancelled = true
     }
 }
 
-object RenameRestriction : Restriction<InventoryClickEvent>("cancel-rename", InventoryClickEvent::class.java) {
+class RenameRestriction(key: String) : Restriction<InventoryClickEvent>(key, InventoryClickEvent::class.java) {
     override fun onEvent(event: InventoryClickEvent) {
         if (event.clickedInventory !is AnvilInventory) return
         val inventory = event.clickedInventory as AnvilInventory
@@ -179,7 +180,7 @@ object RenameRestriction : Restriction<InventoryClickEvent>("cancel-rename", Inv
     }
 }
 
-object AnvilRestriction : Restriction<InventoryClickEvent>("cancel-anvil", InventoryClickEvent::class.java) {
+class AnvilRestriction(key: String) : Restriction<InventoryClickEvent>(key, InventoryClickEvent::class.java) {
     override fun onEvent(event: InventoryClickEvent) {
         if (event.clickedInventory !is AnvilInventory) return
         val inventory = event.clickedInventory as AnvilInventory

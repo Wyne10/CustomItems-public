@@ -22,6 +22,7 @@ dependencies {
     implementation(libs.adventureBukkit)
 
     implementation(libs.wutilsConfig)
+    implementation(libs.wutilsConfigurables)
     implementation(libs.wutilsLog)
     implementation(libs.wutilsI18nKotlin)
     implementation(libs.wutilsCommon)
@@ -42,7 +43,7 @@ tasks {
     runServer {
         downloadPlugins {
             url("https://ci.extendedclip.com/view/Plugins/job/PlaceholderAPI/197/artifact/build/libs/PlaceholderAPI-2.11.6.jar")
-            url("https://download.luckperms.net/1571/bukkit/loader/LuckPerms-Bukkit-5.4.154.jar")
+            url("https://download.luckperms.net/1584/bukkit/loader/LuckPerms-Bukkit-5.5.0.jar")
             url("https://ci.dmulloy2.net/job/ProtocolLib/lastSuccessfulBuild/artifact/build/libs/ProtocolLib.jar")
             github("ViaVersion", "ViaVersion", "5.2.1", "ViaVersion-5.2.1.jar")
             github("ViaVersion", "ViaBackwards", "5.2.1", "ViaBackwards-5.2.1.jar")
