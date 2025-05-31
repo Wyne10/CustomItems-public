@@ -11,6 +11,7 @@ import me.wyne.wutils.common.plugin.Step
 import me.wyne.wutils.common.plugin.StepScope
 import me.wyne.wutils.config.Config
 import me.wyne.wutils.i18n.I18n
+import me.wyne.wutils.i18n.language.component.BukkitComponentAudience
 import me.wyne.wutils.i18n.language.interpretation.ComponentInterpreters
 import me.wyne.wutils.i18n.language.validation.EmptyValidator
 import me.wyne.wutils.json.JsonRegistry
@@ -77,8 +78,7 @@ object InitializeI18n : PluginStep<CustomItems> {
     override fun run(plugin: CustomItems) {
         I18n.global.apply {
             log = CustomItems.log
-            if (audiences == null)
-                audiences = BukkitAudiences.create(plugin)
+            audiences = BukkitComponentAudience(BukkitAudiences.create(plugin))
             clearLanguageMap()
             loadLanguage("lang/ru.yml", plugin)
             loadLanguage("lang/en.yml", plugin)
@@ -90,7 +90,7 @@ object InitializeI18n : PluginStep<CustomItems> {
                     plugin.config.getString("serializer", "MINI_MESSAGE")!!
                 ).get(EmptyValidator())
             )
-            isUsePlayerLanguage = plugin.config.getBoolean("usePlayerLanguage", true)
+            usePlayerLanguage = plugin.config.getBoolean("usePlayerLanguage", true)
         }
     }
 }
@@ -139,11 +139,7 @@ object Load : PluginStep<CustomItems> {
 }
 
 @Step(scope = StepScope.DISABLE)
-object Disable : CompositeStep<CustomItems>(Write) {
-    override fun before(plugin: CustomItems) {
-        I18n.global.audiences.close()
-    }
-}
+object Disable : CompositeStep<CustomItems>(Write)
 
 @Step(scope = StepScope.RELOAD)
 object Reload : CompositeStep<CustomItems>(ReloadConfig, InitializeLoader, InitializeI18n, Write, Load)
