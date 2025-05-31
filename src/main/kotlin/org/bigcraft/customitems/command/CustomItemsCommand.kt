@@ -6,7 +6,7 @@ import dev.jorel.commandapi.CommandTree
 import dev.jorel.commandapi.arguments.LiteralArgument
 import dev.jorel.commandapi.executors.CommandArguments
 import dev.jorel.commandapi.executors.CommandExecutor
-import me.wyne.wutils.i18n.I18n
+import me.wyne.wutils.i18n.kotlin.placeholderComponent
 import org.bigcraft.customitems.CustomItems
 import org.bukkit.command.CommandSender
 
@@ -24,11 +24,7 @@ class CustomItemsCommand @Inject constructor(private val plugin: CustomItems) {
                     .withPermission("customitems.reload")
                     .executes(CommandExecutor { sender: CommandSender, _: CommandArguments? ->
                         plugin.reload()
-                        I18n.global.getPlaceholderComponent(
-                            I18n.toLocale(sender),
-                            sender,
-                            "success-plugin-reload"
-                        ).sendMessage(sender)
+                        sender.placeholderComponent("success-plugin-reload").sendMessage(sender)
                     })
             )
             .register(plugin)

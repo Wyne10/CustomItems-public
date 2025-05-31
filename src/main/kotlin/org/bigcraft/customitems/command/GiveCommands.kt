@@ -9,6 +9,7 @@ import dev.jorel.commandapi.arguments.StringArgument
 import dev.jorel.commandapi.executors.CommandArguments
 import me.wyne.wutils.i18n.I18n
 import me.wyne.wutils.i18n.kotlin.placeholderComponent
+import me.wyne.wutils.i18n.kotlin.replace
 import me.wyne.wutils.i18n.language.replacement.ComponentPlaceholder
 import me.wyne.wutils.i18n.language.replacement.Placeholder
 import org.bigcraft.customitems.item.CustomItemManager
@@ -17,7 +18,7 @@ import org.bukkit.command.CommandSender
 private fun CommandArguments.getItemKey(sender: CommandSender): String {
     if (!CustomItemManager.instance.mapKeys.contains(key))
         throw CommandAPIBukkit.failWithBaseComponents(
-            *sender.placeholderComponent("error-item-not-found", Placeholder.replace("key", key)).bungee()
+            *sender.placeholderComponent("error-item-not-found", "key" replace key).bungee()
         )
     return key
 }
@@ -29,7 +30,10 @@ object GiveCommand : SubCommand("give") {
                 .then(StringArgument("key")
                         .replaceSuggestions(ArgumentSuggestions.stringCollection { CustomItemManager.instance.mapKeys })
                         .then(IntegerArgument("amount", 1).setOptional(true)
-                                .executes(::giveItem))))
+                                .executes(::giveItem)
+                        )
+                )
+        )
 
     private fun giveItem(sender: CommandSender, args: CommandArguments) {
         val item = CustomItemManager.instance.getItem(args.getItemKey(sender))!!
@@ -45,7 +49,7 @@ object GiveCommand : SubCommand("give") {
                 .map { it.name }
                 .reduce(I18n::reduceRawString)
             )
-        ).replace(ComponentPlaceholder.replace("item-name", item.createItemStack().itemMeta.displayNameComponent))
+        ).replace(ComponentPlaceholder.replace("item-name", item.getName(sender).get()))
             .sendMessage(sender)
     }
 }

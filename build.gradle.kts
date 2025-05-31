@@ -22,6 +22,7 @@ dependencies {
     implementation(libs.adventureBukkit)
 
     implementation(libs.wutilsConfig)
+    implementation(libs.wutilsConfigurables)
     implementation(libs.wutilsLog)
     implementation(libs.wutilsI18nKotlin)
     implementation(libs.wutilsCommon)
