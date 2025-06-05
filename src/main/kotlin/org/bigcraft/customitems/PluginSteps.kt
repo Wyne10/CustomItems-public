@@ -19,10 +19,7 @@ import me.wyne.wutils.log.*
 import net.kyori.adventure.platform.bukkit.BukkitAudiences
 import org.bigcraft.customitems.CustomItems.Companion.EMPTY_CONFIGURATION
 import org.bigcraft.customitems.CustomItems.Companion.log
-import org.bigcraft.customitems.module.CommandModule
-import org.bigcraft.customitems.module.CustomItemModule
-import org.bigcraft.customitems.module.PlaceholderModule
-import org.bigcraft.customitems.module.PluginModule
+import org.bigcraft.customitems.module.*
 import java.io.File
 import java.util.concurrent.Executors
 
@@ -103,6 +100,7 @@ object InitializeInjector : PluginStep<CustomItems> {
                 Stage.PRODUCTION,
                 PluginModule(plugin),
                 CustomItemModule,
+                ActivatorModule,
                 PlaceholderModule,
                 CommandModule
             )

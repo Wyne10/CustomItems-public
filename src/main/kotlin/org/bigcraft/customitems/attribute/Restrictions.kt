@@ -3,18 +3,16 @@ package org.bigcraft.customitems.attribute
 import me.wyne.wutils.config.configurables.attribute.AttributeBase
 import me.wyne.wutils.config.configurables.attribute.AttributeFactory
 import me.wyne.wutils.config.configurables.attribute.AttributeMap
-import org.bigcraft.customitems.CustomItems
+import org.bigcraft.customitems.event.EventListener
 import org.bigcraft.customitems.extension.getEnumSet
 import org.bigcraft.customitems.item.CustomItem
 import org.bigcraft.customitems.item.CustomItemAttribute
-import org.bukkit.Bukkit
+import org.bigcraft.customitems.item.CustomItemManager
 import org.bukkit.Keyed
 import org.bukkit.NamespacedKey
 import org.bukkit.entity.EntityType
 import org.bukkit.entity.Item
 import org.bukkit.event.Event
-import org.bukkit.event.EventPriority
-import org.bukkit.event.Listener
 import org.bukkit.event.block.BlockPlaceEvent
 import org.bukkit.event.enchantment.EnchantItemEvent
 import org.bukkit.event.enchantment.PrepareItemEnchantEvent
@@ -45,52 +43,17 @@ val ITEM_RESTRICTION_MAP = AttributeMap(
     )
 )
 
-abstract class Restriction<T : Event>(
+abstract class Restriction<E : Event>(
     key: String,
-    val event: Class<out T>
-) : AttributeBase<Boolean>(key, true), CustomItemAttribute {
+    override val event: Class<out E>
+) : AttributeBase<Boolean>(key, true), CustomItemAttribute, EventListener<E> {
 
     protected lateinit var item: CustomItem
         private set
 
     final override fun apply(item: CustomItem) {
         this.item = item
-        RestrictionListener.register(this)
-    }
-
-    abstract fun onEvent(event: T)
-
-}
-
-object RestrictionListener : Listener, AutoCloseable {
-
-    private val registry: MutableMap<Class<out Event>, MutableSet<Restriction<*>>> = HashMap()
-
-    fun <T : Event> register(restriction: Restriction<T>) {
-        if (!registry.containsKey(restriction.event)) {
-            registry[restriction.event] = HashSet()
-            registerEvent(restriction.event)
-        }
-        registry[restriction.event]!!.add(restriction)
-    }
-
-    override fun close() {
-        registry.values.forEach { it.clear() }
-    }
-
-    @Suppress("UNCHECKED_CAST")
-    private fun <T : Event> registerEvent(event: Class<out T>) {
-        Bukkit.getPluginManager().registerEvent(
-            event,
-            this,
-            EventPriority.NORMAL,
-            { _, calledEvent ->
-                if (calledEvent.javaClass == event)
-                    registry[event]!!.forEach { (it as Restriction<T>).onEvent(calledEvent as T) }
-            },
-            CustomItems.instance,
-            true
-        )
+        CustomItemManager.instance.restrictionRegistry.register(this) // TODO Check how often this is called
     }
 
 }

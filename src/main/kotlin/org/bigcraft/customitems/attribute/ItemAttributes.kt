@@ -20,8 +20,8 @@ import org.bukkit.persistence.PersistentDataType
 
 val ITEM_ATTRIBUTE_MAP = mapOf(
     "nbt" to AttributeFactory { key, config -> NbtTagAttribute(key, NBT.parseNBT(config.getString(key))) },
-    "pdcTag" to PdcTagAttribute.Factory,
-    "pdcTags" to AttributeFactory { key, config -> PdcTagsAttribute(key, config) }
+    "pdc-tag" to PdcTagAttribute.Factory,
+    "pdc-tags" to AttributeFactory { key, config -> PdcTagsAttribute(key, config) }
 )
 
 class NbtTagAttribute(

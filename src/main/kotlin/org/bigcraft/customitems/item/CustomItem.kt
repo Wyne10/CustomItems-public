@@ -5,12 +5,12 @@ import me.wyne.wutils.config.configurables.attribute.GenericAttributeContainer
 import me.wyne.wutils.config.configurables.item.ItemAttribute
 import me.wyne.wutils.i18n.I18n
 import me.wyne.wutils.i18n.language.component.PlaceholderLocalizedComponent
-import net.kyori.adventure.audience.Audience
 import org.bigcraft.customitems.ConfigurableFactory
 import org.bigcraft.customitems.CustomItems
+import org.bigcraft.customitems.activator.ACTIVATOR_MAP
+import org.bigcraft.customitems.activator.Activator
 import org.bigcraft.customitems.attribute.*
 import org.bukkit.NamespacedKey
-import org.bukkit.command.CommandSender
 import org.bukkit.configuration.ConfigurationSection
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
@@ -19,7 +19,8 @@ import org.bukkit.persistence.PersistentDataType
 class CustomItem(
     private val key: String,
     private val itemAttributes: ItemConfigurable,
-    private val restrictions: GenericAttributeContainer<Restriction<*>>
+    private val restrictions: GenericAttributeContainer<Restriction<*>>,
+    private val activators: GenericAttributeContainer<Activator<*>>
 ) {
 
     fun createItemStack(): ItemStack {
@@ -49,14 +50,17 @@ class CustomItem(
             CustomItem(
                 config.name,
                 ItemConfigurable().with(ITEM_ATTRIBUTE_MAP).also { it.fromConfig(config) },
-                GenericAttributeContainer<Restriction<*>>(ITEM_RESTRICTION_MAP).also { it.fromConfig(config.getConfigurationSection(RESTRICTION_SECTION_KEY)) }
+                GenericAttributeContainer<Restriction<*>>(ITEM_RESTRICTION_MAP, config.getConfigurationSection(RESTRICTION_SECTION_KEY)),
+                GenericAttributeContainer<Activator<*>>(ACTIVATOR_MAP, config.getConfigurationSection(ACTIVATOR_SECTION_KEY))
             ).apply {
                 restrictions.attributes.values.forEach { it.apply(this) }
+                activators.attributes.values.forEach { it.apply(this) }
             }
     }
 
     companion object {
         const val RESTRICTION_SECTION_KEY = "restrictions"
+        const val ACTIVATOR_SECTION_KEY = "activators"
 
         val ITEM_TAG_KEY = NamespacedKey(CustomItems.instance, "ci-key")
     }
