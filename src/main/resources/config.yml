@@ -7,5 +7,15 @@ serializer: MINI_MESSAGE
 logLevel: INFO
 
 item:
-  test:
-    stopper: true
+  markov:
+    name: '<red>Максим Марков'
+    material: STICK
+    restrictions:
+      cancel-drop: true
+      cancel-rename: true
+      cancel-craft: true
+      cancel-storage: true
+    activators:
+      right-click:
+        commands:
+          - 'say По поводу моей работы, давай я начну после вайпа на хт и аг что то делать'

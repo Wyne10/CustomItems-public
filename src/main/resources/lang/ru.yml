@@ -7,4 +7,4 @@ error-item-not-found: "<red>Предмет '<key>' не существует!"
 
 ## Success
 success-plugin-reload: "<green>Плагин перезагружен!"
-success-item-give: "<item-name> [<item-amount>] выдан <targets>!"
+success-item-give: "<item-name> [<item-amount>] <green>выдан <targets>!"

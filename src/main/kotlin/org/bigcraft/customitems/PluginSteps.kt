@@ -94,7 +94,6 @@ object InitializeInjector : PluginStep<CustomItems> {
                 Stage.PRODUCTION,
                 PluginModule(plugin),
                 CustomItemModule,
-                ActivatorModule,
                 PlaceholderModule,
                 CommandModule
             )
@@ -126,7 +125,7 @@ object InitializeLoader : PluginStep<CustomItems> {
 object Load : PluginStep<CustomItems> {
     override fun run(plugin: CustomItems) {
         JsonRegistry.global.load()
-        Loader.global.load()
+        Loader.global.load(plugin)
     }
 }
 

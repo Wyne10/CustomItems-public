@@ -1,7 +1,9 @@
 package org.bigcraft.customitems.item
 
+import me.wyne.wutils.config.configurables.AttributeConfigurable
 import me.wyne.wutils.config.configurables.ItemConfigurable
-import me.wyne.wutils.config.configurables.attribute.GenericAttributeContainer
+import me.wyne.wutils.config.configurables.attribute.AttributeContainerBuilder
+import me.wyne.wutils.config.configurables.attribute.ImmutableAttributeContainer
 import me.wyne.wutils.config.configurables.item.ItemAttribute
 import me.wyne.wutils.i18n.I18n
 import me.wyne.wutils.i18n.language.component.PlaceholderLocalizedComponent
@@ -19,8 +21,8 @@ import org.bukkit.persistence.PersistentDataType
 class CustomItem(
     private val key: String,
     private val itemAttributes: ItemConfigurable,
-    private val restrictions: GenericAttributeContainer<Restriction<*>>,
-    private val activators: GenericAttributeContainer<Activator<*>>
+    private val restrictions: AttributeConfigurable,
+    private val activators: AttributeConfigurable,
 ) {
 
     fun createItemStack(): ItemStack {
@@ -42,19 +44,31 @@ class CustomItem(
         I18n.global.getPlaceholderComponent(
             I18n.toLocale(localeContainer),
             I18n.toPlayer(localeContainer),
-            itemAttributes.getValue(ItemAttribute.NAME, "")
+            itemAttributes.getValue(ItemAttribute.NAME.key, "")
         )
 
     object Factory : ConfigurableFactory<CustomItem> {
         override fun fromConfig(config: ConfigurationSection): CustomItem =
             CustomItem(
                 config.name,
-                ItemConfigurable().with(ITEM_ATTRIBUTE_MAP).also { it.fromConfig(config) },
-                GenericAttributeContainer<Restriction<*>>(ITEM_RESTRICTION_MAP, config.getConfigurationSection(RESTRICTION_SECTION_KEY)),
-                GenericAttributeContainer<Activator<*>>(ACTIVATOR_MAP, config.getConfigurationSection(ACTIVATOR_SECTION_KEY))
+                ItemConfigurable(
+                    AttributeContainerBuilder()
+                        .with(ItemConfigurable.ITEM_ATTRIBUTE_MAP)
+                        .with(ITEM_ATTRIBUTE_MAP)
+                        .build(),
+                    config
+                ),
+                AttributeConfigurable(
+                    ImmutableAttributeContainer(ITEM_RESTRICTION_MAP),
+                    config.getConfigurationSection(RESTRICTION_SECTION_KEY)
+                ),
+                AttributeConfigurable(
+                    ImmutableAttributeContainer(ACTIVATOR_MAP),
+                    config.getConfigurationSection(ACTIVATOR_SECTION_KEY)
+                )
             ).apply {
-                restrictions.attributes.values.forEach { it.apply(this) }
-                activators.attributes.values.forEach { it.apply(this) }
+                restrictions.getSet(Restriction::class.java).forEach { it.apply(this) }
+                activators.getSet(Activator::class.java).forEach { it.apply(this) }
             }
     }
 
@@ -66,3 +80,6 @@ class CustomItem(
     }
 
 }
+
+fun ItemStack?.isCustomItem(): Boolean =
+    this?.itemMeta?.persistentDataContainer?.has(CustomItem.ITEM_TAG_KEY, PersistentDataType.STRING) ?: false

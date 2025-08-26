@@ -5,8 +5,8 @@ import de.tr7zw.nbtapi.iface.ReadableNBT
 import me.wyne.wutils.common.Args
 import me.wyne.wutils.config.configurables.attribute.AttributeBase
 import me.wyne.wutils.config.configurables.attribute.AttributeFactory
+import me.wyne.wutils.config.configurables.attribute.CompositeAttribute
 import me.wyne.wutils.config.configurables.attribute.CompositeAttributeFactory
-import me.wyne.wutils.config.configurables.item.CompositeAttribute
 import me.wyne.wutils.config.configurables.item.ItemStackAttribute
 import me.wyne.wutils.config.configurables.item.MetaAttribute
 import org.bigcraft.customitems.CustomItems
@@ -21,7 +21,7 @@ import org.bukkit.persistence.PersistentDataType
 val ITEM_ATTRIBUTE_MAP = mapOf(
     "nbt" to AttributeFactory { key, config -> NbtTagAttribute(key, NBT.parseNBT(config.getString(key))) },
     "pdc-tag" to PdcTagAttribute.Factory,
-    "pdc-tags" to AttributeFactory { key, config -> PdcTagsAttribute(key, config) }
+    "pdc-tags" to AttributeFactory(::PdcTagsAttribute)
 )
 
 class NbtTagAttribute(
@@ -90,8 +90,8 @@ class PdcTagAttribute(
 }
 
 class PdcTagsAttribute : CompositeAttribute<PdcTagAttribute>, MetaAttribute {
-    constructor(key: String, tags: Map<String, PdcTagAttribute>) : super(key, tags)
+    constructor(key: String, tags: Set<PdcTagAttribute>) : super(key, tags)
     constructor(key: String, config: ConfigurationSection) : super(key, config, PdcTagAttribute.Factory)
 
-    override fun apply(meta: ItemMeta) = value.values.forEach { it.apply(meta) }
+    override fun apply(meta: ItemMeta) = value.forEach { it.apply(meta) }
 }
