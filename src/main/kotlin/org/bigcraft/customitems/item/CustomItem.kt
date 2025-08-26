@@ -21,8 +21,8 @@ import org.bukkit.persistence.PersistentDataType
 class CustomItem(
     private val key: String,
     private val itemAttributes: ItemConfigurable,
-    private val restrictions: AttributeConfigurable,
-    private val activators: AttributeConfigurable,
+    private val restrictions: Set<Restriction>,
+    private val activators: Set<Activator>,
 ) {
 
     fun createItemStack(): ItemStack {
@@ -61,14 +61,14 @@ class CustomItem(
                 AttributeConfigurable(
                     ImmutableAttributeContainer(ITEM_RESTRICTION_MAP),
                     config.getConfigurationSection(RESTRICTION_SECTION_KEY)
-                ),
+                ).getSet(Restriction::class.java),
                 AttributeConfigurable(
                     ImmutableAttributeContainer(ACTIVATOR_MAP),
                     config.getConfigurationSection(ACTIVATOR_SECTION_KEY)
-                )
+                ).getSet(Activator::class.java),
             ).apply {
-                restrictions.getSet(Restriction::class.java).forEach { it.apply(this) }
-                activators.getSet(Activator::class.java).forEach { it.apply(this) }
+                restrictions.forEach { it.apply(this) }
+                activators.forEach { it.apply(this) }
             }
     }
 

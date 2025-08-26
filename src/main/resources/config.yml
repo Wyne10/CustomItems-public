@@ -19,3 +19,4 @@ item:
       right-click:
         commands:
           - 'say По поводу моей работы, давай я начну после вайпа на хт и аг что то делать'
+        is-sneaking: true

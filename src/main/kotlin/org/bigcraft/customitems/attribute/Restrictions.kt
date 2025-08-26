@@ -12,6 +12,7 @@ import org.bukkit.Keyed
 import org.bukkit.NamespacedKey
 import org.bukkit.entity.EntityType
 import org.bukkit.entity.Item
+import org.bukkit.event.Cancellable
 import org.bukkit.event.EventHandler
 import org.bukkit.event.block.BlockPlaceEvent
 import org.bukkit.event.enchantment.EnchantItemEvent
@@ -25,6 +26,7 @@ import org.bukkit.event.inventory.InventoryType
 import org.bukkit.event.player.PlayerDropItemEvent
 import org.bukkit.event.player.PlayerItemConsumeEvent
 import org.bukkit.inventory.AnvilInventory
+import org.bukkit.inventory.ItemStack
 
 val ITEM_RESTRICTION_MAP = AttributeMap(
     mutableMapOf(
@@ -52,8 +54,14 @@ abstract class Restriction(
         private set
 
     final override fun apply(item: CustomItem) {
+        if (!value) return
         this.item = item
-        CustomItemManager.instance.restrictionRegistry.register(this) // TODO Check how often this is called
+        CustomItemManager.instance.restrictionRegistry.register(this)
+    }
+
+    protected fun cancelEvent(event: Cancellable, itemStack: ItemStack?) {
+        if (item isCustomItem itemStack)
+            event.isCancelled = true
     }
 
 }
@@ -61,25 +69,21 @@ abstract class Restriction(
 class DropRestriction(key: String, isActive: Boolean) : Restriction(key, isActive) {
     @EventHandler(ignoreCancelled = true)
     private fun onEvent(event: PlayerDropItemEvent) {
-        if (!value) return
-        if (item isCustomItem event.itemDrop.itemStack)
-            event.isCancelled = true
+        cancelEvent(event, event.itemDrop.itemStack)
     }
 }
 
 class PlaceRestriction(key: String, isActive: Boolean) : Restriction(key, isActive) {
     @EventHandler(ignoreCancelled = true)
     private fun onEvent(event: BlockPlaceEvent) {
-        if (!value) return
-        if (item isCustomItem event.itemInHand && event.itemInHand.type.isBlock)
-            event.isCancelled = true
+        if (!event.itemInHand.type.isBlock) return
+        cancelEvent(event, event.itemInHand)
     }
 }
 
 class CraftRestriction(key: String, isActive: Boolean) : Restriction(key, isActive) {
     @EventHandler(ignoreCancelled = true)
     private fun onEvent(event: CraftItemEvent) {
-        if (!value) return
         if (event.inventory.any(item::isCustomItem))
             event.isCancelled = true
     }
@@ -88,7 +92,6 @@ class CraftRestriction(key: String, isActive: Boolean) : Restriction(key, isActi
 class VanillaCraftRestriction(key: String, isActive: Boolean) : Restriction(key, isActive) {
     @EventHandler(ignoreCancelled = true)
     private fun onEvent(event: CraftItemEvent) {
-        if (!value) return
         if (event.recipe is Keyed && (event.recipe as Keyed).key.namespace() == NamespacedKey.MINECRAFT) {
             if (event.inventory.any(item::isCustomItem))
                 event.isCancelled = true
@@ -102,8 +105,8 @@ class StorageRestriction(
 ) : Restriction(key, true) {
     @EventHandler(ignoreCancelled = true)
     private fun onEvent(event: InventoryClickEvent) {
-        if (item isCustomItem event.currentItem && types.contains(event.view.topInventory.type))
-            event.isCancelled = true
+        if (!types.contains(event.view.topInventory.type)) return
+        cancelEvent(event, event.currentItem)
     }
 }
 
@@ -113,51 +116,43 @@ class DamageRestriction(
 ) : Restriction(key, true) {
     @EventHandler(ignoreCancelled = true)
     private fun onEvent(event: EntityDamageEvent) {
-        if (event.entityType == EntityType.DROPPED_ITEM && item isCustomItem (event.entity as Item).itemStack && causes.contains(event.cause))
-            event.isCancelled = true
+        if (event.entityType != EntityType.DROPPED_ITEM) return
+        if (!causes.contains(event.cause)) return
+        cancelEvent(event, (event.entity as Item).itemStack)
     }
 }
 
 class DespawnRestriction(key: String, isActive: Boolean) : Restriction(key, isActive) {
     @EventHandler(ignoreCancelled = true)
     private fun onEvent(event: ItemDespawnEvent) {
-        if (!value) return
-        if (item isCustomItem event.entity.itemStack)
-            event.isCancelled = true
+        cancelEvent(event, event.entity.itemStack)
     }
 }
 
 class EnchantRestriction(key: String, isActive: Boolean) : Restriction(key, isActive) {
     @EventHandler(ignoreCancelled = true)
     private fun onEvent(event: EnchantItemEvent) {
-        if (!value) return
-        if (item isCustomItem event.item)
-            event.isCancelled = true
+        cancelEvent(event, event.item)
     }
 }
 
 class EnchantPrepareRestriction(key: String, isActive: Boolean) : Restriction(key, isActive) {
     @EventHandler(ignoreCancelled = true)
     private fun onEvent(event: PrepareItemEnchantEvent) {
-        if (!value) return
-        if (item isCustomItem event.item)
-            event.isCancelled = true
+        cancelEvent(event, event.item)
     }
 }
 
 class ConsumptionRestriction(key: String, isActive: Boolean) : Restriction(key, isActive) {
     @EventHandler(ignoreCancelled = true)
     private fun onEvent(event: PlayerItemConsumeEvent) {
-        if (!value) return
-        if (item isCustomItem event.item)
-            event.isCancelled = true
+        cancelEvent(event, event.item)
     }
 }
 
 class RenameRestriction(key: String, isActive: Boolean) : Restriction(key, isActive) {
     @EventHandler(ignoreCancelled = true)
     private fun onEvent(event: InventoryClickEvent) {
-        if (!value) return
         if (event.clickedInventory !is AnvilInventory) return
         val inventory = event.clickedInventory as AnvilInventory
         if (!item.isCustomItem(inventory.firstItem)) return
@@ -167,8 +162,8 @@ class RenameRestriction(key: String, isActive: Boolean) : Restriction(key, isAct
 }
 
 class AnvilRestriction(key: String, isActive: Boolean) : Restriction(key, isActive) {
+    @EventHandler(ignoreCancelled = true)
     private fun onEvent(event: InventoryClickEvent) {
-        if (!value) return
         if (event.clickedInventory !is AnvilInventory) return
         val inventory = event.clickedInventory as AnvilInventory
         if (event.slot == 2 && (item isCustomItem inventory.firstItem || item isCustomItem inventory.secondItem))
