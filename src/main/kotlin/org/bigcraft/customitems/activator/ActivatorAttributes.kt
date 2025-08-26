@@ -12,7 +12,7 @@ import org.bukkit.event.Event
 import org.bukkit.inventory.ItemStack
 
 val ACTIVATOR_ATTRIBUTE_MAP = AttributeMap(
-    mutableMapOf(
+    mapOf(
         "cancel" to AttributeFactory { key, config -> CancelEventAttribute(key, config.getBoolean(key)) },
         "commands" to AttributeFactory { key, config -> CommandsAttribute(key, config.getStringList(key)) }
     )

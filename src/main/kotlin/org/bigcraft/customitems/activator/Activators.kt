@@ -20,7 +20,7 @@ import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.inventory.ItemStack
 
 val ACTIVATOR_MAP = AttributeMap(
-    mutableMapOf(
+    mapOf(
         "right-click" to AttributeFactory { key, config -> RightClickActivator(key, createActivatorAttributes(key, config), createActivatorConditions(key, config)) },
     )
 )
@@ -36,7 +36,7 @@ private fun createActivatorConditions(key: String, config: ConfigurationSection)
 abstract class Activator(
     key: String,
     private val attributes: Set<ActivatorAttribute<*>>,
-    private val conditions: Set<ActivatorCondition<*>>,
+    private val conditions: Set<ActivatorCondition<*>>
 ) : AttributeBase<Boolean>(key, true), CustomItemAttribute, RegisterableListener {
 
     protected lateinit var item: CustomItem
@@ -51,9 +51,13 @@ abstract class Activator(
         if (conditions
                 .any { !it.isApplicable(event, player, customItem, item) })
             return
+        if (customItem.cooldowns
+                .any { it.isCooldowned(event, player, customItem, item) })
+            return
         attributes
             .filter { it.isApplicable(event, player, customItem, item) }
             .forEach { it.apply(event, player, customItem, item) }
+        customItem.cooldowns.forEach { it.apply(event, player, customItem, item) }
     }
 
 }
@@ -61,7 +65,7 @@ abstract class Activator(
 class RightClickActivator(
     key: String,
     attributes: Set<ActivatorAttribute<*>>,
-    conditions: Set<ActivatorCondition<*>>,
+    conditions: Set<ActivatorCondition<*>>
 ) : Activator(key, attributes, conditions) {
     @EventHandler
     private fun onEvent(event: PlayerInteractEvent) {

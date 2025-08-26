@@ -4,7 +4,7 @@ import me.wyne.wutils.common.event.RegisterableListener
 import me.wyne.wutils.config.configurables.attribute.AttributeBase
 import me.wyne.wutils.config.configurables.attribute.AttributeFactory
 import me.wyne.wutils.config.configurables.attribute.AttributeMap
-import org.bigcraft.customitems.extension.getEnumSet
+import org.bigcraft.customitems.config.getEnumSet
 import org.bigcraft.customitems.item.CustomItem
 import org.bigcraft.customitems.item.CustomItemAttribute
 import org.bigcraft.customitems.item.CustomItemManager
@@ -28,8 +28,8 @@ import org.bukkit.event.player.PlayerItemConsumeEvent
 import org.bukkit.inventory.AnvilInventory
 import org.bukkit.inventory.ItemStack
 
-val ITEM_RESTRICTION_MAP = AttributeMap(
-    mutableMapOf(
+val RESTRICTION_MAP = AttributeMap(
+    mapOf(
         "cancel-drop" to AttributeFactory { key, config -> DropRestriction(key, config.getBoolean(key)) },
         "cancel-place" to AttributeFactory { key, config -> PlaceRestriction(key, config.getBoolean(key)) },
         "cancel-craft" to AttributeFactory { key, config -> CraftRestriction(key, config.getBoolean(key)) },

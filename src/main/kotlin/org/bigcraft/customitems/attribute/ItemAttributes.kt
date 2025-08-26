@@ -10,8 +10,8 @@ import me.wyne.wutils.config.configurables.attribute.CompositeAttributeFactory
 import me.wyne.wutils.config.configurables.item.ItemStackAttribute
 import me.wyne.wutils.config.configurables.item.MetaAttribute
 import org.bigcraft.customitems.CustomItems
-import org.bigcraft.customitems.extension.COLON_DELIMITER
-import org.bigcraft.customitems.extension.COMMA_DELIMITER
+import org.bigcraft.customitems.config.COLON_DELIMITER
+import org.bigcraft.customitems.config.COMMA_DELIMITER
 import org.bukkit.NamespacedKey
 import org.bukkit.configuration.ConfigurationSection
 import org.bukkit.inventory.ItemStack

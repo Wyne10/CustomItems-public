@@ -23,6 +23,7 @@ class CustomItem(
     private val itemAttributes: ItemConfigurable,
     private val restrictions: Set<Restriction>,
     private val activators: Set<Activator>,
+    val cooldowns: Set<Cooldown<*>>
 ) {
 
     fun createItemStack(): ItemStack {
@@ -59,13 +60,17 @@ class CustomItem(
                     config
                 ),
                 AttributeConfigurable(
-                    ImmutableAttributeContainer(ITEM_RESTRICTION_MAP),
+                    ImmutableAttributeContainer(RESTRICTION_MAP),
                     config.getConfigurationSection(RESTRICTION_SECTION_KEY)
                 ).getSet(Restriction::class.java),
                 AttributeConfigurable(
                     ImmutableAttributeContainer(ACTIVATOR_MAP),
                     config.getConfigurationSection(ACTIVATOR_SECTION_KEY)
                 ).getSet(Activator::class.java),
+                AttributeConfigurable(
+                    ImmutableAttributeContainer(COOLDOWN_MAP),
+                    config.getConfigurationSection(COOLDOWN_SECTION_KEY)
+                ).getSet(Cooldown::class.java)
             ).apply {
                 restrictions.forEach { it.apply(this) }
                 activators.forEach { it.apply(this) }
@@ -75,6 +80,7 @@ class CustomItem(
     companion object {
         const val RESTRICTION_SECTION_KEY = "restrictions"
         const val ACTIVATOR_SECTION_KEY = "activators"
+        const val COOLDOWN_SECTION_KEY = "cooldowns"
 
         val ITEM_TAG_KEY = NamespacedKey(CustomItems.instance, "ci-key")
     }

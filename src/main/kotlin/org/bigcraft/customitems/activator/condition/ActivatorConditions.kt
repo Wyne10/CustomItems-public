@@ -4,7 +4,7 @@ import me.wyne.wutils.config.configurables.attribute.AttributeBase
 import me.wyne.wutils.config.configurables.attribute.AttributeFactory
 import me.wyne.wutils.config.configurables.attribute.AttributeMap
 import org.bigcraft.customitems.config.getIntComparator
-import org.bigcraft.customitems.extension.getEnumSet
+import org.bigcraft.customitems.config.getEnumSet
 import org.bigcraft.customitems.item.CustomItem
 import org.bukkit.Bukkit
 import org.bukkit.Material
@@ -14,7 +14,7 @@ import org.bukkit.event.Event
 import org.bukkit.inventory.ItemStack
 
 val ACTIVATOR_CONDITION_MAP = AttributeMap(
-    mutableMapOf(
+    mapOf(
         "is-sneaking" to AttributeFactory { key, config -> SneakingCondition(key, config.getBoolean(key)) },
         "is-sprinting" to AttributeFactory { key, config -> SprintingCondition(key, config.getBoolean(key)) },
         "is-flying" to AttributeFactory { key, config -> FlyingCondition(key, config.getBoolean(key)) },

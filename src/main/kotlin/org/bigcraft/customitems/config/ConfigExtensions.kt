@@ -1,4 +1,4 @@
-package org.bigcraft.customitems.extension
+package org.bigcraft.customitems.config
 
 import org.bukkit.Material
 import org.bukkit.configuration.ConfigurationSection
@@ -47,3 +47,4 @@ inline fun <reified E : Enum<E>> ConfigurationSection.getEnumSet(key: String): S
             .toSet()
     }
 }
+
