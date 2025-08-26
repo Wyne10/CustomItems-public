@@ -19,10 +19,7 @@ import me.wyne.wutils.log.*
 import net.kyori.adventure.platform.bukkit.BukkitAudiences
 import org.bigcraft.customitems.CustomItems.Companion.EMPTY_CONFIGURATION
 import org.bigcraft.customitems.CustomItems.Companion.log
-import org.bigcraft.customitems.module.CommandModule
-import org.bigcraft.customitems.module.CustomItemModule
-import org.bigcraft.customitems.module.PlaceholderModule
-import org.bigcraft.customitems.module.PluginModule
+import org.bigcraft.customitems.module.*
 import java.io.File
 import java.util.concurrent.Executors
 
@@ -40,13 +37,7 @@ class InitializeLogger(private val logDirectory: File) : PluginStep<CustomItems>
     override fun run(plugin: CustomItems) {
         Log.global = Log.builder()
             .setLogger(plugin.logger)
-            .setConfig(
-                ConfigurableLogConfig(
-                    "Global",
-                    Config.global,
-                    BasicLogConfig(true, true, false, true, true, false)
-                )
-            )
+            .setLevel(JulLevel.valueOf(plugin.config.getString("logLevel", "INFO")!!).level)
             .setLogDirectory(logDirectory)
             .setFileWriteExecutor(Executors.newSingleThreadExecutor())
             .build()
@@ -55,7 +46,7 @@ class InitializeLogger(private val logDirectory: File) : PluginStep<CustomItems>
         log = Log4jFactory.createLogger(
             plugin,
             Log4jFactory.DEFAULT_FILE_MESSAGE_PATTERN,
-            Level.valueOf(plugin.config.getString("log-level", "INFO")!!),
+            Level.valueOf(plugin.config.getString("logLevel", "INFO")!!),
             logDirectory.path,
             Log.global
         )
@@ -134,7 +125,7 @@ object InitializeLoader : PluginStep<CustomItems> {
 object Load : PluginStep<CustomItems> {
     override fun run(plugin: CustomItems) {
         JsonRegistry.global.load()
-        Loader.global.load()
+        Loader.global.load(plugin)
     }
 }
 

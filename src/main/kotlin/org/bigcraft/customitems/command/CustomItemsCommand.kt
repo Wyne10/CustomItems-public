@@ -2,31 +2,25 @@ package org.bigcraft.customitems.command
 
 import com.google.inject.Inject
 import com.google.inject.Singleton
-import dev.jorel.commandapi.CommandTree
-import dev.jorel.commandapi.arguments.LiteralArgument
-import dev.jorel.commandapi.executors.CommandArguments
-import dev.jorel.commandapi.executors.CommandExecutor
-import me.wyne.wutils.i18n.kotlin.placeholderComponent
+import dev.jorel.commandapi.CommandAPICommand
 import org.bigcraft.customitems.CustomItems
-import org.bukkit.command.CommandSender
+import org.bigcraft.customitems.item.CustomItemManager
 
 @Singleton
-class CustomItemsCommand @Inject constructor(private val plugin: CustomItems) {
+class CustomItemsCommand @Inject constructor(
+    private val plugin: CustomItems,
+    private val itemManager: CustomItemManager
+) {
 
     init {
         registerCommand()
     }
 
     private fun registerCommand() {
-        CommandTree("ci")
-            .then(GiveCommand())
-            .then(LiteralArgument("reload")
-                    .withPermission("customitems.reload")
-                    .executes(CommandExecutor { sender: CommandSender, _: CommandArguments? ->
-                        plugin.reload()
-                        sender.placeholderComponent("success-plugin-reload").sendMessage(sender)
-                    })
-            )
+        CommandAPICommand("customitems")
+            .withAliases("ci")
+            .withSubcommand(ReloadCommand(plugin)())
+            .withSubcommand(GiveCommand(itemManager)())
             .register(plugin)
     }
 

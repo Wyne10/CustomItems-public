@@ -1,25 +1,29 @@
 package org.bigcraft.customitems.item
 
+import me.wyne.wutils.config.configurables.AttributeConfigurable
 import me.wyne.wutils.config.configurables.ItemConfigurable
-import me.wyne.wutils.config.configurables.attribute.GenericAttributeContainer
+import me.wyne.wutils.config.configurables.attribute.AttributeContainerBuilder
+import me.wyne.wutils.config.configurables.attribute.ImmutableAttributeContainer
 import me.wyne.wutils.config.configurables.item.ItemAttribute
 import me.wyne.wutils.i18n.I18n
 import me.wyne.wutils.i18n.language.component.PlaceholderLocalizedComponent
-import net.kyori.adventure.audience.Audience
 import org.bigcraft.customitems.ConfigurableFactory
 import org.bigcraft.customitems.CustomItems
+import org.bigcraft.customitems.activator.ACTIVATOR_MAP
+import org.bigcraft.customitems.activator.Activator
 import org.bigcraft.customitems.attribute.*
 import org.bukkit.NamespacedKey
-import org.bukkit.command.CommandSender
 import org.bukkit.configuration.ConfigurationSection
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
 import org.bukkit.persistence.PersistentDataType
 
 class CustomItem(
-    private val key: String,
+    val key: String,
     private val itemAttributes: ItemConfigurable,
-    private val restrictions: GenericAttributeContainer<Restriction<*>>
+    private val restrictions: Set<Restriction>,
+    private val activators: Set<Activator>,
+    val cooldowns: MutableSet<Cooldown>
 ) {
 
     fun createItemStack(): ItemStack {
@@ -41,24 +45,47 @@ class CustomItem(
         I18n.global.getPlaceholderComponent(
             I18n.toLocale(localeContainer),
             I18n.toPlayer(localeContainer),
-            itemAttributes.getValue(ItemAttribute.NAME, "")
+            itemAttributes.getValue(ItemAttribute.NAME.key, "")
         )
 
     object Factory : ConfigurableFactory<CustomItem> {
         override fun fromConfig(config: ConfigurationSection): CustomItem =
             CustomItem(
                 config.name,
-                ItemConfigurable().with(ITEM_ATTRIBUTE_MAP).also { it.fromConfig(config) },
-                GenericAttributeContainer<Restriction<*>>(ITEM_RESTRICTION_MAP).also { it.fromConfig(config.getConfigurationSection(RESTRICTION_SECTION_KEY)) }
+                ItemConfigurable(
+                    AttributeContainerBuilder()
+                        .with(ItemConfigurable.ITEM_ATTRIBUTE_MAP)
+                        .with(ITEM_ATTRIBUTE_MAP)
+                        .build(),
+                    config
+                ),
+                AttributeConfigurable(
+                    ImmutableAttributeContainer(RESTRICTION_MAP),
+                    config.getConfigurationSection(RESTRICTION_SECTION_KEY)
+                ).getSet(Restriction::class.java),
+                AttributeConfigurable(
+                    ImmutableAttributeContainer(ACTIVATOR_MAP),
+                    config.getConfigurationSection(ACTIVATOR_SECTION_KEY)
+                ).getSet(Activator::class.java),
+                AttributeConfigurable(
+                    ImmutableAttributeContainer(COOLDOWN_MAP),
+                    config.getConfigurationSection(COOLDOWN_SECTION_KEY)
+                ).getSet(Cooldown::class.java)
             ).apply {
-                restrictions.attributes.values.forEach { it.apply(this) }
+                restrictions.forEach { it.apply(this) }
+                activators.forEach { it.apply(this) }
             }
     }
 
     companion object {
         const val RESTRICTION_SECTION_KEY = "restrictions"
+        const val ACTIVATOR_SECTION_KEY = "activators"
+        const val COOLDOWN_SECTION_KEY = "cooldowns"
 
         val ITEM_TAG_KEY = NamespacedKey(CustomItems.instance, "ci-key")
     }
 
 }
+
+fun ItemStack?.isCustomItem(): Boolean =
+    this?.itemMeta?.persistentDataContainer?.has(CustomItem.ITEM_TAG_KEY, PersistentDataType.STRING) ?: false

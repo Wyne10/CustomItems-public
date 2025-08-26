@@ -4,8 +4,19 @@ usePlayerLanguage: true
 # LEGACY/ENHANCED_LEGACY/MINI_MESSAGE
 serializer: MINI_MESSAGE
 # OFF/FATAL/ERROR/WARN/INFO/DEBUG/TRACE/ALL
-log-level: INFO
+logLevel: INFO
 
 item:
-  test:
-    stopper: true
+  markov:
+    name: '<red>Максим Марков'
+    material: STICK
+    restrictions:
+      cancel-drop: true
+      cancel-rename: true
+      cancel-craft: true
+      cancel-storage: true
+    activators:
+      right-click:
+        commands:
+          - 'say По поводу моей работы, давай я начну после вайпа на хт и аг что то делать'
+        is-sneaking: true
