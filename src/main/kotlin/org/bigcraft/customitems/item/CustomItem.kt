@@ -19,11 +19,11 @@ import org.bukkit.inventory.ItemStack
 import org.bukkit.persistence.PersistentDataType
 
 class CustomItem(
-    private val key: String,
+    val key: String,
     private val itemAttributes: ItemConfigurable,
     private val restrictions: Set<Restriction>,
     private val activators: Set<Activator>,
-    val cooldowns: Set<Cooldown<*>>
+    val cooldowns: MutableSet<Cooldown>
 ) {
 
     fun createItemStack(): ItemStack {

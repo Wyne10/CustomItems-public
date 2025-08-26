@@ -1,0 +1,34 @@
+package org.bigcraft.customitems.attribute
+
+import me.wyne.wutils.common.Ticks
+import me.wyne.wutils.config.configurables.attribute.AttributeBase
+import me.wyne.wutils.config.configurables.attribute.AttributeFactory
+import me.wyne.wutils.config.configurables.attribute.AttributeMap
+import me.wyne.wutils.i18n.kotlin.placeholderComponent
+import org.bukkit.entity.Player
+import org.bukkit.inventory.ItemStack
+
+val COOLDOWN_ATTRIBUTE_MAP = AttributeMap(
+    mapOf(
+        "message" to AttributeFactory { key, config -> MessageAttribute(key, config.getString(key)!!) },
+        "visual" to AttributeFactory { key, config -> VisualAttribute(key, config.getBoolean(key)) }
+    )
+)
+
+abstract class CooldownAttribute<V>(key: String, value: V) : AttributeBase<V>(key, value) {
+    open fun onTest(player: Player, item: ItemStack, cooldown: Cooldown) = Unit
+    open fun onApply(player: Player, item: ItemStack, cooldown: Cooldown) = Unit
+}
+
+class MessageAttribute(key: String, message: String) : CooldownAttribute<String>(key, message) {
+    override fun onTest(player: Player, item: ItemStack, cooldown: Cooldown) {
+        player.placeholderComponent(value).sendMessage(player)
+    }
+}
+
+class VisualAttribute(key: String, isActive: Boolean) : CooldownAttribute<Boolean>(key, isActive) {
+    override fun onApply(player: Player, item: ItemStack, cooldown: Cooldown) {
+        if (!value) return
+        player.setCooldown(item.type, Ticks.ofMillis(cooldown.value).toInt())
+    }
+}
