@@ -4,7 +4,11 @@ import me.wyne.wutils.config.configurables.attribute.AttributeBase
 import me.wyne.wutils.config.configurables.attribute.AttributeFactory
 import me.wyne.wutils.config.configurables.attribute.AttributeMap
 import org.bigcraft.customitems.config.getIntComparator
+import org.bigcraft.customitems.extension.getEnumSet
 import org.bigcraft.customitems.item.CustomItem
+import org.bukkit.Bukkit
+import org.bukkit.Material
+import org.bukkit.block.Biome
 import org.bukkit.entity.Player
 import org.bukkit.event.Event
 import org.bukkit.inventory.ItemStack
@@ -19,7 +23,21 @@ val ACTIVATOR_CONDITION_MAP = AttributeMap(
         "is-swimming" to AttributeFactory { key, config -> SwimmingCondition(key, config.getBoolean(key)) },
         "is-on-fire" to AttributeFactory { key, config -> OnFireCondition(key, config.getBoolean(key)) },
         "is-in-air" to AttributeFactory { key, config -> InAirCondition(key, config.getBoolean(key)) },
-        "light-level" to AttributeFactory { key, config -> LightLevelCondition(key, config.getIntComparator(key)) }
+        "light-level" to AttributeFactory { key, config -> LightLevelCondition(key, config.getIntComparator(key)) },
+        "level" to AttributeFactory { key, config -> LevelCondition(key, config.getIntComparator(key)) },
+        "exp" to AttributeFactory { key, config -> ExpCondition(key, config.getIntComparator(key)) },
+        "food-level" to AttributeFactory { key, config -> FoodLevelCondition(key, config.getIntComparator(key)) },
+        "health" to AttributeFactory { key, config -> HealthCondition(key, config.getIntComparator(key)) },
+        "has-permissions" to AttributeFactory { key, config -> HasPermissionsCondition(key, config.getStringList(key).toSet()) },
+        "not-has-permissions" to AttributeFactory { key, config -> NotHasPermissionsCondition(key, config.getStringList(key).toSet()) },
+        "target-block" to AttributeFactory { key, config -> TargetBlockCondition(key, config.getEnumSet<Material>(key)) },
+        "not-target-block" to AttributeFactory { key, config -> NotTargetBlockCondition(key, config.getEnumSet<Material>(key)) },
+        "on-block" to AttributeFactory { key, config -> OnBlockCondition(key, config.getEnumSet<Material>(key)) },
+        "not-on-block" to AttributeFactory { key, config -> NotOnBlockCondition(key, config.getEnumSet<Material>(key)) },
+        "in-biome" to AttributeFactory { key, config -> InBiomeCondition(key, config.getEnumSet<Biome>(key)) },
+        "not-in-biome" to AttributeFactory { key, config -> NotInBiomeCondition(key, config.getEnumSet<Biome>(key)) },
+        "in-world" to AttributeFactory { key, config -> InWorldCondition(key, config.getStringList(key).mapNotNull { Bukkit.getWorld(it) }.toSet()) },
+        "not-in-world" to AttributeFactory { key, config -> NotInWorldCondition(key, config.getStringList(key).mapNotNull { Bukkit.getWorld(it) }.toSet()) },
     )
 )
 

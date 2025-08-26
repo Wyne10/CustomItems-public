@@ -12,7 +12,7 @@ import org.bukkit.inventory.ItemStack
 import org.bukkit.persistence.PersistentDataType
 
 @Singleton
-@LoadableMeta(priority = 0)
+@LoadableMeta(priority = 0, late = true)
 class CustomItemManager @Inject constructor(plugin: CustomItems) : AbstractManager<CustomItem>() {
 
     override val sectionKey = "item"

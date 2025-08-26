@@ -3,6 +3,8 @@ package org.bigcraft.customitems.activator.condition
 import org.bigcraft.customitems.config.IntComparator
 import org.bigcraft.customitems.item.CustomItem
 import org.bukkit.Material
+import org.bukkit.World
+import org.bukkit.block.Biome
 import org.bukkit.block.BlockFace
 import org.bukkit.entity.Player
 import org.bukkit.event.Event
@@ -51,4 +53,74 @@ class InAirCondition(key: String, isActive: Boolean) : ActivatorCondition<Boolea
 class LightLevelCondition(key: String, comparator: IntComparator) : ActivatorCondition<IntComparator>(key, comparator) {
     override fun isApplicable(event: Event, player: Player, customItem: CustomItem, item: ItemStack): Boolean =
         value.compare(player.location.block.lightLevel.toInt())
+}
+
+class LevelCondition(key: String, comparator: IntComparator) : ActivatorCondition<IntComparator>(key, comparator) {
+    override fun isApplicable(event: Event, player: Player, customItem: CustomItem, item: ItemStack): Boolean =
+        value.compare(player.level)
+}
+
+class ExpCondition(key: String, comparator: IntComparator) : ActivatorCondition<IntComparator>(key, comparator) {
+    override fun isApplicable(event: Event, player: Player, customItem: CustomItem, item: ItemStack): Boolean =
+        value.compare(player.exp.toInt())
+}
+
+class FoodLevelCondition(key: String, comparator: IntComparator) : ActivatorCondition<IntComparator>(key, comparator) {
+    override fun isApplicable(event: Event, player: Player, customItem: CustomItem, item: ItemStack): Boolean =
+        value.compare(player.foodLevel)
+}
+
+class HealthCondition(key: String, comparator: IntComparator) : ActivatorCondition<IntComparator>(key, comparator) {
+    override fun isApplicable(event: Event, player: Player, customItem: CustomItem, item: ItemStack): Boolean =
+        value.compare(player.health.toInt())
+}
+
+class HasPermissionsCondition(key: String, permissions: Set<String>) : ActivatorCondition<Set<String>>(key, permissions) {
+    override fun isApplicable(event: Event, player: Player, customItem: CustomItem, item: ItemStack): Boolean =
+        value.all { player.hasPermission(it) }
+}
+
+class NotHasPermissionsCondition(key: String, permissions: Set<String>) : ActivatorCondition<Set<String>>(key, permissions) {
+    override fun isApplicable(event: Event, player: Player, customItem: CustomItem, item: ItemStack): Boolean =
+        value.all { !player.hasPermission(it) }
+}
+
+class TargetBlockCondition(key: String, materials: Set<Material>) : ActivatorCondition<Set<Material>>(key, materials) {
+    override fun isApplicable(event: Event, player: Player, customItem: CustomItem, item: ItemStack): Boolean =
+        player.getTargetBlock(5)?.type in value
+}
+
+class NotTargetBlockCondition(key: String, materials: Set<Material>) : ActivatorCondition<Set<Material>>(key, materials) {
+    override fun isApplicable(event: Event, player: Player, customItem: CustomItem, item: ItemStack): Boolean =
+        player.getTargetBlock(5)?.type !in value
+}
+
+class OnBlockCondition(key: String, materials: Set<Material>) : ActivatorCondition<Set<Material>>(key, materials) {
+    override fun isApplicable(event: Event, player: Player, customItem: CustomItem, item: ItemStack): Boolean =
+        player.location.block.getRelative(BlockFace.DOWN).type in value
+}
+
+class NotOnBlockCondition(key: String, materials: Set<Material>) : ActivatorCondition<Set<Material>>(key, materials) {
+    override fun isApplicable(event: Event, player: Player, customItem: CustomItem, item: ItemStack): Boolean =
+        player.location.block.getRelative(BlockFace.DOWN).type !in value
+}
+
+class InBiomeCondition(key: String, biomes: Set<Biome>) : ActivatorCondition<Set<Biome>>(key, biomes) {
+    override fun isApplicable(event: Event, player: Player, customItem: CustomItem, item: ItemStack): Boolean =
+        player.location.world.getBiome(player.location.blockX, player.location.blockY, player.location.blockZ) in value
+}
+
+class NotInBiomeCondition(key: String, biomes: Set<Biome>) : ActivatorCondition<Set<Biome>>(key, biomes) {
+    override fun isApplicable(event: Event, player: Player, customItem: CustomItem, item: ItemStack): Boolean =
+        player.location.world.getBiome(player.location.blockX, player.location.blockY, player.location.blockZ) !in value
+}
+
+class InWorldCondition(key: String, worlds: Set<World>) : ActivatorCondition<Set<World>>(key, worlds) {
+    override fun isApplicable(event: Event, player: Player, customItem: CustomItem, item: ItemStack): Boolean =
+        player.location.world in value
+}
+
+class NotInWorldCondition(key: String, worlds: Set<World>) : ActivatorCondition<Set<World>>(key, worlds) {
+    override fun isApplicable(event: Event, player: Player, customItem: CustomItem, item: ItemStack): Boolean =
+        player.location.world !in value
 }
