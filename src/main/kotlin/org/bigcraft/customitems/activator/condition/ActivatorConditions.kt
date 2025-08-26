@@ -8,7 +8,6 @@ import org.bigcraft.customitems.extension.getEnumSet
 import org.bigcraft.customitems.item.CustomItem
 import org.bukkit.Bukkit
 import org.bukkit.Material
-import org.bukkit.WeatherType
 import org.bukkit.block.Biome
 import org.bukkit.entity.Player
 import org.bukkit.event.Event
@@ -41,6 +40,8 @@ val ACTIVATOR_CONDITION_MAP = AttributeMap(
         "not-in-world" to AttributeFactory { key, config -> NotInWorldCondition(key, config.getStringList(key).mapNotNull { Bukkit.getWorld(it) }.toSet()) },
         "weather" to AttributeFactory { key, config -> WeatherCondition(key, config.getEnumSet<Weather>(key)) },
         "day-time" to AttributeFactory { key, config -> DayTimeCondition(key, config.getIntComparator(key)) },
+        "item-durability" to AttributeFactory { key, config -> DurabilityCondition(key, config.getIntComparator(key)) },
+        "item-cooldown" to AttributeFactory { key, config -> CooldownCondition(key, config.getIntComparator(key)) },
     )
 )
 
