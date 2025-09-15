@@ -42,11 +42,8 @@ class CustomItem(
         item?.itemMeta?.persistentDataContainer?.get(ITEM_TAG_KEY, PersistentDataType.STRING) == key
 
     fun getName(localeContainer: Any): PlaceholderLocalizedComponent =
-        I18n.global.getPlaceholderComponent(
-            I18n.toLocale(localeContainer),
-            I18n.toPlayer(localeContainer),
-            itemAttributes.getValue(ItemAttribute.NAME.key, "")
-        )
+        I18n.global.accessor(localeContainer, itemAttributes.getValue(ItemAttribute.NAME.key))
+            .getPlaceholderComponent(I18n.toPlayer(localeContainer))
 
     object Factory : ConfigurableFactory<CustomItem> {
         override fun fromConfig(config: ConfigurationSection): CustomItem =

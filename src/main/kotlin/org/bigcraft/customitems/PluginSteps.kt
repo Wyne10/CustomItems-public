@@ -11,7 +11,8 @@ import me.wyne.wutils.common.plugin.Step
 import me.wyne.wutils.common.plugin.StepScope
 import me.wyne.wutils.config.Config
 import me.wyne.wutils.i18n.I18n
-import me.wyne.wutils.i18n.language.component.BukkitComponentAudience
+import me.wyne.wutils.i18n.PluginI18nBuilder
+import me.wyne.wutils.i18n.language.component.BukkitComponentAudiences
 import me.wyne.wutils.i18n.language.interpretation.ComponentInterpreters
 import me.wyne.wutils.i18n.language.validation.EmptyValidator
 import me.wyne.wutils.json.JsonRegistry
@@ -67,22 +68,16 @@ class InitializeJson(private val gson: Gson, private val directory: File) : Plug
 @Step(priority = 3, scope = StepScope.ENABLE)
 object InitializeI18n : PluginStep<CustomItems> {
     override fun run(plugin: CustomItems) {
-        I18n.global.apply {
-            log = CustomItems.log
-            audiences = BukkitComponentAudience(BukkitAudiences.create(plugin))
-            clearLanguageMap()
-            loadLanguage("lang/ru.yml", plugin)
-            loadLanguage("lang/en.yml", plugin)
-            loadDefaultResourceLanguage(plugin)
-            loadLanguages(plugin)
-            setDefaultLanguage(getDefaultLanguageCode(plugin))
-            setComponentInterpreter(
-                ComponentInterpreters.valueOf(
+        I18n.global = PluginI18nBuilder(plugin)
+            .setLog(CustomItems.log)
+            .setComponentAudience(BukkitComponentAudiences(BukkitAudiences.create(plugin)))
+            .setComponentInterpreter(ComponentInterpreters.valueOf(
                     plugin.config.getString("serializer", "MINI_MESSAGE")!!
-                ).get(EmptyValidator())
-            )
-            usePlayerLanguage = plugin.config.getBoolean("usePlayerLanguage", true)
-        }
+                ).get(EmptyValidator()))
+            .setUsePlayerLanguage(plugin.config.getBoolean("userPlayerLanguage", true))
+            .loadLanguage("lang/ru.yml")
+            .loadLanguage("lang/en.yml")
+            .build()
     }
 }
 
