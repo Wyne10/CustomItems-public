@@ -1,13 +1,10 @@
 package org.bigcraft.customitems.attribute
 
-import me.wyne.wutils.common.event.RegisterableListener
-import me.wyne.wutils.config.configurables.attribute.AttributeBase
 import me.wyne.wutils.config.configurables.attribute.AttributeFactory
 import me.wyne.wutils.config.configurables.attribute.AttributeMap
 import org.bigcraft.customitems.config.getEnumSet
-import org.bigcraft.customitems.item.CustomItem
-import org.bigcraft.customitems.item.CustomItemAttribute
 import org.bigcraft.customitems.item.CustomItemManager
+import org.bigcraft.customitems.item.RegisterableCustomItemAttribute
 import org.bukkit.Keyed
 import org.bukkit.NamespacedKey
 import org.bukkit.entity.EntityType
@@ -48,16 +45,7 @@ val RESTRICTION_MAP = AttributeMap(
 abstract class Restriction(
     key: String,
     isActive: Boolean,
-) : AttributeBase<Boolean>(key, isActive), CustomItemAttribute, RegisterableListener {
-
-    protected lateinit var item: CustomItem
-        private set
-
-    final override fun apply(item: CustomItem) {
-        if (!value) return
-        this.item = item
-        CustomItemManager.instance.restrictionRegistry.register(this)
-    }
+) : RegisterableCustomItemAttribute<Boolean>(key, isActive, CustomItemManager.instance.restrictionRegistry) {
 
     protected fun cancelEvent(event: Cancellable, itemStack: ItemStack?) {
         if (item isCustomItem itemStack)

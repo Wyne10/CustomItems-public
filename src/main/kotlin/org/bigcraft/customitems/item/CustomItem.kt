@@ -23,6 +23,7 @@ class CustomItem(
     private val itemAttributes: ItemConfigurable,
     private val restrictions: Set<Restriction>,
     private val activators: Set<Activator>,
+    private val blockAttributes: Set<>
     val cooldowns: MutableSet<Cooldown>
 ) {
 

@@ -1,16 +1,14 @@
 package org.bigcraft.customitems.activator
 
-import me.wyne.wutils.common.event.RegisterableListener
 import me.wyne.wutils.config.configurables.AttributeConfigurable
-import me.wyne.wutils.config.configurables.attribute.AttributeBase
 import me.wyne.wutils.config.configurables.attribute.AttributeFactory
 import me.wyne.wutils.config.configurables.attribute.AttributeMap
 import me.wyne.wutils.config.configurables.attribute.ImmutableAttributeContainer
 import org.bigcraft.customitems.activator.condition.ACTIVATOR_CONDITION_MAP
 import org.bigcraft.customitems.activator.condition.ActivatorCondition
 import org.bigcraft.customitems.item.CustomItem
-import org.bigcraft.customitems.item.CustomItemAttribute
 import org.bigcraft.customitems.item.CustomItemManager
+import org.bigcraft.customitems.item.RegisterableCustomItemAttribute
 import org.bukkit.configuration.ConfigurationSection
 import org.bukkit.entity.Player
 import org.bukkit.event.Event
@@ -37,27 +35,17 @@ abstract class Activator(
     key: String,
     private val attributes: Set<ActivatorAttribute<*>>,
     private val conditions: Set<ActivatorCondition<*>>
-) : AttributeBase<Boolean>(key, true), CustomItemAttribute, RegisterableListener {
-
-    protected lateinit var item: CustomItem
-        private set
-
-    override fun apply(item: CustomItem) {
-        this.item = item
-        CustomItemManager.instance.activatorRegistry.register(this)
-    }
+) : RegisterableCustomItemAttribute<Boolean>(key, true, CustomItemManager.instance.activatorRegistry) {
 
     fun activate(event: Event, player: Player, customItem: CustomItem, item: ItemStack) {
-        if (conditions
-                .any { !it.isApplicable(event, player, customItem, item) })
+        if (conditions.any { !it.isApplicable(event, player, customItem, item) })
             return
-        if (customItem.cooldowns
-                .any { it.isCooldowned(event, player, customItem, item) })
+        if (customItem.cooldowns.any { it.isCooldowned(player, item) })
             return
         attributes
             .filter { it.isApplicable(event, player, customItem, item) }
             .forEach { it.apply(event, player, customItem, item) }
-        customItem.cooldowns.forEach { it.apply(event, player, customItem, item) }
+        customItem.cooldowns.forEach { it.apply(player, item) }
     }
 
 }

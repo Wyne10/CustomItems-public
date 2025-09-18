@@ -33,12 +33,12 @@ abstract class Cooldown(
     durationMillis: Long,
     private val attributes: Set<CooldownAttribute<*>>
 ) : AttributeBase<Long>(key, durationMillis) {
-    open fun isCooldowned(event: Event, player: Player, customItem: CustomItem, item: ItemStack): Boolean {
+    open fun isCooldowned(player: Player, item: ItemStack): Boolean {
         attributes.forEach { it.onTest(player, item, this) }
         return false
     }
 
-    open fun apply(event: Event, player: Player, customItem: CustomItem, item: ItemStack) {
+    open fun apply(player: Player, item: ItemStack) {
         attributes.forEach { it.onApply(player, item, this) }
     }
 }
@@ -51,14 +51,14 @@ class PlayerCooldown(
 
     private val cooldownMap = CooldownMap<UUID>()
 
-    override fun isCooldowned(event: Event, player: Player, customItem: CustomItem, item: ItemStack): Boolean {
+    override fun isCooldowned(player: Player, item: ItemStack): Boolean {
         if (cooldownMap.isCooldowned(player.uniqueId))
-            super.isCooldowned(event, player, customItem, item)
+            super.isCooldowned(player, item)
         return cooldownMap.isCooldowned(player.uniqueId)
     }
 
-    override fun apply(event: Event, player: Player, customItem: CustomItem, item: ItemStack) {
-        super.apply(event, player, customItem, item)
+    override fun apply(player: Player, item: ItemStack) {
+        super.apply(player, item)
         cooldownMap.put(player.uniqueId, value)
     }
 
@@ -72,14 +72,14 @@ class GlobalCooldown(
 
     private val cooldown = Period()
 
-    override fun isCooldowned(event: Event, player: Player, customItem: CustomItem, item: ItemStack): Boolean {
+    override fun isCooldowned(player: Player, item: ItemStack): Boolean {
         if (!cooldown.isExpired)
-            super.isCooldowned(event, player, customItem, item)
+            super.isCooldowned(player, item)
         return !cooldown.isExpired
     }
 
-    override fun apply(event: Event, player: Player, customItem: CustomItem, item: ItemStack) {
-        super.apply(event, player, customItem, item)
+    override fun apply(player: Player, item: ItemStack) {
+        super.apply(player, item)
         cooldown.put(value)
     }
 
@@ -94,11 +94,11 @@ class OtherCooldown(
 
     private val otherCooldown = PlayerCooldown("other-cooldown-${UUID.randomUUID()}", durationMillis, attributes)
 
-    override fun isCooldowned(event: Event, player: Player, customItem: CustomItem, item: ItemStack): Boolean = false
+    override fun isCooldowned(player: Player, item: ItemStack): Boolean = false
 
-    override fun apply(event: Event, player: Player, customItem: CustomItem, item: ItemStack) {
+    override fun apply(player: Player, item: ItemStack) {
         otherItems.mapNotNull { CustomItemManager.instance.getItem(it) }.forEach { it.cooldowns.add(otherCooldown) }
-        otherCooldown.apply(event, player, customItem, item)
+        otherCooldown.apply(player, item)
     }
 
 }
