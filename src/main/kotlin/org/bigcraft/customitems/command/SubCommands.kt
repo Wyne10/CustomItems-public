@@ -30,6 +30,7 @@ class ReloadCommand(plugin: CustomItems) : SubCommand("reload") {
         .executes(CommandExecutor { sender, _ ->
             plugin.reload()
             sender.placeholderComponent("success-plugin-reload").sendMessage(sender)
+            CustomItems.log.info("Plugin reloaded")
         })
 }
 

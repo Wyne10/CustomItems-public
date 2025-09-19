@@ -12,7 +12,10 @@ import org.bigcraft.customitems.CustomItems
 import org.bigcraft.customitems.activator.ACTIVATOR_MAP
 import org.bigcraft.customitems.activator.Activator
 import org.bigcraft.customitems.attribute.*
+import org.bigcraft.customitems.block.CustomBlockManager
+import org.bukkit.Material
 import org.bukkit.NamespacedKey
+import org.bukkit.block.Block
 import org.bukkit.configuration.ConfigurationSection
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
@@ -23,7 +26,7 @@ class CustomItem(
     private val itemAttributes: ItemConfigurable,
     private val restrictions: Set<Restriction>,
     private val activators: Set<Activator>,
-    private val blockAttributes: Set<>
+    private val blockAttributes: Set<BlockAttribute<*>>,
     val cooldowns: MutableSet<Cooldown>
 ) {
 
@@ -41,6 +44,12 @@ class CustomItem(
 
     infix fun isCustomItem(item: ItemStack?): Boolean =
         item?.itemMeta?.persistentDataContainer?.get(ITEM_TAG_KEY, PersistentDataType.STRING) == key
+
+    infix fun isCustomItem(block: Block): Boolean =
+        isBlock() && CustomBlockManager.instance.isCustomBlock(block)
+
+    fun isBlock(): Boolean =
+        itemAttributes.getValue(ItemAttribute.MATERIAL.key, Material.STONE).isBlock && blockAttributes.isNotEmpty()
 
     fun getName(localeContainer: Any): PlaceholderLocalizedComponent =
         I18n.global.accessor(localeContainer, itemAttributes.getValue(ItemAttribute.NAME.key))
@@ -66,18 +75,24 @@ class CustomItem(
                     config.getConfigurationSection(ACTIVATOR_SECTION_KEY)
                 ).getSet(Activator::class.java),
                 AttributeConfigurable(
+                    ImmutableAttributeContainer(BLOCK_ATTRIBUTE_MAP),
+                    config.getConfigurationSection(BLOCK_SECTION_KEY)
+                ).getSet(BlockAttribute::class.java),
+                AttributeConfigurable(
                     ImmutableAttributeContainer(COOLDOWN_MAP),
                     config.getConfigurationSection(COOLDOWN_SECTION_KEY)
                 ).getSet(Cooldown::class.java)
             ).apply {
                 restrictions.forEach { it.apply(this) }
                 activators.forEach { it.apply(this) }
+                blockAttributes.forEach { it.apply(this) }
             }
     }
 
     companion object {
         const val RESTRICTION_SECTION_KEY = "restrictions"
         const val ACTIVATOR_SECTION_KEY = "activators"
+        const val BLOCK_SECTION_KEY = "block"
         const val COOLDOWN_SECTION_KEY = "cooldowns"
 
         val ITEM_TAG_KEY = NamespacedKey(CustomItems.instance, "ci-key")

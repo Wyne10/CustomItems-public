@@ -20,3 +20,9 @@ item:
         commands:
           - 'say По поводу моей работы, давай я начну после вайпа на хт и аг что то делать'
         is-sneaking: true
+
+  fast-furnace:
+    name: '<light_purple>Быстрая печка'
+    material: FURNACE
+    block:
+      break-drop: true

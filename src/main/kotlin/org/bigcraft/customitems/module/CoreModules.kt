@@ -1,6 +1,7 @@
 package org.bigcraft.customitems.module
 
 import com.google.inject.AbstractModule
+import org.bigcraft.customitems.block.CustomBlockManager
 import org.bigcraft.customitems.item.CustomItemManager
 
 private class CoreModule(private vararg val modules: Class<out Any>) : AbstractModule() {
@@ -9,4 +10,4 @@ private class CoreModule(private vararg val modules: Class<out Any>) : AbstractM
     }
 }
 
-val CustomItemModule: AbstractModule = CoreModule(CustomItemManager::class.java)
+val CustomItemModule: AbstractModule = CoreModule(CustomItemManager::class.java, CustomBlockManager::class.java)

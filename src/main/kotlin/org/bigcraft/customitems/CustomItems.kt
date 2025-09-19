@@ -17,7 +17,10 @@ class CustomItems : CompositeJavaPlugin<CustomItems>() {
         instance = this
         addSteps(
             LoadDefaultConfig,
-            InitializeJson(GsonBuilder().setPrettyPrinting().create(), dataFolder),
+            InitializeJson(GsonBuilder()
+                    .enableComplexMapKeySerialization()
+                    .setPrettyPrinting()
+                    .create(), dataFolder),
             InitializeLogger(logDirectory),
             InitializeI18n,
             InitializeInjector,

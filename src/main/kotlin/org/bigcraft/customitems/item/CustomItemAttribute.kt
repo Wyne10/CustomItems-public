@@ -8,11 +8,11 @@ interface CustomItemAttribute {
     fun apply(item: CustomItem)
 }
 
-abstract class RegisterableCustomItemAttribute<T>(
+abstract class RegisterableCustomItemAttribute<V>(
     key: String,
-    value: T,
+    value: V,
     private val eventRegistry: EventRegistry,
-) : AttributeBase<T>(key, value), CustomItemAttribute, RegisterableListener {
+) : AttributeBase<V>(key, value), CustomItemAttribute, RegisterableListener {
 
     protected lateinit var item: CustomItem
         private set
