@@ -46,7 +46,7 @@ class CustomItem(
         item?.itemMeta?.persistentDataContainer?.get(ITEM_TAG_KEY, PersistentDataType.STRING) == key
 
     infix fun isCustomItem(block: Block): Boolean =
-        isBlock() && CustomBlockManager.instance.isCustomBlock(block)
+        isBlock() && CustomBlockManager.instance.getCustomBlock(block)?.itemKey == key
 
     fun isBlock(): Boolean =
         itemAttributes.getValue(ItemAttribute.MATERIAL.key, Material.STONE).isBlock && blockAttributes.isNotEmpty()
