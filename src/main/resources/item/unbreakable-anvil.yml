@@ -1,0 +1,7 @@
+name: "<light_purple>Нерушимая наковальня"
+material: ANVIL
+glow: true
+block:
+  break-drop: true
+  explode-drop: true
+  unbreakable-anvil: true

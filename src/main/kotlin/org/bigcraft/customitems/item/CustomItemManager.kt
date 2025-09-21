@@ -10,6 +10,7 @@ import org.bigcraft.customitems.block.CustomBlockManager
 import org.bigcraft.customitems.item.CustomItem.Companion.ITEM_TAG_KEY
 import org.bukkit.Bukkit
 import org.bukkit.configuration.ConfigurationSection
+import org.bukkit.configuration.file.YamlConfiguration
 import org.bukkit.event.EventHandler
 import org.bukkit.event.EventPriority
 import org.bukkit.event.Listener
@@ -19,6 +20,7 @@ import org.bukkit.event.block.BlockPlaceEvent
 import org.bukkit.event.entity.EntityExplodeEvent
 import org.bukkit.inventory.ItemStack
 import org.bukkit.persistence.PersistentDataType
+import java.io.File
 
 @Singleton
 @LoadableMeta(priority = 0, late = true)
@@ -30,6 +32,8 @@ class CustomItemManager @Inject constructor(plugin: CustomItems, private val blo
 
     val restrictionRegistry = EventRegistry(plugin)
     val activatorRegistry = EventRegistry(plugin)
+
+    val itemDirectory = File(plugin.dataFolder, "$sectionKey/")
 
     init {
         instance = this
@@ -46,9 +50,20 @@ class CustomItemManager @Inject constructor(plugin: CustomItems, private val blo
         restrictionRegistry.close()
         activatorRegistry.close()
         super.load(config)
+        loadFiles()
     }
 
-    @EventHandler(ignoreCancelled = true)
+    private fun loadFiles() {
+        if (!itemDirectory.exists())
+            itemDirectory.mkdirs()
+        itemDirectory.listFiles()
+            .forEach { file ->
+                val key = file.nameWithoutExtension
+                loadedMap[key] = CustomItem.Factory.fromConfig(key, YamlConfiguration.loadConfiguration(file))
+            }
+    }
+
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
     private fun onPlace(event: BlockPlaceEvent) {
         val customItem = getItem(event.itemInHand) ?: return
         if (!customItem.isBlock()) return

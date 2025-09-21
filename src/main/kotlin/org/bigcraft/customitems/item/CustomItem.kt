@@ -57,8 +57,11 @@ class CustomItem(
 
     object Factory : ConfigurableFactory<CustomItem> {
         override fun fromConfig(config: ConfigurationSection): CustomItem =
+            fromConfig(config.name, config)
+
+        fun fromConfig(key: String, config: ConfigurationSection): CustomItem =
             CustomItem(
-                config.name,
+                key,
                 ItemConfigurable(
                     AttributeContainerBuilder()
                         .with(ItemConfigurable.ITEM_ATTRIBUTE_MAP)

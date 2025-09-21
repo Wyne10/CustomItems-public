@@ -1,0 +1,7 @@
+name: '<light_purple>Быстрая печка'
+material: FURNACE
+glow: true
+block:
+  break-drop: true
+  explode-drop: true
+  furnace-speed: 2.0

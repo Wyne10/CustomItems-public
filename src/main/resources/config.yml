@@ -20,19 +20,3 @@ item:
         commands:
           - 'say По поводу моей работы, давай я начну после вайпа на хт и аг что то делать'
         is-sneaking: true
-
-  fast-furnace:
-    name: '<light_purple>Быстрая печка'
-    material: FURNACE
-    glow: true
-    block:
-      break-drop: true
-      furnace-speed: 2.0
-
-  unbreakable-anvil:
-    name: "<light_purple>Нерушимая наковальня"
-    material: ANVIL
-    glow: true
-    block:
-      break-drop: true
-      unbreakable-anvil: true

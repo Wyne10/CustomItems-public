@@ -7,15 +7,11 @@ import me.wyne.wutils.config.configurables.attribute.AttributeMap
 import org.bigcraft.customitems.block.CustomBlockManager
 import org.bigcraft.customitems.item.RegisterableCustomItemAttribute
 import org.bukkit.Material
-import org.bukkit.block.Block
-import org.bukkit.block.BlockState
-import org.bukkit.block.Chest
 import org.bukkit.block.Container
 import org.bukkit.block.Furnace
 import org.bukkit.event.EventHandler
 import org.bukkit.event.block.BlockBreakEvent
 import org.bukkit.event.block.BlockBurnEvent
-import org.bukkit.event.block.BlockDropItemEvent
 import org.bukkit.event.block.BlockExplodeEvent
 import org.bukkit.event.block.BlockPlaceEvent
 import org.bukkit.event.entity.EntityExplodeEvent
