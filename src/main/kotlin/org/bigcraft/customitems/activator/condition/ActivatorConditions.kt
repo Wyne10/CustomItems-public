@@ -3,6 +3,7 @@ package org.bigcraft.customitems.activator.condition
 import me.wyne.wutils.config.configurables.attribute.AttributeBase
 import me.wyne.wutils.config.configurables.attribute.AttributeFactory
 import me.wyne.wutils.config.configurables.attribute.AttributeMap
+import org.bigcraft.customitems.activator.test
 import org.bigcraft.customitems.config.getIntComparator
 import org.bigcraft.customitems.config.getEnumSet
 import org.bigcraft.customitems.item.CustomItem
@@ -16,6 +17,7 @@ import org.bukkit.inventory.ItemStack
 
 val ACTIVATOR_CONDITION_MAP = AttributeMap(
     mapOf(
+        "chance" to AttributeFactory { key, config -> ChanceCondition(key, config.getDouble(key)) },
         "is-sneaking" to AttributeFactory { key, config -> SneakingCondition(key, config.getBoolean(key)) },
         "is-sprinting" to AttributeFactory { key, config -> SprintingCondition(key, config.getBoolean(key)) },
         "is-flying" to AttributeFactory { key, config -> FlyingCondition(key, config.getBoolean(key)) },
@@ -49,4 +51,9 @@ val ACTIVATOR_CONDITION_MAP = AttributeMap(
 
 abstract class ActivatorCondition<V>(key: String, value: V) : AttributeBase<V>(key, value) {
     abstract fun isApplicable(event: Event, player: Player, customItem: CustomItem, item: ItemStack): Boolean
+}
+
+class ChanceCondition(key: String, chance: Double) : ActivatorCondition<Double>(key, chance) {
+    override fun isApplicable(event: Event, player: Player, customItem: CustomItem, item: ItemStack): Boolean =
+        value.test()
 }

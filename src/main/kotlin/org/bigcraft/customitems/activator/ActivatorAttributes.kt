@@ -1,11 +1,9 @@
 package org.bigcraft.customitems.activator
 
-import me.wyne.wutils.common.Args
 import me.wyne.wutils.config.configurables.attribute.Attribute
 import me.wyne.wutils.config.configurables.attribute.AttributeBase
 import me.wyne.wutils.config.configurables.attribute.AttributeFactory
 import me.wyne.wutils.config.configurables.attribute.AttributeMap
-import me.wyne.wutils.config.configurables.attribute.CompositeAttributeFactory
 import me.wyne.wutils.config.configurables.item.attribute.PotionEffectsAttribute
 import me.wyne.wutils.i18n.kotlin.placeholderString
 import org.bigcraft.customitems.item.CustomItem
@@ -25,8 +23,8 @@ val ACTIVATOR_ATTRIBUTE_MAP = AttributeMap(
     mapOf(
         "cancel" to AttributeFactory { key, config -> CancelEventAttribute(key, config.getBoolean(key)) },
         "commands" to AttributeFactory { key, config -> CommandsAttribute(key, config.getStringList(key)) },
-        "level-steal" to LevelStealAttribute.Factory,
-        "potion-effect" to PotionEffectAttribute.Factory,
+        "level-steal" to AttributeFactory { key, config -> LevelStealAttribute(key, config.getDouble(key)) },
+        "potion-effects" to org.bigcraft.customitems.activator.PotionEffectsAttribute.Factory,
     )
 )
 
@@ -60,63 +58,39 @@ class CommandsAttribute(
 
 class LevelStealAttribute(
     key: String,
-    chance: Double,
     steal: Double
-) : ActivatorAttribute<Pair<Double, Double>>(key, chance to steal) {
+) : ActivatorAttribute<Double>(key, steal) {
     override fun isApplicable(event: Event, player: Player, customItem: CustomItem, item: ItemStack) =
         event is PlayerDeathEvent
 
     override fun apply(event: Event, player: Player, customItem: CustomItem, item: ItemStack) {
-        if (!value.first.test()) return
         event as PlayerDeathEvent
         val killedPlayer = event.entity
-        val toSteal = killedPlayer.level * value.second
+        val toSteal = killedPlayer.level * value
         player.level += toSteal.toInt()
-    }
-
-    object Factory : CompositeAttributeFactory {
-        override fun fromSection(key: String, section: ConfigurationSection): Attribute<*> =
-            LevelStealAttribute(
-                key,
-                section.getDouble("chance"),
-                section.getDouble("steal")
-            )
-
-        override fun fromString(key: String, string: String): Attribute<*> {
-            val args = Args(string, ":")
-            return LevelStealAttribute(
-                key,
-                args.get(0, "0.5").toDouble(),
-                args.get(1, "0.5").toDouble()
-            )
-        }
     }
 }
 
-class PotionEffectAttribute(
+class PotionEffectsAttribute(
     key: String,
-    chance: Double,
     effects: Set<PotionEffect>
-) : ActivatorAttribute<Pair<Double, Set<PotionEffect>>>(key, chance to effects) {
+) : ActivatorAttribute<Set<PotionEffect>>(key, effects) {
     override fun isApplicable(event: Event, player: Player, customItem: CustomItem, item: ItemStack) =
         event is EntityEvent
 
     override fun apply(event: Event, player: Player, customItem: CustomItem, item: ItemStack) {
-        if (!value.first.test()) return
         event as EntityEvent
         val target = event.entity as? LivingEntity ?: return
-        value.second.forEach { potionEffect ->
+        value.forEach { potionEffect ->
             potionEffect.apply(target)
         }
     }
 
     object Factory : AttributeFactory {
         override fun create(key: String, config: ConfigurationSection): Attribute<*> {
-            val section = config.getConfigurationSection(key)!!
-            return PotionEffectAttribute(
+            return PotionEffectsAttribute(
                 key,
-                section.getDouble("chance"),
-                PotionEffectsAttribute("effects", section).value.map { it.value }.toSet()
+                PotionEffectsAttribute(key, config).value.map { it.value }.toSet()
             )
         }
     }

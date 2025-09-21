@@ -4,4 +4,5 @@ restrictions:
   cancel-enchant-prepare: true
 activators:
   player-kill-player:
-    level-steal: '0.5:0.5'
+    chance: 0.5
+    level-steal: 0.5

@@ -1,0 +1,9 @@
+name: 'Иллюминатор'
+material: SEA_LANTERN
+activators:
+  player-hit-player:
+    chance: 0.05
+    potion-effects:
+      glow:
+        type: GLOWING
+        duration: 300

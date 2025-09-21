@@ -3,9 +3,8 @@ material: SNOW_BLOCK
 glow: true
 activators:
   player-hit-player:
-    potion-effect:
-      chance: 0.02
-      effects:
-        slow:
-          type: SLOW
-          duration: 100
+    chance: 0.02
+    potion-effects:
+      slow:
+        type: SLOW
+        duration: 100
