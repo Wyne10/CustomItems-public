@@ -1,0 +1,7 @@
+name: '<gold>Охотник'
+material: DIAMOND_SWORD
+restrictions:
+  cancel-enchant-prepare: true
+activators:
+  on-kill:
+    level-steal: '0.5:0.5'

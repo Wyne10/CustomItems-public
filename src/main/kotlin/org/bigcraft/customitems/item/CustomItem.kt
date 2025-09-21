@@ -18,7 +18,10 @@ import org.bukkit.NamespacedKey
 import org.bukkit.block.Block
 import org.bukkit.configuration.ConfigurationSection
 import org.bukkit.entity.Player
+import org.bukkit.inventory.EquipmentSlot
+import org.bukkit.inventory.Inventory
 import org.bukkit.inventory.ItemStack
+import org.bukkit.inventory.PlayerInventory
 import org.bukkit.persistence.PersistentDataType
 
 class CustomItem(
@@ -47,6 +50,20 @@ class CustomItem(
 
     infix fun isCustomItem(block: Block): Boolean =
         isBlock() && CustomBlockManager.instance.getCustomBlock(block)?.itemKey == key
+
+    infix fun hasCustomItem(inventory: Inventory): Boolean =
+        inventory.filterNotNull().any { isCustomItem(it) }
+
+    infix fun getItem(inventory: Inventory): ItemStack? =
+        inventory.filterNotNull().firstOrNull { isCustomItem(it) }
+
+    infix fun getItem(inventory: PlayerInventory): ItemStack? {
+        val mainHandSlot = inventory.heldItemSlot
+        val iterationOrder = mutableSetOf(mainHandSlot, 40, 36, 37, 38, 39)
+        iterationOrder.addAll(INVENTORY_INDICES)
+        return iterationOrder.mapNotNull { inventory.getItem(it) }
+            .firstOrNull { isCustomItem(it) }
+    }
 
     fun isBlock(): Boolean =
         itemAttributes.getValue(ItemAttribute.MATERIAL.key, Material.STONE).isBlock && blockAttributes.isNotEmpty()
@@ -99,6 +116,7 @@ class CustomItem(
         const val COOLDOWN_SECTION_KEY = "cooldowns"
 
         val ITEM_TAG_KEY = NamespacedKey(CustomItems.instance, "ci-key")
+        val INVENTORY_INDICES = (0..35).toSet()
     }
 
 }

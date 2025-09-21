@@ -11,6 +11,7 @@ import org.bukkit.Material
 import org.bukkit.block.Biome
 import org.bukkit.entity.Player
 import org.bukkit.event.Event
+import org.bukkit.inventory.EquipmentSlot
 import org.bukkit.inventory.ItemStack
 
 val ACTIVATOR_CONDITION_MAP = AttributeMap(
@@ -42,6 +43,7 @@ val ACTIVATOR_CONDITION_MAP = AttributeMap(
         "day-time" to AttributeFactory { key, config -> DayTimeCondition(key, config.getIntComparator(key)) },
         "item-durability" to AttributeFactory { key, config -> DurabilityCondition(key, config.getIntComparator(key)) },
         "item-cooldown" to AttributeFactory { key, config -> CooldownCondition(key, config.getIntComparator(key)) },
+        "item-equipment" to AttributeFactory { key, config -> ItemEquipmentCondition(key, config.getEnumSet<EquipmentSlot>(key)) },
     )
 )
 

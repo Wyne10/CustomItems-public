@@ -14,12 +14,14 @@ import org.bukkit.entity.Player
 import org.bukkit.event.Event
 import org.bukkit.event.EventHandler
 import org.bukkit.event.block.Action
+import org.bukkit.event.entity.PlayerDeathEvent
 import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.inventory.ItemStack
 
 val ACTIVATOR_MAP = AttributeMap(
     mapOf(
         "right-click" to AttributeFactory { key, config -> RightClickActivator(key, createActivatorAttributes(key, config), createActivatorConditions(key, config)) },
+        "on-kill" to AttributeFactory { key, config -> KillActivator(key, createActivatorAttributes(key, config), createActivatorConditions(key, config)) },
     )
 )
 
@@ -56,11 +58,22 @@ class RightClickActivator(
     conditions: Set<ActivatorCondition<*>>
 ) : Activator(key, attributes, conditions) {
     @EventHandler
-    private fun onEvent(event: PlayerInteractEvent) {
-        if (!item.isCustomItem(event.item)) return
+    private fun onRightClick(event: PlayerInteractEvent) {
+        val itemStack = item.getItem(event.player.inventory) ?: return
         if (event.action != Action.RIGHT_CLICK_AIR && event.action != Action.RIGHT_CLICK_BLOCK) return
-        CustomItemManager.instance.getItem(event.item)?.let {
-            activate(event, event.player, it, event.item!!)
-        }
+        activate(event, event.player, item, itemStack)
+    }
+}
+
+class KillActivator(
+    key: String,
+    attributes: Set<ActivatorAttribute<*>>,
+    conditions: Set<ActivatorCondition<*>>
+) : Activator(key, attributes, conditions) {
+    @EventHandler(ignoreCancelled = true)
+    private fun onEvent(event: PlayerDeathEvent) {
+        val killer = event.entity.killer ?: return
+        val itemStack = item.getItem(killer.inventory) ?: return
+        activate(event, killer, item, itemStack)
     }
 }
