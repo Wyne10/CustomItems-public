@@ -14,6 +14,7 @@ import org.bukkit.entity.Player
 import org.bukkit.event.Event
 import org.bukkit.event.EventHandler
 import org.bukkit.event.block.Action
+import org.bukkit.event.entity.EntityDamageByEntityEvent
 import org.bukkit.event.entity.PlayerDeathEvent
 import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.inventory.ItemStack
@@ -21,7 +22,8 @@ import org.bukkit.inventory.ItemStack
 val ACTIVATOR_MAP = AttributeMap(
     mapOf(
         "right-click" to AttributeFactory { key, config -> RightClickActivator(key, createActivatorAttributes(key, config), createActivatorConditions(key, config)) },
-        "on-kill" to AttributeFactory { key, config -> KillActivator(key, createActivatorAttributes(key, config), createActivatorConditions(key, config)) },
+        "player-kill-player" to AttributeFactory { key, config -> PlayerKillActivator(key, createActivatorAttributes(key, config), createActivatorConditions(key, config)) },
+        "player-hit-player" to AttributeFactory { key, config -> PlayerHitActivator(key, createActivatorAttributes(key, config), createActivatorConditions(key, config)) },
     )
 )
 
@@ -65,7 +67,7 @@ class RightClickActivator(
     }
 }
 
-class KillActivator(
+class PlayerKillActivator(
     key: String,
     attributes: Set<ActivatorAttribute<*>>,
     conditions: Set<ActivatorCondition<*>>
@@ -75,5 +77,19 @@ class KillActivator(
         val killer = event.entity.killer ?: return
         val itemStack = item.getItem(killer.inventory) ?: return
         activate(event, killer, item, itemStack)
+    }
+}
+
+class PlayerHitActivator(
+    key: String,
+    attributes: Set<ActivatorAttribute<*>>,
+    conditions: Set<ActivatorCondition<*>>
+) : Activator(key, attributes, conditions) {
+    @EventHandler(ignoreCancelled = true)
+    private fun onEvent(event: EntityDamageByEntityEvent) {
+        val damager = event.damager as? Player ?: return
+        if (event.entity !is Player) return
+        val itemStack = item.getItem(damager.inventory) ?: return
+        activate(event, damager, item, itemStack)
     }
 }
