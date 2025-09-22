@@ -2,6 +2,8 @@ name: '<red>Взрывная штучка'
 material: FIRE_CHARGE
 activators:
   right-click:
-    cancel: true
+    cancel-event: true
+    set-item-amount: -1
     player-explosion:
       offset: 0,0,3
+      power: 5

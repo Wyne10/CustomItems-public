@@ -4,4 +4,4 @@ restrictions:
   cancel-place: true
 activators:
   player-kill-player:
-    drop-lock: 3s
+    lock-drop: 3s

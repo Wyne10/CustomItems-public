@@ -5,6 +5,6 @@ restrictions:
   cancel-consume: true
 activators:
   player-potion-effect:
-    potion-action: [ADDED, CHANGED]
-    potion-type: [BLINDNESS, JUMP, POISON, WITHER, SLOW, WEAKNESS]
-    cancel: true
+    is-potion-action: [ADDED, CHANGED]
+    is-potion-type: [BLINDNESS, JUMP, POISON, WITHER, SLOW, WEAKNESS]
+    cancel-event: true

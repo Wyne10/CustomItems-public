@@ -6,4 +6,4 @@ restrictions:
 activators:
   player-kill-player:
     chance: 0.5
-    level-steal: 0.5
+    steal-level: 0.5

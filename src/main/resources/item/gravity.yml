@@ -4,5 +4,5 @@ restrictions:
   cancel-craft: true
 activators:
   player-damage:
-    damage-cause: [FALL]
-    cancel: true
+    is-damage-cause: [FALL]
+    cancel-event: true

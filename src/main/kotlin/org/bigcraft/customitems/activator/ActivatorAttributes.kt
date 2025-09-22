@@ -31,16 +31,16 @@ import kotlin.random.Random
 
 val ACTIVATOR_ATTRIBUTE_MAP = AttributeMap(
     mapOf(
-        "cancel" to AttributeFactory { key, config -> CancelEventAttribute(key, config.getBoolean(key)) },
+        "cancel-event" to AttributeFactory { key, config -> CancelEventAttribute(key, config.getBoolean(key)) },
         "commands" to AttributeFactory { key, config -> CommandsAttribute(key, config.getStringList(key)) },
-        "level-steal" to AttributeFactory { key, config -> LevelStealAttribute(key, config.getDouble(key)) },
+        "steal-level" to AttributeFactory { key, config -> LevelStealAttribute(key, config.getDouble(key)) },
         "entity-potion-effects" to EntityPotionEffectsAttribute.Factory,
         "player-potion-effects" to PlayerPotionEffectsAttribute.Factory,
-        "consume" to AttributeFactory { key, config -> ConsumeProjectileAttribute(key, config.getBoolean(key)) },
-        "damager-health" to AttributeFactory { key, config -> DamagerHealthAttribute(key, config.getDouble(key)) },
-        "drop-lock" to AttributeFactory { key, config -> DropLockAttribute(key, config.getMillis(key)) },
+        "consume-projectile" to AttributeFactory { key, config -> ConsumeProjectileAttribute(key, config.getBoolean(key)) },
+        "set-damager-health" to AttributeFactory { key, config -> DamagerHealthAttribute(key, config.getDouble(key)) },
+        "lock-drop" to AttributeFactory { key, config -> DropLockAttribute(key, config.getMillis(key)) },
         "player-explosion" to PlayerExplosionAttribute.Factory,
-        "item-amount" to AttributeFactory { key, config -> ItemAmountAttribute(key, config.getIntOperation(key)) }
+        "set-item-amount" to AttributeFactory { key, config -> ItemAmountAttribute(key, config.getIntOperation(key)) }
     )
 )
 

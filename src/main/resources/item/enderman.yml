@@ -6,4 +6,4 @@ restrictions:
 activators:
   launch-projectile:
     chance: 0.5
-    consume: false
+    consume-projectile: false
