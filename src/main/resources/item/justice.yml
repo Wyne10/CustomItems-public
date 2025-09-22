@@ -1,0 +1,10 @@
+name: '<gold>Справедливость'
+material: POTION
+restrictions:
+  cancel-storage: [BREWING]
+  cancel-consume: true
+activators:
+  player-potion-effect:
+    potion-action: [ADDED, CHANGED]
+    potion-type: [BLINDNESS, JUMP, POISON, WITHER, SLOW, WEAKNESS]
+    cancel: true

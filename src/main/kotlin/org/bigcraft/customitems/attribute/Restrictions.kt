@@ -38,7 +38,7 @@ val RESTRICTION_MAP = AttributeMap(
         "cancel-despawn" to AttributeFactory { key, config -> DespawnRestriction(key, config.getBoolean(key)) },
         "cancel-enchant" to AttributeFactory { key, config -> EnchantRestriction(key, config.getBoolean(key)) },
         "cancel-enchant-prepare" to AttributeFactory { key, config -> EnchantPrepareRestriction(key, config.getBoolean(key)) },
-        "cancel-consumption" to AttributeFactory { key, config -> ConsumptionRestriction(key, config.getBoolean(key)) },
+        "cancel-consume" to AttributeFactory { key, config -> ConsumptionRestriction(key, config.getBoolean(key)) },
         "cancel-rename" to AttributeFactory { key, config -> RenameRestriction(key, config.getBoolean(key)) },
         "cancel-anvil" to AttributeFactory { key, config -> AnvilRestriction(key, config.getBoolean(key)) },
         "cancel-projectile" to AttributeFactory { key, config -> ProjectileRestriction(key, config.getBoolean(key)) }

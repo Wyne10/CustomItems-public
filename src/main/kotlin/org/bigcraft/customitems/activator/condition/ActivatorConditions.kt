@@ -14,8 +14,10 @@ import org.bukkit.entity.EntityType
 import org.bukkit.entity.Player
 import org.bukkit.event.Event
 import org.bukkit.event.entity.EntityDamageEvent
+import org.bukkit.event.entity.EntityPotionEffectEvent
 import org.bukkit.inventory.EquipmentSlot
 import org.bukkit.inventory.ItemStack
+import org.bukkit.potion.PotionEffectType
 
 val ACTIVATOR_CONDITION_MAP = AttributeMap(
     mapOf(
@@ -51,6 +53,10 @@ val ACTIVATOR_CONDITION_MAP = AttributeMap(
         "damager-type" to AttributeFactory { key, config -> DamagerTypeCondition(key, config.getEnumSet<EntityType>(key)) },
         "entity-type" to AttributeFactory { key, config -> EntityTypeCondition(key, config.getEnumSet<EntityType>(key)) },
         "damage-cause" to AttributeFactory { key, config -> DamageCauseCondition(key, config.getEnumSet<EntityDamageEvent.DamageCause>(key)) },
+        "potion-action" to AttributeFactory { key, config -> PotionActionCondition(key, config.getEnumSet<EntityPotionEffectEvent.Action>(key)) },
+        "potion-type" to AttributeFactory { key, config -> PotionTypeCondition(key, config.getStringList(key)
+                .mapNotNull { runCatching { PotionEffectType.getByName(it) }.getOrNull() }
+                .toSet()) },
     )
 )
 

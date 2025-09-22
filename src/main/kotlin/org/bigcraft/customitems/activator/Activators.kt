@@ -17,6 +17,7 @@ import org.bukkit.event.EventHandler
 import org.bukkit.event.block.Action
 import org.bukkit.event.entity.EntityDamageByEntityEvent
 import org.bukkit.event.entity.EntityDamageEvent
+import org.bukkit.event.entity.EntityPotionEffectEvent
 import org.bukkit.event.entity.PlayerDeathEvent
 import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.inventory.ItemStack
@@ -30,6 +31,7 @@ val ACTIVATOR_MAP = AttributeMap(
         "player-hit-entity" to AttributeFactory { key, config -> PlayerHitEntityActivator(key, createActivatorAttributes(key, config), createActivatorConditions(key, config)) },
         "launch-projectile" to AttributeFactory { key, config -> LaunchProjectileActivator(key, createActivatorAttributes(key, config), createActivatorConditions(key, config)) },
         "player-damage" to AttributeFactory { key, config -> PlayerDamageActivator(key, createActivatorAttributes(key, config), createActivatorConditions(key, config)) },
+        "player-potion-effect" to AttributeFactory { key, config -> PlayerPotionEffectActivator(key, createActivatorAttributes(key, config), createActivatorConditions(key, config)) },
     )
 )
 
@@ -150,5 +152,18 @@ class PlayerDamageActivator(
         val damaged = event.entity as? Player ?: return
         val itemStack = item.getItem(damaged.inventory) ?: return
         activate(event, damaged, item, itemStack)
+    }
+}
+
+class PlayerPotionEffectActivator(
+    key: String,
+    attributes: Set<ActivatorAttribute<*>>,
+    conditions: Set<ActivatorCondition<*>>
+) : Activator(key, attributes, conditions) {
+    @EventHandler(ignoreCancelled = true)
+    private fun onPotion(event: EntityPotionEffectEvent) {
+        val player = event.entity as? Player ?: return
+        val itemStack = item.getItem(player.inventory) ?: return
+        activate(event, player, item, itemStack)
     }
 }
