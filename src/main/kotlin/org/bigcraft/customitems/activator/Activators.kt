@@ -1,5 +1,6 @@
 package org.bigcraft.customitems.activator
 
+import com.destroystokyo.paper.event.player.PlayerLaunchProjectileEvent
 import me.wyne.wutils.config.configurables.AttributeConfigurable
 import me.wyne.wutils.config.configurables.attribute.AttributeFactory
 import me.wyne.wutils.config.configurables.attribute.AttributeMap
@@ -15,6 +16,7 @@ import org.bukkit.event.Event
 import org.bukkit.event.EventHandler
 import org.bukkit.event.block.Action
 import org.bukkit.event.entity.EntityDamageByEntityEvent
+import org.bukkit.event.entity.EntityDamageEvent
 import org.bukkit.event.entity.PlayerDeathEvent
 import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.inventory.ItemStack
@@ -24,6 +26,10 @@ val ACTIVATOR_MAP = AttributeMap(
         "right-click" to AttributeFactory { key, config -> RightClickActivator(key, createActivatorAttributes(key, config), createActivatorConditions(key, config)) },
         "player-kill-player" to AttributeFactory { key, config -> PlayerKillActivator(key, createActivatorAttributes(key, config), createActivatorConditions(key, config)) },
         "player-hit-player" to AttributeFactory { key, config -> PlayerHitActivator(key, createActivatorAttributes(key, config), createActivatorConditions(key, config)) },
+        "entity-hit-player" to AttributeFactory { key, config -> EntityHitPlayerActivator(key, createActivatorAttributes(key, config), createActivatorConditions(key, config)) },
+        "player-hit-entity" to AttributeFactory { key, config -> PlayerHitEntityActivator(key, createActivatorAttributes(key, config), createActivatorConditions(key, config)) },
+        "launch-projectile" to AttributeFactory { key, config -> LaunchProjectileActivator(key, createActivatorAttributes(key, config), createActivatorConditions(key, config)) },
+        "player-damage" to AttributeFactory { key, config -> PlayerDamageActivator(key, createActivatorAttributes(key, config), createActivatorConditions(key, config)) },
     )
 )
 
@@ -73,7 +79,7 @@ class PlayerKillActivator(
     conditions: Set<ActivatorCondition<*>>
 ) : Activator(key, attributes, conditions) {
     @EventHandler(ignoreCancelled = true)
-    private fun onEvent(event: PlayerDeathEvent) {
+    private fun onDeath(event: PlayerDeathEvent) {
         val killer = event.entity.killer ?: return
         val itemStack = item.getItem(killer.inventory) ?: return
         activate(event, killer, item, itemStack)
@@ -86,10 +92,63 @@ class PlayerHitActivator(
     conditions: Set<ActivatorCondition<*>>
 ) : Activator(key, attributes, conditions) {
     @EventHandler(ignoreCancelled = true)
-    private fun onEvent(event: EntityDamageByEntityEvent) {
+    private fun onDamage(event: EntityDamageByEntityEvent) {
         val damager = event.damager as? Player ?: return
         if (event.entity !is Player) return
         val itemStack = item.getItem(damager.inventory) ?: return
         activate(event, damager, item, itemStack)
+    }
+}
+
+class EntityHitPlayerActivator(
+    key: String,
+    attributes: Set<ActivatorAttribute<*>>,
+    conditions: Set<ActivatorCondition<*>>
+) : Activator(key, attributes, conditions) {
+    @EventHandler(ignoreCancelled = true)
+    private fun onDamage(event: EntityDamageByEntityEvent) {
+        val damaged = event.entity as? Player ?: return
+        if (event.damager is Player) return
+        val itemStack = item.getItem(damaged.inventory) ?: return
+        activate(event, damaged, item, itemStack)
+    }
+}
+
+class PlayerHitEntityActivator(
+    key: String,
+    attributes: Set<ActivatorAttribute<*>>,
+    conditions: Set<ActivatorCondition<*>>
+) : Activator(key, attributes, conditions) {
+    @EventHandler(ignoreCancelled = true)
+    private fun onDamage(event: EntityDamageByEntityEvent) {
+        val damager = event.damager as? Player ?: return
+        if (event.entity is Player) return
+        val itemStack = item.getItem(damager.inventory) ?: return
+        activate(event, damager, item, itemStack)
+    }
+}
+
+class LaunchProjectileActivator(
+    key: String,
+    attributes: Set<ActivatorAttribute<*>>,
+    conditions: Set<ActivatorCondition<*>>
+) : Activator(key, attributes, conditions) {
+    @EventHandler(ignoreCancelled = true)
+    private fun onLaunch(event: PlayerLaunchProjectileEvent) {
+        val itemStack = item.getItem(event.player.inventory) ?: return
+        activate(event, event.player, item, itemStack)
+    }
+}
+
+class PlayerDamageActivator(
+    key: String,
+    attributes: Set<ActivatorAttribute<*>>,
+    conditions: Set<ActivatorCondition<*>>
+) : Activator(key, attributes, conditions) {
+    @EventHandler(ignoreCancelled = true)
+    private fun onDamage(event: EntityDamageEvent) {
+        val damaged = event.entity as? Player ?: return
+        val itemStack = item.getItem(damaged.inventory) ?: return
+        activate(event, damaged, item, itemStack)
     }
 }

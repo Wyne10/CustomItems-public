@@ -37,7 +37,7 @@ class BreakDropAttribute(
     drop: Boolean,
 ) : BlockAttribute<Boolean>(key, drop) {
 
-    @EventHandler
+    @EventHandler(ignoreCancelled = true)
     private fun onBreak(event: BlockBreakEvent) {
         if (!item.isCustomItem(event.block)) return
         event.isDropItems = false

@@ -1,0 +1,7 @@
+name: '<light_purple>Телекинез'
+material: HONEY_BLOCK
+restrictions:
+  cancel-place: true
+activators:
+  player-kill-player:
+    drop-lock: 3s

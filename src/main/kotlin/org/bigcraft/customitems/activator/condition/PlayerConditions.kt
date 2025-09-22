@@ -8,6 +8,7 @@ import org.bukkit.block.Biome
 import org.bukkit.block.BlockFace
 import org.bukkit.entity.Player
 import org.bukkit.event.Event
+import org.bukkit.event.entity.EntityDamageEvent
 import org.bukkit.inventory.ItemStack
 
 class SneakingCondition(key: String, isActive: Boolean) : ActivatorCondition<Boolean>(key, isActive) {
@@ -123,4 +124,11 @@ class InWorldCondition(key: String, worlds: Set<World>) : ActivatorCondition<Set
 class NotInWorldCondition(key: String, worlds: Set<World>) : ActivatorCondition<Set<World>>(key, worlds) {
     override fun isApplicable(event: Event, player: Player, customItem: CustomItem, item: ItemStack): Boolean =
         player.location.world !in value
+}
+
+class DamageCauseCondition(key: String, causes: Set<EntityDamageEvent.DamageCause>) : ActivatorCondition<Set<EntityDamageEvent.DamageCause>>(key, causes) {
+    override fun isApplicable(event: Event, player: Player, customItem: CustomItem, item: ItemStack): Boolean {
+        if (event !is EntityDamageEvent) return true
+        return event.cause in value
+    }
 }

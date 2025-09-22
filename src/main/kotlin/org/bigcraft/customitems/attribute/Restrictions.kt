@@ -1,5 +1,6 @@
 package org.bigcraft.customitems.attribute
 
+import com.destroystokyo.paper.event.player.PlayerLaunchProjectileEvent
 import me.wyne.wutils.config.configurables.attribute.AttributeFactory
 import me.wyne.wutils.config.configurables.attribute.AttributeMap
 import org.bigcraft.customitems.config.getEnumSet
@@ -11,6 +12,7 @@ import org.bukkit.entity.EntityType
 import org.bukkit.entity.Item
 import org.bukkit.event.Cancellable
 import org.bukkit.event.EventHandler
+import org.bukkit.event.EventPriority
 import org.bukkit.event.block.BlockPlaceEvent
 import org.bukkit.event.enchantment.EnchantItemEvent
 import org.bukkit.event.enchantment.PrepareItemEnchantEvent
@@ -39,6 +41,7 @@ val RESTRICTION_MAP = AttributeMap(
         "cancel-consumption" to AttributeFactory { key, config -> ConsumptionRestriction(key, config.getBoolean(key)) },
         "cancel-rename" to AttributeFactory { key, config -> RenameRestriction(key, config.getBoolean(key)) },
         "cancel-anvil" to AttributeFactory { key, config -> AnvilRestriction(key, config.getBoolean(key)) },
+        "cancel-projectile" to AttributeFactory { key, config -> ProjectileRestriction(key, config.getBoolean(key)) }
     )
 )
 
@@ -55,14 +58,14 @@ abstract class Restriction(
 }
 
 class DropRestriction(key: String, isActive: Boolean) : Restriction(key, isActive) {
-    @EventHandler(ignoreCancelled = true)
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.LOWEST)
     private fun onEvent(event: PlayerDropItemEvent) {
         cancelEvent(event, event.itemDrop.itemStack)
     }
 }
 
 class PlaceRestriction(key: String, isActive: Boolean) : Restriction(key, isActive) {
-    @EventHandler(ignoreCancelled = true)
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.LOWEST)
     private fun onEvent(event: BlockPlaceEvent) {
         if (!event.itemInHand.type.isBlock) return
         cancelEvent(event, event.itemInHand)
@@ -70,7 +73,7 @@ class PlaceRestriction(key: String, isActive: Boolean) : Restriction(key, isActi
 }
 
 class CraftRestriction(key: String, isActive: Boolean) : Restriction(key, isActive) {
-    @EventHandler(ignoreCancelled = true)
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.LOWEST)
     private fun onEvent(event: CraftItemEvent) {
         if (event.inventory.any(item::isCustomItem))
             event.isCancelled = true
@@ -78,7 +81,7 @@ class CraftRestriction(key: String, isActive: Boolean) : Restriction(key, isActi
 }
 
 class VanillaCraftRestriction(key: String, isActive: Boolean) : Restriction(key, isActive) {
-    @EventHandler(ignoreCancelled = true)
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.LOWEST)
     private fun onEvent(event: CraftItemEvent) {
         if (event.recipe is Keyed && (event.recipe as Keyed).key.namespace() == NamespacedKey.MINECRAFT) {
             if (event.inventory.any(item::isCustomItem))
@@ -91,7 +94,7 @@ class StorageRestriction(
     key: String,
     private val types: Set<InventoryType>
 ) : Restriction(key, true) {
-    @EventHandler(ignoreCancelled = true)
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.LOWEST)
     private fun onEvent(event: InventoryClickEvent) {
         if (!types.contains(event.view.topInventory.type)) return
         cancelEvent(event, event.currentItem)
@@ -102,7 +105,7 @@ class DamageRestriction(
     key: String,
     private val causes: Set<DamageCause>
 ) : Restriction(key, true) {
-    @EventHandler(ignoreCancelled = true)
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.LOWEST)
     private fun onEvent(event: EntityDamageEvent) {
         if (event.entityType != EntityType.DROPPED_ITEM) return
         if (!causes.contains(event.cause)) return
@@ -111,35 +114,35 @@ class DamageRestriction(
 }
 
 class DespawnRestriction(key: String, isActive: Boolean) : Restriction(key, isActive) {
-    @EventHandler(ignoreCancelled = true)
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.LOWEST)
     private fun onEvent(event: ItemDespawnEvent) {
         cancelEvent(event, event.entity.itemStack)
     }
 }
 
 class EnchantRestriction(key: String, isActive: Boolean) : Restriction(key, isActive) {
-    @EventHandler(ignoreCancelled = true)
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.LOWEST)
     private fun onEvent(event: EnchantItemEvent) {
         cancelEvent(event, event.item)
     }
 }
 
 class EnchantPrepareRestriction(key: String, isActive: Boolean) : Restriction(key, isActive) {
-    @EventHandler(ignoreCancelled = true)
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.LOWEST)
     private fun onEvent(event: PrepareItemEnchantEvent) {
         cancelEvent(event, event.item)
     }
 }
 
 class ConsumptionRestriction(key: String, isActive: Boolean) : Restriction(key, isActive) {
-    @EventHandler(ignoreCancelled = true)
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.LOWEST)
     private fun onEvent(event: PlayerItemConsumeEvent) {
         cancelEvent(event, event.item)
     }
 }
 
 class RenameRestriction(key: String, isActive: Boolean) : Restriction(key, isActive) {
-    @EventHandler(ignoreCancelled = true)
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.LOWEST)
     private fun onEvent(event: InventoryClickEvent) {
         if (event.clickedInventory !is AnvilInventory) return
         val inventory = event.clickedInventory as AnvilInventory
@@ -150,11 +153,18 @@ class RenameRestriction(key: String, isActive: Boolean) : Restriction(key, isAct
 }
 
 class AnvilRestriction(key: String, isActive: Boolean) : Restriction(key, isActive) {
-    @EventHandler(ignoreCancelled = true)
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.LOWEST)
     private fun onEvent(event: InventoryClickEvent) {
         if (event.clickedInventory !is AnvilInventory) return
         val inventory = event.clickedInventory as AnvilInventory
         if (event.slot == 2 && (item isCustomItem inventory.firstItem || item isCustomItem inventory.secondItem))
             event.isCancelled = true
+    }
+}
+
+class ProjectileRestriction(key: String, isActive: Boolean) : Restriction(key, isActive) {
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.LOWEST)
+    private fun onEvent(event: PlayerLaunchProjectileEvent) {
+        cancelEvent(event, event.itemStack)
     }
 }

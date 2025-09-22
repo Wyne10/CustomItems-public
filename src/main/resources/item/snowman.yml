@@ -1,6 +1,8 @@
 name: 'Снеговик'
 material: SNOW_BLOCK
 glow: true
+restrictions:
+  cancel-place: true
 activators:
   player-hit-player:
     chance: 0.02

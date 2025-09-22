@@ -10,8 +10,10 @@ import org.bigcraft.customitems.item.CustomItem
 import org.bukkit.Bukkit
 import org.bukkit.Material
 import org.bukkit.block.Biome
+import org.bukkit.entity.EntityType
 import org.bukkit.entity.Player
 import org.bukkit.event.Event
+import org.bukkit.event.entity.EntityDamageEvent
 import org.bukkit.inventory.EquipmentSlot
 import org.bukkit.inventory.ItemStack
 
@@ -46,6 +48,9 @@ val ACTIVATOR_CONDITION_MAP = AttributeMap(
         "item-durability" to AttributeFactory { key, config -> DurabilityCondition(key, config.getIntComparator(key)) },
         "item-cooldown" to AttributeFactory { key, config -> CooldownCondition(key, config.getIntComparator(key)) },
         "item-equipment" to AttributeFactory { key, config -> ItemEquipmentCondition(key, config.getEnumSet<EquipmentSlot>(key)) },
+        "damager-type" to AttributeFactory { key, config -> DamagerTypeCondition(key, config.getEnumSet<EntityType>(key)) },
+        "entity-type" to AttributeFactory { key, config -> EntityTypeCondition(key, config.getEnumSet<EntityType>(key)) },
+        "damage-cause" to AttributeFactory { key, config -> DamageCauseCondition(key, config.getEnumSet<EntityDamageEvent.DamageCause>(key)) },
     )
 )
 

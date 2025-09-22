@@ -16,33 +16,23 @@ class IntComparator(private val second: Int, private val comparator: Comparator<
 }
 
 class LessThan<T> : Comparator<T> {
-    override fun compare(first: Comparable<T>, second: T): Boolean {
-        return first < second
-    }
+    override fun compare(first: Comparable<T>, second: T): Boolean = first < second
 }
 
 class GreaterThan<T> : Comparator<T> {
-    override fun compare(first: Comparable<T>, second: T): Boolean {
-        return first > second
-    }
+    override fun compare(first: Comparable<T>, second: T): Boolean = first > second
 }
 
 class LessOrEqual<T> : Comparator<T> {
-    override fun compare(first: Comparable<T>, second: T): Boolean {
-        return first <= second
-    }
+    override fun compare(first: Comparable<T>, second: T): Boolean = first <= second
 }
 
 class GreaterOrEqual<T> : Comparator<T> {
-    override fun compare(first: Comparable<T>, second: T): Boolean {
-        return first >= second
-    }
+    override fun compare(first: Comparable<T>, second: T): Boolean = first >= second
 }
 
 class Equals<T> : Comparator<T> {
-    override fun compare(first: Comparable<T>, second: T): Boolean {
-        return first == second
-    }
+    override fun compare(first: Comparable<T>, second: T): Boolean = first == second
 }
 
 fun <T> getComparator(symbol: String): Comparator<T> {

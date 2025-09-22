@@ -1,5 +1,7 @@
 name: 'Иллюминатор'
 material: SEA_LANTERN
+restrictions:
+  cancel-place: true
 activators:
   player-hit-player:
     chance: 0.05

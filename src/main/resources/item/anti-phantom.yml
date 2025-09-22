@@ -1,0 +1,8 @@
+name: '<gold>АнтиФантом'
+material: PHANTOM_MEMBRANE
+restrictions:
+  cancel-storage: [BREWING, ANVIL]
+activators:
+  entity-hit-player:
+    damager-type: [PHANTOM]
+    damager-health: 0.0

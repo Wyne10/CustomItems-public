@@ -1,0 +1,8 @@
+name: '<gold>Гравитация'
+material: FEATHER
+restrictions:
+  cancel-craft: true
+activators:
+  player-damage:
+    damage-cause: [FALL]
+    cancel: true

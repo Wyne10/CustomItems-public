@@ -1,0 +1,9 @@
+name: '<gold>Эндермен'
+material: ENDER_PEARL
+glow: true
+restrictions:
+  cancel-projectile: true
+activators:
+  launch-projectile:
+    chance: 0.5
+    consume: false
