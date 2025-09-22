@@ -1,0 +1,7 @@
+name: '<red>Взрывная штучка'
+material: FIRE_CHARGE
+activators:
+  right-click:
+    cancel: true
+    player-explosion:
+      offset: 0,0,3

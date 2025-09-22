@@ -10,7 +10,11 @@ import me.wyne.wutils.config.configurables.attribute.AttributeMap
 import me.wyne.wutils.config.configurables.item.attribute.PotionEffectsAttribute
 import me.wyne.wutils.i18n.kotlin.placeholderString
 import org.bigcraft.customitems.CustomItems
+import org.bigcraft.customitems.attribute.PlayerExplosionAttribute
+import org.bigcraft.customitems.config.IntOperation
+import org.bigcraft.customitems.config.getIntOperation
 import org.bigcraft.customitems.config.getMillis
+import org.bigcraft.customitems.config.getOperation
 import org.bigcraft.customitems.item.CustomItem
 import org.bukkit.Bukkit
 import org.bukkit.configuration.ConfigurationSection
@@ -35,6 +39,8 @@ val ACTIVATOR_ATTRIBUTE_MAP = AttributeMap(
         "consume" to AttributeFactory { key, config -> ConsumeProjectileAttribute(key, config.getBoolean(key)) },
         "damager-health" to AttributeFactory { key, config -> DamagerHealthAttribute(key, config.getDouble(key)) },
         "drop-lock" to AttributeFactory { key, config -> DropLockAttribute(key, config.getMillis(key)) },
+        "player-explosion" to PlayerExplosionAttribute.Factory,
+        "item-amount" to AttributeFactory { key, config -> ItemAmountAttribute(key, config.getIntOperation(key)) }
     )
 )
 
@@ -170,6 +176,15 @@ class DropLockAttribute(
         Bukkit.getScheduler().runTaskLater(CustomItems.instance, Runnable {
             items.forEach { it.owner = null }
         }, Ticks.ofMillis(value))
+    }
+}
+
+class ItemAmountAttribute(
+    key: String,
+    operation: IntOperation
+) : ActivatorAttribute<IntOperation>(key, operation) {
+    override fun apply(event: Event, player: Player, customItem: CustomItem, item: ItemStack) {
+        item.amount = value.evaluate(item.amount)
     }
 }
 

@@ -13,6 +13,7 @@ import org.bukkit.entity.Item
 import org.bukkit.event.Cancellable
 import org.bukkit.event.EventHandler
 import org.bukkit.event.EventPriority
+import org.bukkit.event.block.Action
 import org.bukkit.event.block.BlockPlaceEvent
 import org.bukkit.event.enchantment.EnchantItemEvent
 import org.bukkit.event.enchantment.PrepareItemEnchantEvent
@@ -23,6 +24,7 @@ import org.bukkit.event.inventory.CraftItemEvent
 import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.event.inventory.InventoryType
 import org.bukkit.event.player.PlayerDropItemEvent
+import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.event.player.PlayerItemConsumeEvent
 import org.bukkit.inventory.AnvilInventory
 import org.bukkit.inventory.ItemStack
@@ -41,7 +43,8 @@ val RESTRICTION_MAP = AttributeMap(
         "cancel-consume" to AttributeFactory { key, config -> ConsumptionRestriction(key, config.getBoolean(key)) },
         "cancel-rename" to AttributeFactory { key, config -> RenameRestriction(key, config.getBoolean(key)) },
         "cancel-anvil" to AttributeFactory { key, config -> AnvilRestriction(key, config.getBoolean(key)) },
-        "cancel-projectile" to AttributeFactory { key, config -> ProjectileRestriction(key, config.getBoolean(key)) }
+        "cancel-projectile" to AttributeFactory { key, config -> ProjectileRestriction(key, config.getBoolean(key)) },
+        "cancel-action" to AttributeFactory { key, config -> ActionRestriction(key, config.getEnumSet<Action>(key)) },
     )
 )
 
@@ -93,7 +96,7 @@ class VanillaCraftRestriction(key: String, isActive: Boolean) : Restriction(key,
 class StorageRestriction(
     key: String,
     private val types: Set<InventoryType>
-) : Restriction(key, true) {
+) : Restriction(key, types.isNotEmpty()) {
     @EventHandler(ignoreCancelled = true, priority = EventPriority.LOWEST)
     private fun onEvent(event: InventoryClickEvent) {
         if (!types.contains(event.view.topInventory.type)) return
@@ -104,7 +107,7 @@ class StorageRestriction(
 class DamageRestriction(
     key: String,
     private val causes: Set<DamageCause>
-) : Restriction(key, true) {
+) : Restriction(key, causes.isNotEmpty()) {
     @EventHandler(ignoreCancelled = true, priority = EventPriority.LOWEST)
     private fun onEvent(event: EntityDamageEvent) {
         if (event.entityType != EntityType.DROPPED_ITEM) return
@@ -166,5 +169,16 @@ class ProjectileRestriction(key: String, isActive: Boolean) : Restriction(key, i
     @EventHandler(ignoreCancelled = true, priority = EventPriority.LOWEST)
     private fun onEvent(event: PlayerLaunchProjectileEvent) {
         cancelEvent(event, event.itemStack)
+    }
+}
+
+class ActionRestriction(
+    key: String,
+    private val actions: Set<Action>
+) : Restriction(key, actions.isNotEmpty()) {
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.LOWEST)
+    private fun onEvent(event: PlayerInteractEvent) {
+        if (!actions.contains(event.action)) return
+        cancelEvent(event, event.item)
     }
 }

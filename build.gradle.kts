@@ -31,11 +31,13 @@ dependencies {
 }
 
 tasks {
+    val isDebug = findProperty("debug")?.toString()?.toBoolean() ?: false
+
     shadowJar {
         archiveBaseName.set(findProperty("name").toString())
         archiveClassifier.set("")
         minimize()
-        if ((findProperty("debug") ?: false) == false) {
+        if (!isDebug) {
             relocate("com.google.inject", "org.bigcraft.customitems.shadow.google.guice")
             relocate("com.google.common", "org.bigcraft.customitems.shadow.google.common")
             relocate("net.kyori", "org.bigcraft.customitems.shadow.net.kyori")
@@ -44,15 +46,16 @@ tasks {
     }
 
     runServer {
-        val minecraftVersion: String = if (Os.isFamily(Os.FAMILY_WINDOWS)) "1.19.4" else "1.16.5"
+        val minecraftVersion: String = if (Os.isFamily(Os.FAMILY_WINDOWS) || isDebug) "1.19.4" else "1.16.5"
+        val viaVersion = "5.4.2"
         val commandApiVersion = "9.4.2"
         downloadPlugins {
             url("https://ci.extendedclip.com/view/Plugins/job/PlaceholderAPI/197/artifact/build/libs/PlaceholderAPI-2.11.6.jar")
             url("https://download.luckperms.net/1594/bukkit/loader/LuckPerms-Bukkit-5.5.9.jar")
             github("dmulloy2", "ProtocolLib", "5.4.0", "ProtocolLib.jar")
-            github("ViaVersion", "ViaVersion", "5.4.2", "ViaVersion-5.4.2.jar")
-            github("ViaVersion", "ViaBackwards", "5.4.2", "ViaBackwards-5.4.2.jar")
-            github("CommandAPI", "CommandAPI", commandApiVersion, "CommandAPI-${commandApiVersion}.jar")
+            github("ViaVersion", "ViaVersion", viaVersion, "ViaVersion-$viaVersion.jar")
+            github("ViaVersion", "ViaBackwards", viaVersion, "ViaBackwards-$viaVersion.jar")
+            github("CommandAPI", "CommandAPI", commandApiVersion, "CommandAPI-$commandApiVersion.jar")
             modrinth("nbtapi", "2.15.0")
         }
         minecraftVersion(minecraftVersion)
