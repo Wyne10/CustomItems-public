@@ -30,7 +30,8 @@ val ACTIVATOR_ATTRIBUTE_MAP = AttributeMap(
         "cancel" to AttributeFactory { key, config -> CancelEventAttribute(key, config.getBoolean(key)) },
         "commands" to AttributeFactory { key, config -> CommandsAttribute(key, config.getStringList(key)) },
         "level-steal" to AttributeFactory { key, config -> LevelStealAttribute(key, config.getDouble(key)) },
-        "potion-effects" to org.bigcraft.customitems.activator.PotionEffectsAttribute.Factory,
+        "entity-potion-effects" to EntityPotionEffectsAttribute.Factory,
+        "player-potion-effects" to PlayerPotionEffectsAttribute.Factory,
         "consume" to AttributeFactory { key, config -> ConsumeProjectileAttribute(key, config.getBoolean(key)) },
         "damager-health" to AttributeFactory { key, config -> DamagerHealthAttribute(key, config.getDouble(key)) },
         "drop-lock" to AttributeFactory { key, config -> DropLockAttribute(key, config.getMillis(key)) },
@@ -80,7 +81,7 @@ class LevelStealAttribute(
     }
 }
 
-class PotionEffectsAttribute(
+class EntityPotionEffectsAttribute(
     key: String,
     effects: Set<PotionEffect>
 ) : ActivatorAttribute<Set<PotionEffect>>(key, effects) {
@@ -97,7 +98,27 @@ class PotionEffectsAttribute(
 
     object Factory : AttributeFactory {
         override fun create(key: String, config: ConfigurationSection): Attribute<*> {
-            return PotionEffectsAttribute(
+            return EntityPotionEffectsAttribute(
+                key,
+                PotionEffectsAttribute(key, config).value.map { it.value }.toSet()
+            )
+        }
+    }
+}
+
+class PlayerPotionEffectsAttribute(
+    key: String,
+    effects: Set<PotionEffect>
+) : ActivatorAttribute<Set<PotionEffect>>(key, effects) {
+    override fun apply(event: Event, player: Player, customItem: CustomItem, item: ItemStack) {
+        value.forEach { potionEffect ->
+            potionEffect.apply(player)
+        }
+    }
+
+    object Factory : AttributeFactory {
+        override fun create(key: String, config: ConfigurationSection): Attribute<*> {
+            return PlayerPotionEffectsAttribute(
                 key,
                 PotionEffectsAttribute(key, config).value.map { it.value }.toSet()
             )

@@ -1,0 +1,12 @@
+name: '<red>Вампиризм'
+material: WITHER_SKELETON_SKULL
+restrictions:
+  cancel-place: true
+activators:
+  player-hit-player:
+    chance: 0.02
+    player-potion-effects:
+      regeneration:
+        type: REGENERATION
+        amplifier: 1
+        duration: 20

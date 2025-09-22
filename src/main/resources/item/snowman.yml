@@ -6,7 +6,7 @@ restrictions:
 activators:
   player-hit-player:
     chance: 0.02
-    potion-effects:
+    entity-potion-effects:
       slow:
         type: SLOW
         duration: 100
