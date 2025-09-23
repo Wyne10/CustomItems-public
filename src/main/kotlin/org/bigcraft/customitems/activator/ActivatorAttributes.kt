@@ -2,7 +2,6 @@ package org.bigcraft.customitems.activator
 
 import com.destroystokyo.paper.event.player.PlayerLaunchProjectileEvent
 import me.wyne.wutils.common.Ticks
-import me.wyne.wutils.common.event.RegisterableListener
 import me.wyne.wutils.config.configurables.attribute.Attribute
 import me.wyne.wutils.config.configurables.attribute.AttributeBase
 import me.wyne.wutils.config.configurables.attribute.AttributeFactory
@@ -10,11 +9,11 @@ import me.wyne.wutils.config.configurables.attribute.AttributeMap
 import me.wyne.wutils.config.configurables.item.attribute.PotionEffectsAttribute
 import me.wyne.wutils.i18n.kotlin.placeholderString
 import org.bigcraft.customitems.CustomItems
+import org.bigcraft.customitems.attribute.JackOLanternAttribute
 import org.bigcraft.customitems.attribute.PlayerExplosionAttribute
 import org.bigcraft.customitems.config.IntOperation
 import org.bigcraft.customitems.config.getIntOperation
 import org.bigcraft.customitems.config.getMillis
-import org.bigcraft.customitems.config.getOperation
 import org.bigcraft.customitems.item.CustomItem
 import org.bukkit.Bukkit
 import org.bukkit.configuration.ConfigurationSection
@@ -40,7 +39,8 @@ val ACTIVATOR_ATTRIBUTE_MAP = AttributeMap(
         "set-damager-health" to AttributeFactory { key, config -> DamagerHealthAttribute(key, config.getDouble(key)) },
         "lock-drop" to AttributeFactory { key, config -> DropLockAttribute(key, config.getMillis(key)) },
         "player-explosion" to PlayerExplosionAttribute.Factory,
-        "set-item-amount" to AttributeFactory { key, config -> ItemAmountAttribute(key, config.getIntOperation(key)) }
+        "set-item-amount" to AttributeFactory { key, config -> ItemAmountAttribute(key, config.getIntOperation(key)) },
+        "jack-o-lantern" to JackOLanternAttribute.Factory
     )
 )
 
@@ -161,7 +161,7 @@ class DamagerHealthAttribute(
 class DropLockAttribute(
     key: String,
     durationMillis: Long
-) : ActivatorAttribute<Long>(key, durationMillis), RegisterableListener {
+) : ActivatorAttribute<Long>(key, durationMillis) {
     override fun isApplicable(event: Event, player: Player, customItem: CustomItem, item: ItemStack) =
         event is PlayerDeathEvent
 

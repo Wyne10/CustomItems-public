@@ -43,4 +43,9 @@ fun ConfigurationSection.getMillis(path: String): Long {
     return getDuration(durationType).getMillis(duration.toLong())
 }
 
+fun getMillis(string: String): Long {
+    val (duration, durationType) = DURATION_SYMBOLS_REGEX.matchEntire(string)!!.destructured
+    return getDuration(durationType).getMillis(duration.toLong())
+}
+
 val DURATION_SYMBOLS_REGEX = Regex("(-?\\d+(?:\\.\\d+)?)([smhdt])?")

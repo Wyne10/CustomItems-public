@@ -1,0 +1,10 @@
+name: '<gold>Светильник Джейка'
+material: JACK_O_LANTERN
+restrictions:
+  cancel-place: true
+activators:
+  right-click:
+    set-item-amount: -1
+    jack-o-lantern:
+      radius: 15
+      duration: 15s

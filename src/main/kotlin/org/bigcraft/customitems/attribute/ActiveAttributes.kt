@@ -2,17 +2,34 @@ package org.bigcraft.customitems.attribute
 
 import me.wyne.wutils.common.Args
 import me.wyne.wutils.common.ConfigUtils
+import me.wyne.wutils.common.Ticks
 import me.wyne.wutils.common.VectorUtils
+import me.wyne.wutils.common.event.RegisterableListener
+import me.wyne.wutils.config.configurables.ItemConfigurable
 import me.wyne.wutils.config.configurables.attribute.Attribute
 import me.wyne.wutils.config.configurables.attribute.CompositeAttributeFactory
+import me.wyne.wutils.config.configurables.attribute.ImmutableAttributeContainer
+import me.wyne.wutils.config.configurables.item.attribute.EnchantmentAttribute
+import me.wyne.wutils.config.configurables.item.attribute.MaterialAttribute
+import org.bigcraft.customitems.CustomItems
 import org.bigcraft.customitems.activator.ActivatorAttribute
+import org.bigcraft.customitems.config.getMillis
 import org.bigcraft.customitems.item.CustomItem
+import org.bigcraft.customitems.item.CustomItemManager
+import org.bukkit.Bukkit
 import org.bukkit.Location
+import org.bukkit.Material
 import org.bukkit.block.BlockFace
 import org.bukkit.configuration.ConfigurationSection
+import org.bukkit.enchantments.Enchantment
 import org.bukkit.entity.Player
 import org.bukkit.event.Event
+import org.bukkit.event.EventHandler
+import org.bukkit.event.inventory.InventoryClickEvent
+import org.bukkit.event.player.PlayerQuitEvent
+import org.bukkit.inventory.EquipmentSlot
 import org.bukkit.inventory.ItemStack
+import org.bukkit.persistence.PersistentDataType
 import org.bukkit.util.Vector
 
 class PlayerExplosionAttribute(
@@ -38,6 +55,62 @@ class PlayerExplosionAttribute(
                 key,
                 VectorUtils.getVectorOrZero(args.get(0)),
                 args.get(1, "1.0").toFloat()
+            )
+        }
+    }
+}
+
+class JackOLanternAttribute(
+    key: String,
+    radius: Double,
+    durationMillis: Long
+) : ActivatorAttribute<Pair<Double, Long>>(key, radius to durationMillis), RegisterableListener {
+
+    init {
+        CustomItemManager.instance.activatorRegistry.register(this)
+    }
+
+    override fun apply(event: Event, player: Player, customItem: CustomItem, item: ItemStack) {
+        val players = player.location.getNearbyPlayers(value.first)
+            .filterNot { it == player }
+            .filter { it.inventory.getItem(EquipmentSlot.HEAD) == null }
+        players.forEach { it.inventory.setItem(EquipmentSlot.HEAD, JACK_O_LANTERN_ITEM) }
+        Bukkit.getScheduler().runTaskLater(CustomItems.instance, Runnable {
+            players.forEach { it.inventory.setItem(EquipmentSlot.HEAD, null) }
+        }, Ticks.ofMillis(value.second))
+    }
+
+    // Fail safe
+    @EventHandler
+    private fun onDisconnect(event: PlayerQuitEvent) {
+        if (event.player.inventory.getItem(EquipmentSlot.HEAD) != JACK_O_LANTERN_ITEM) return
+        event.player.inventory.setItem(EquipmentSlot.HEAD, null)
+    }
+
+    companion object {
+        val JACK_O_LANTERN_ITEM: ItemStack = ItemConfigurable(
+            ImmutableAttributeContainer.builder()
+                .with(MaterialAttribute(Material.JACK_O_LANTERN))
+                .with(PdcTagAttribute("ci-key", PdcTagAttribute.PdcTag(PersistentDataType.STRING as PersistentDataType<Any, Any>, "jack-o-lantern")))
+                .with(EnchantmentAttribute(EnchantmentAttribute.EnchantmentData(Enchantment.BINDING_CURSE, 1)))
+                .buildImmutable()
+        ).build()
+    }
+
+    object Factory : CompositeAttributeFactory {
+        override fun fromSection(key: String, section: ConfigurationSection): Attribute<*> =
+            JackOLanternAttribute(
+                key,
+                section.getDouble("radius"),
+                section.getMillis("duration")
+            )
+
+        override fun fromString(key: String, string: String): Attribute<*> {
+            val args = Args(string, " ")
+            return JackOLanternAttribute(
+                key,
+                args.get(0, "0.0").toDouble(),
+                getMillis(args.get(1, "0s"))
             )
         }
     }
