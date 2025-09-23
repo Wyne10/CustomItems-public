@@ -63,9 +63,8 @@ class CancelEventAttribute(
         event is Cancellable
 
     override fun apply(event: Event, player: Player, customItem: CustomItem, item: ItemStack) {
-        if (!value) return
-        if (event is Cancellable)
-            event.isCancelled = true
+        event as Cancellable
+        event.isCancelled = value
     }
 }
 
