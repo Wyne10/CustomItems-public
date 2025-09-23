@@ -1,0 +1,8 @@
+name: '<green>Пузырь опыта'
+material: EXPERIENCE_BOTTLE
+restrictions:
+  cancel-projectile: true
+activators:
+  right-click:
+    set-item-amount: -1
+    repair: [HEAD, CHEST, LEGS, FEET]

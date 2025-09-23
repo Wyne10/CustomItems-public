@@ -25,10 +25,10 @@ import org.bukkit.enchantments.Enchantment
 import org.bukkit.entity.Player
 import org.bukkit.event.Event
 import org.bukkit.event.EventHandler
-import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.event.player.PlayerQuitEvent
 import org.bukkit.inventory.EquipmentSlot
 import org.bukkit.inventory.ItemStack
+import org.bukkit.inventory.meta.Damageable
 import org.bukkit.persistence.PersistentDataType
 import org.bukkit.util.Vector
 
@@ -113,6 +113,18 @@ class JackOLanternAttribute(
                 getMillis(args.get(1, "0s"))
             )
         }
+    }
+}
+
+// TODO Test with custom mending
+class RepairAttribute(
+    key: String,
+    slots: Set<EquipmentSlot>
+) : ActivatorAttribute<Set<EquipmentSlot>>(key, slots) {
+    override fun apply(event: Event, player: Player, customItem: CustomItem, item: ItemStack) {
+        value.mapNotNull { player.inventory.getItem(it) }
+            .filter { it.containsEnchantment(Enchantment.MENDING) }
+            .forEach { it.editMeta { meta -> (meta as? Damageable)?.damage = 0 } }
     }
 }
 

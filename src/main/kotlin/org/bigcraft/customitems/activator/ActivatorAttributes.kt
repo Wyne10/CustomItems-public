@@ -11,7 +11,9 @@ import me.wyne.wutils.i18n.kotlin.placeholderString
 import org.bigcraft.customitems.CustomItems
 import org.bigcraft.customitems.attribute.JackOLanternAttribute
 import org.bigcraft.customitems.attribute.PlayerExplosionAttribute
+import org.bigcraft.customitems.attribute.RepairAttribute
 import org.bigcraft.customitems.config.IntOperation
+import org.bigcraft.customitems.config.getEnumSet
 import org.bigcraft.customitems.config.getIntOperation
 import org.bigcraft.customitems.config.getMillis
 import org.bigcraft.customitems.item.CustomItem
@@ -24,6 +26,7 @@ import org.bukkit.event.Event
 import org.bukkit.event.entity.EntityDamageByEntityEvent
 import org.bukkit.event.entity.EntityEvent
 import org.bukkit.event.entity.PlayerDeathEvent
+import org.bukkit.inventory.EquipmentSlot
 import org.bukkit.inventory.ItemStack
 import org.bukkit.potion.PotionEffect
 import kotlin.random.Random
@@ -40,7 +43,8 @@ val ACTIVATOR_ATTRIBUTE_MAP = AttributeMap(
         "lock-drop" to AttributeFactory { key, config -> DropLockAttribute(key, config.getMillis(key)) },
         "player-explosion" to PlayerExplosionAttribute.Factory,
         "set-item-amount" to AttributeFactory { key, config -> ItemAmountAttribute(key, config.getIntOperation(key)) },
-        "jack-o-lantern" to JackOLanternAttribute.Factory
+        "jack-o-lantern" to JackOLanternAttribute.Factory,
+        "repair" to AttributeFactory { key, config -> RepairAttribute(key, config.getEnumSet<EquipmentSlot>(key)) },
     )
 )
 
