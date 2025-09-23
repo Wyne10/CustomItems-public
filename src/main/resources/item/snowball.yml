@@ -1,0 +1,17 @@
+name: '<aqua>Ком снега'
+material: SNOWBALL
+glow: true
+activators:
+  entity-hit-player:
+    is-damager-type: [SNOWBALL]
+    has-damager-meta: [snowball]
+    launch-projectile:
+      set-projectile-meta: snowball
+    player-potion-effects:
+      slow:
+        type: SLOW
+        amplifier: 5
+        duration: 200
+      blind:
+        type: BLINDNESS
+        duration: 200

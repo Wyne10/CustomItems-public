@@ -1,5 +1,6 @@
 name: '<red>Взрывная штучка'
 material: FIRE_CHARGE
+glow: true
 activators:
   right-click:
     cancel-event: true

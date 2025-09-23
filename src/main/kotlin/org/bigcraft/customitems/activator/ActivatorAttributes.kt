@@ -28,6 +28,7 @@ import org.bukkit.event.entity.EntityEvent
 import org.bukkit.event.entity.PlayerDeathEvent
 import org.bukkit.inventory.EquipmentSlot
 import org.bukkit.inventory.ItemStack
+import org.bukkit.metadata.FixedMetadataValue
 import org.bukkit.potion.PotionEffect
 import kotlin.random.Random
 
@@ -39,6 +40,7 @@ val ACTIVATOR_ATTRIBUTE_MAP = AttributeMap(
         "entity-potion-effects" to EntityPotionEffectsAttribute.Factory,
         "player-potion-effects" to PlayerPotionEffectsAttribute.Factory,
         "consume-projectile" to AttributeFactory { key, config -> ConsumeProjectileAttribute(key, config.getBoolean(key)) },
+        "set-projectile-meta" to AttributeFactory { key, config -> ProjectileMetaAttribute(key, config.getString(key)!!) },
         "set-damager-health" to AttributeFactory { key, config -> DamagerHealthAttribute(key, config.getDouble(key)) },
         "lock-drop" to AttributeFactory { key, config -> DropLockAttribute(key, config.getMillis(key)) },
         "player-explosion" to PlayerExplosionAttribute.Factory,
@@ -146,6 +148,19 @@ class ConsumeProjectileAttribute(
     override fun apply(event: Event, player: Player, customItem: CustomItem, item: ItemStack) {
         event as PlayerLaunchProjectileEvent
         event.setShouldConsume(value)
+    }
+}
+
+class ProjectileMetaAttribute(
+    key: String,
+    meta: String
+) : ActivatorAttribute<String>(key, meta) {
+    override fun isApplicable(event: Event, player: Player, customItem: CustomItem, item: ItemStack) =
+        event is PlayerLaunchProjectileEvent
+
+    override fun apply(event: Event, player: Player, customItem: CustomItem, item: ItemStack) {
+        event as PlayerLaunchProjectileEvent
+        event.projectile.setMetadata(value, FixedMetadataValue(CustomItems.instance, value))
     }
 }
 

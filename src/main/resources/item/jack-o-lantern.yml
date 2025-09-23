@@ -1,5 +1,6 @@
 name: '<gold>Светильник Джейка'
 material: JACK_O_LANTERN
+glow: true
 restrictions:
   cancel-place: true
 activators:
