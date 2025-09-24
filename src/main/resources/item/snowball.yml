@@ -5,6 +5,7 @@ activators:
   launch-projectile:
     set-projectile-meta: snowball
   projectile-hit-player:
+    identifier: EMPTY
     is-damager-type: [SNOWBALL]
     has-damager-meta: [snowball]
     player-potion-effects:

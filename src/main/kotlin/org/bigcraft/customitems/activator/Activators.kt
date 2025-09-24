@@ -7,7 +7,6 @@ import me.wyne.wutils.config.configurables.attribute.AttributeMap
 import me.wyne.wutils.config.configurables.attribute.ImmutableAttributeContainer
 import org.bigcraft.customitems.activator.condition.ACTIVATOR_CONDITION_MAP
 import org.bigcraft.customitems.activator.condition.ActivatorCondition
-import org.bigcraft.customitems.item.CustomItem
 import org.bigcraft.customitems.item.CustomItemManager
 import org.bigcraft.customitems.item.RegisterableCustomItemAttribute
 import org.bukkit.configuration.ConfigurationSection
@@ -27,18 +26,22 @@ import org.bukkit.inventory.ItemStack
 // TODO Maybe make item stack search a separate attribute?
 val ACTIVATOR_MAP = AttributeMap(
     mapOf(
-        "right-click" to AttributeFactory { key, config -> RightClickActivator(key, createActivatorAttributes(key, config), createActivatorConditions(key, config)) },
-        "player-kill-player" to AttributeFactory { key, config -> PlayerKillActivator(key, createActivatorAttributes(key, config), createActivatorConditions(key, config)) },
-        "player-hit-player" to AttributeFactory { key, config -> PlayerHitActivator(key, createActivatorAttributes(key, config), createActivatorConditions(key, config)) },
-        "entity-hit-player" to AttributeFactory { key, config -> EntityHitPlayerActivator(key, createActivatorAttributes(key, config), createActivatorConditions(key, config)) },
-        "projectile-hit-player" to AttributeFactory { key, config -> ProjectileHitPlayerActivator(key, createActivatorAttributes(key, config), createActivatorConditions(key, config)) },
-        "player-hit-entity" to AttributeFactory { key, config -> PlayerHitEntityActivator(key, createActivatorAttributes(key, config), createActivatorConditions(key, config)) },
-        "launch-projectile" to AttributeFactory { key, config -> LaunchProjectileActivator(key, createActivatorAttributes(key, config), createActivatorConditions(key, config)) },
-        "player-damage" to AttributeFactory { key, config -> PlayerDamageActivator(key, createActivatorAttributes(key, config), createActivatorConditions(key, config)) },
-        "player-potion-effect" to AttributeFactory { key, config -> PlayerPotionEffectActivator(key, createActivatorAttributes(key, config), createActivatorConditions(key, config)) },
-        "player-consume-item" to AttributeFactory { key, config -> PlayerConsumeItemActivator(key, createActivatorAttributes(key, config), createActivatorConditions(key, config)) },
+        "right-click" to AttributeFactory { key, config -> RightClickActivator(key, createItemIdentifier(key, config), createActivatorAttributes(key, config), createActivatorConditions(key, config)) },
+        "player-kill-player" to AttributeFactory { key, config -> PlayerKillActivator(key, createItemIdentifier(key, config), createActivatorAttributes(key, config), createActivatorConditions(key, config)) },
+        "player-hit-player" to AttributeFactory { key, config -> PlayerHitActivator(key, createItemIdentifier(key, config), createActivatorAttributes(key, config), createActivatorConditions(key, config)) },
+        "entity-hit-player" to AttributeFactory { key, config -> EntityHitPlayerActivator(key, createItemIdentifier(key, config), createActivatorAttributes(key, config), createActivatorConditions(key, config)) },
+        "projectile-hit-player" to AttributeFactory { key, config -> ProjectileHitPlayerActivator(key, createItemIdentifier(key, config), createActivatorAttributes(key, config), createActivatorConditions(key, config)) },
+        "player-hit-entity" to AttributeFactory { key, config -> PlayerHitEntityActivator(key, createItemIdentifier(key, config), createActivatorAttributes(key, config), createActivatorConditions(key, config)) },
+        "launch-projectile" to AttributeFactory { key, config -> LaunchProjectileActivator(key, createItemIdentifier(key, config), createActivatorAttributes(key, config), createActivatorConditions(key, config)) },
+        "player-damage" to AttributeFactory { key, config -> PlayerDamageActivator(key, createItemIdentifier(key, config), createActivatorAttributes(key, config), createActivatorConditions(key, config)) },
+        "player-potion-effect" to AttributeFactory { key, config -> PlayerPotionEffectActivator(key, createItemIdentifier(key, config), createActivatorAttributes(key, config), createActivatorConditions(key, config)) },
+        "player-consume-item" to AttributeFactory { key, config -> PlayerConsumeItemActivator(key, createItemIdentifier(key, config), createActivatorAttributes(key, config), createActivatorConditions(key, config)) },
     )
 )
+
+private fun createItemIdentifier(key: String, config: ConfigurationSection) =
+    runCatching { ItemIdentifiers.valueOf(config.getString("$key.identifier", "PLAYER")!!).identifier }
+        .getOrDefault(ItemIdentifiers.PLAYER.identifier)
 
 private fun createActivatorAttributes(key: String, config: ConfigurationSection) =
     AttributeConfigurable(ImmutableAttributeContainer(ACTIVATOR_ATTRIBUTE_MAP, config.getConfigurationSection(key)))
@@ -50,150 +53,165 @@ private fun createActivatorConditions(key: String, config: ConfigurationSection)
 
 abstract class Activator(
     key: String,
+    private val itemIdentifier: ItemIdentifier,
     private val attributes: Set<ActivatorAttribute<*>>,
     private val conditions: Set<ActivatorCondition<*>>
 ) : RegisterableCustomItemAttribute<Boolean>(key, true, CustomItemManager.instance.activatorRegistry) {
 
-    fun activate(event: Event, player: Player, customItem: CustomItem, item: ItemStack) {
-        if (conditions.any { !it.isApplicable(event, player, customItem, item) })
+    protected fun getItemStack(event: Event, player: Player): ItemStack? =
+        itemIdentifier.getItem(event, player, item)
+
+    fun activate(event: Event, player: Player, itemStack: ItemStack) {
+        if (conditions.any { !it.isApplicable(event, player, item, itemStack) })
             return
-        if (customItem.cooldowns.any { it.isCooldowned(player, item) })
+        if (item.cooldowns.any { it.isCooldowned(player, itemStack) })
             return
         attributes
-            .filter { it.isApplicable(event, player, customItem, item) }
-            .forEach { it.apply(event, player, customItem, item) }
-        customItem.cooldowns.forEach { it.apply(player, item) }
+            .filter { it.isApplicable(event, player, item, itemStack) }
+            .forEach { it.apply(event, player, item, itemStack) }
+        item.cooldowns.forEach { it.apply(player, itemStack) }
     }
 
 }
 
 class RightClickActivator(
     key: String,
+    itemIdentifier: ItemIdentifier,
     attributes: Set<ActivatorAttribute<*>>,
     conditions: Set<ActivatorCondition<*>>
-) : Activator(key, attributes, conditions) {
+) : Activator(key, itemIdentifier, attributes, conditions) {
     @EventHandler
     private fun onRightClick(event: PlayerInteractEvent) {
-        val itemStack = item.getItem(event.player.inventory) ?: return
+        val itemStack = getItemStack(event, event.player) ?: return
         if (event.action != Action.RIGHT_CLICK_AIR && event.action != Action.RIGHT_CLICK_BLOCK) return
-        activate(event, event.player, item, itemStack)
+        activate(event, event.player, itemStack)
     }
 }
 
 class PlayerKillActivator(
     key: String,
+    itemIdentifier: ItemIdentifier,
     attributes: Set<ActivatorAttribute<*>>,
     conditions: Set<ActivatorCondition<*>>
-) : Activator(key, attributes, conditions) {
+) : Activator(key, itemIdentifier, attributes, conditions) {
     @EventHandler(ignoreCancelled = true)
     private fun onDeath(event: PlayerDeathEvent) {
         val killer = event.entity.killer ?: return
-        val itemStack = item.getItem(killer.inventory) ?: return
-        activate(event, killer, item, itemStack)
+        val itemStack = getItemStack(event, killer) ?: return
+        activate(event, killer, itemStack)
     }
 }
 
 class PlayerHitActivator(
     key: String,
+    itemIdentifier: ItemIdentifier,
     attributes: Set<ActivatorAttribute<*>>,
     conditions: Set<ActivatorCondition<*>>
-) : Activator(key, attributes, conditions) {
+) : Activator(key, itemIdentifier, attributes, conditions) {
     @EventHandler(ignoreCancelled = true)
     private fun onDamage(event: EntityDamageByEntityEvent) {
         val damager = event.damager as? Player ?: return
         if (event.entity !is Player) return
-        val itemStack = item.getItem(damager.inventory) ?: return
-        activate(event, damager, item, itemStack)
+        val itemStack = getItemStack(event, damager) ?: return
+        activate(event, damager, itemStack)
     }
 }
 
 class EntityHitPlayerActivator(
     key: String,
+    itemIdentifier: ItemIdentifier,
     attributes: Set<ActivatorAttribute<*>>,
     conditions: Set<ActivatorCondition<*>>
-) : Activator(key, attributes, conditions) {
+) : Activator(key, itemIdentifier, attributes, conditions) {
     @EventHandler(ignoreCancelled = true)
     private fun onDamage(event: EntityDamageByEntityEvent) {
         val damaged = event.entity as? Player ?: return
         if (event.damager is Player) return
-        val itemStack = item.getItem(damaged.inventory) ?: return
-        activate(event, damaged, item, itemStack)
+        val itemStack = getItemStack(event, damaged) ?: return
+        activate(event, damaged, itemStack)
     }
 }
 
 class ProjectileHitPlayerActivator(
     key: String,
+    itemIdentifier: ItemIdentifier,
     attributes: Set<ActivatorAttribute<*>>,
     conditions: Set<ActivatorCondition<*>>
-) : Activator(key, attributes, conditions) {
+) : Activator(key, itemIdentifier, attributes, conditions) {
     @EventHandler(ignoreCancelled = true)
     private fun onDamage(event: EntityDamageByEntityEvent) {
         val damaged = event.entity as? Player ?: return
         if (event.damager !is Projectile) return
-        activate(event, damaged, item, item.createItemStack())
+        val itemStack = getItemStack(event, damaged) ?: return
+        activate(event, damaged, itemStack)
     }
 }
 
 class PlayerHitEntityActivator(
     key: String,
+    itemIdentifier: ItemIdentifier,
     attributes: Set<ActivatorAttribute<*>>,
     conditions: Set<ActivatorCondition<*>>
-) : Activator(key, attributes, conditions) {
+) : Activator(key, itemIdentifier, attributes, conditions) {
     @EventHandler(ignoreCancelled = true)
     private fun onDamage(event: EntityDamageByEntityEvent) {
         val damager = event.damager as? Player ?: return
         if (event.entity is Player) return
-        val itemStack = item.getItem(damager.inventory) ?: return
-        activate(event, damager, item, itemStack)
+        val itemStack = getItemStack(event, damager) ?: return
+        activate(event, damager, itemStack)
     }
 }
 
 class LaunchProjectileActivator(
     key: String,
+    itemIdentifier: ItemIdentifier,
     attributes: Set<ActivatorAttribute<*>>,
     conditions: Set<ActivatorCondition<*>>
-) : Activator(key, attributes, conditions) {
+) : Activator(key, itemIdentifier, attributes, conditions) {
     @EventHandler(ignoreCancelled = true)
     private fun onLaunch(event: PlayerLaunchProjectileEvent) {
-        val itemStack = item.getItem(event.player.inventory) ?: return
-        activate(event, event.player, item, itemStack)
+        val itemStack = getItemStack(event, event.player) ?: return
+        activate(event, event.player, itemStack)
     }
 }
 
 class PlayerDamageActivator(
     key: String,
+    itemIdentifier: ItemIdentifier,
     attributes: Set<ActivatorAttribute<*>>,
     conditions: Set<ActivatorCondition<*>>
-) : Activator(key, attributes, conditions) {
+) : Activator(key, itemIdentifier, attributes, conditions) {
     @EventHandler(ignoreCancelled = true)
     private fun onDamage(event: EntityDamageEvent) {
         val damaged = event.entity as? Player ?: return
-        val itemStack = item.getItem(damaged.inventory) ?: return
-        activate(event, damaged, item, itemStack)
+        val itemStack = getItemStack(event, damaged) ?: return
+        activate(event, damaged, itemStack)
     }
 }
 
 class PlayerPotionEffectActivator(
     key: String,
+    itemIdentifier: ItemIdentifier,
     attributes: Set<ActivatorAttribute<*>>,
     conditions: Set<ActivatorCondition<*>>
-) : Activator(key, attributes, conditions) {
+) : Activator(key, itemIdentifier, attributes, conditions) {
     @EventHandler(ignoreCancelled = true)
     private fun onPotion(event: EntityPotionEffectEvent) {
         val player = event.entity as? Player ?: return
-        val itemStack = item.getItem(player.inventory) ?: return
-        activate(event, player, item, itemStack)
+        val itemStack = getItemStack(event, player) ?: return
+        activate(event, player, itemStack)
     }
 }
 
 class PlayerConsumeItemActivator(
     key: String,
+    itemIdentifier: ItemIdentifier,
     attributes: Set<ActivatorAttribute<*>>,
     conditions: Set<ActivatorCondition<*>>
-) : Activator(key, attributes, conditions) {
+) : Activator(key, itemIdentifier, attributes, conditions) {
     @EventHandler(ignoreCancelled = true)
     private fun onConsume(event: PlayerItemConsumeEvent) {
-        val itemStack = item.getItem(event.player.inventory) ?: return
-        activate(event, event.player, item, itemStack)
+        val itemStack = getItemStack(event, event.player) ?: return
+        activate(event, event.player, itemStack)
     }
 }

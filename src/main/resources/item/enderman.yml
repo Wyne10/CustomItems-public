@@ -5,5 +5,6 @@ restrictions:
   cancel-projectile: true
 activators:
   launch-projectile:
+    is-projectile-type: [ ENDER_PEARL ]
     chance: 0.5
     consume-projectile: false

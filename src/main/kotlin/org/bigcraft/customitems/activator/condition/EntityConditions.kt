@@ -1,5 +1,6 @@
 package org.bigcraft.customitems.activator.condition
 
+import com.destroystokyo.paper.event.player.PlayerLaunchProjectileEvent
 import org.bigcraft.customitems.item.CustomItem
 import org.bukkit.entity.EntityType
 import org.bukkit.entity.Player
@@ -33,5 +34,12 @@ class EntityMetaCondition(key: String, meta: Set<String>) : ActivatorCondition<S
     override fun isApplicable(event: Event, player: Player, customItem: CustomItem, item: ItemStack): Boolean {
         if (event !is EntityEvent) return true
         return value.any { event.entity.hasMetadata(it) }
+    }
+}
+
+class ProjectileTypeCondition(key: String, types: Set<EntityType>) : ActivatorCondition<Set<EntityType>>(key, types) {
+    override fun isApplicable(event: Event, player: Player, customItem: CustomItem, item: ItemStack): Boolean {
+        if (event !is PlayerLaunchProjectileEvent) return true
+        return event.projectile.type in value
     }
 }

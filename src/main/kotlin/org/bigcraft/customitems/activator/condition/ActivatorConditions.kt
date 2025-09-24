@@ -55,6 +55,7 @@ val ACTIVATOR_CONDITION_MAP = AttributeMap(
         "is-potion-type" to AttributeFactory { key, config -> PotionTypeCondition(key, config.getPotionTypeEnumSet(key)) },
         "is-damager-type" to AttributeFactory { key, config -> DamagerTypeCondition(key, config.getEnumSet<EntityType>(key)) },
         "is-entity-type" to AttributeFactory { key, config -> EntityTypeCondition(key, config.getEnumSet<EntityType>(key)) },
+        "is-projectile-type" to AttributeFactory { key, config -> ProjectileTypeCondition(key, config.getEnumSet<EntityType>(key)) },
         "has-damager-meta" to AttributeFactory { key, config -> DamagerMetaCondition(key, config.getStringList(key).toSet()) },
         "has-entity-meta" to AttributeFactory { key, config -> EntityMetaCondition(key, config.getStringList(key).toSet()) },
         "is-damage-cause" to AttributeFactory { key, config -> DamageCauseCondition(key, config.getEnumSet<EntityDamageEvent.DamageCause>(key)) },
