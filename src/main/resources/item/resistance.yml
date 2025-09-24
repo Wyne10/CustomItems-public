@@ -1,0 +1,6 @@
+name: '<light_purple><lang:effect.minecraft.resistance> I'
+material: POTION
+potionColor: 10044730
+potionEffect:
+  type: DAMAGE_RESISTANCE
+  duration: 1728000

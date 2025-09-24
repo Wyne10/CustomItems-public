@@ -1,0 +1,6 @@
+name: '<light_purple><lang:effect.minecraft.regeneration> I'
+material: POTION
+potionColor: 13458603
+potionEffect:
+  type: REGENERATION
+  duration: 1728000

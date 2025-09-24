@@ -1,0 +1,6 @@
+name: '<light_purple><lang:effect.minecraft.night_vision>'
+material: POTION
+potionColor: 2039713
+potionEffect:
+  type: NIGHT_VISION
+  duration: 1728000

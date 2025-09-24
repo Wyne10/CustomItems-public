@@ -47,16 +47,20 @@ val ACTIVATOR_CONDITION_MAP = AttributeMap(
         "is-not-in-world" to AttributeFactory { key, config -> NotInWorldCondition(key, config.getStringList(key).mapNotNull { Bukkit.getWorld(it) }.toSet()) },
         "is-weather" to AttributeFactory { key, config -> WeatherCondition(key, config.getEnumSet<Weather>(key)) },
         "is-day-time" to AttributeFactory { key, config -> DayTimeCondition(key, config.getIntComparator(key)) },
-        "is-item-durability" to AttributeFactory { key, config -> DurabilityCondition(key, config.getIntComparator(key)) },
-        "is-item-cooldown" to AttributeFactory { key, config -> CooldownCondition(key, config.getIntComparator(key)) },
+        "is-item-durability" to AttributeFactory { key, config -> ItemDurabilityCondition(key, config.getIntComparator(key)) },
+        "is-item-cooldown" to AttributeFactory { key, config -> ItemCooldownCondition(key, config.getIntComparator(key)) },
         "is-item-equipment" to AttributeFactory { key, config -> ItemEquipmentCondition(key, config.getEnumSet<EquipmentSlot>(key)) },
+        "is-item-type" to AttributeFactory { key, config -> ItemTypeCondition(key, config.getEnumSet<Material>(key)) },
+        "is-potion-type" to AttributeFactory { key, config -> PotionTypeCondition(key, config.getStringList(key)
+                .mapNotNull { runCatching { PotionEffectType.getByName(it) }.getOrNull() }
+                .toSet()) },
         "is-damager-type" to AttributeFactory { key, config -> DamagerTypeCondition(key, config.getEnumSet<EntityType>(key)) },
         "is-entity-type" to AttributeFactory { key, config -> EntityTypeCondition(key, config.getEnumSet<EntityType>(key)) },
         "has-damager-meta" to AttributeFactory { key, config -> DamagerMetaCondition(key, config.getStringList(key).toSet()) },
         "has-entity-meta" to AttributeFactory { key, config -> EntityMetaCondition(key, config.getStringList(key).toSet()) },
         "is-damage-cause" to AttributeFactory { key, config -> DamageCauseCondition(key, config.getEnumSet<EntityDamageEvent.DamageCause>(key)) },
-        "is-potion-action" to AttributeFactory { key, config -> PotionActionCondition(key, config.getEnumSet<EntityPotionEffectEvent.Action>(key)) },
-        "is-potion-type" to AttributeFactory { key, config -> PotionTypeCondition(key, config.getStringList(key)
+        "is-effect-action" to AttributeFactory { key, config -> EffectActionCondition(key, config.getEnumSet<EntityPotionEffectEvent.Action>(key)) },
+        "is-effect-type" to AttributeFactory { key, config -> EffectTypeCondition(key, config.getStringList(key)
                 .mapNotNull { runCatching { PotionEffectType.getByName(it) }.getOrNull() }
                 .toSet()) },
     )

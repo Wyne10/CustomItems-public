@@ -1,0 +1,6 @@
+name: '<light_purple><lang:effect.minecraft.health_boost> I'
+material: POTION
+potionColor: 16284963
+potionEffect:
+  type: HEALTH_BOOST
+  duration: 1728000

@@ -1,6 +1,6 @@
 name: '<light_purple><lang:effect.minecraft.water_breathing>'
 material: POTION
-potionColor: 2177915
+potionColor: 3035801
 potionEffect:
   type: WATER_BREATHING
   duration: 1728000

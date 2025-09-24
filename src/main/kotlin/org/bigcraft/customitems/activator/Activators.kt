@@ -21,8 +21,10 @@ import org.bukkit.event.entity.EntityDamageEvent
 import org.bukkit.event.entity.EntityPotionEffectEvent
 import org.bukkit.event.entity.PlayerDeathEvent
 import org.bukkit.event.player.PlayerInteractEvent
+import org.bukkit.event.player.PlayerItemConsumeEvent
 import org.bukkit.inventory.ItemStack
 
+// TODO Maybe make item stack search a separate attribute?
 val ACTIVATOR_MAP = AttributeMap(
     mapOf(
         "right-click" to AttributeFactory { key, config -> RightClickActivator(key, createActivatorAttributes(key, config), createActivatorConditions(key, config)) },
@@ -34,6 +36,7 @@ val ACTIVATOR_MAP = AttributeMap(
         "launch-projectile" to AttributeFactory { key, config -> LaunchProjectileActivator(key, createActivatorAttributes(key, config), createActivatorConditions(key, config)) },
         "player-damage" to AttributeFactory { key, config -> PlayerDamageActivator(key, createActivatorAttributes(key, config), createActivatorConditions(key, config)) },
         "player-potion-effect" to AttributeFactory { key, config -> PlayerPotionEffectActivator(key, createActivatorAttributes(key, config), createActivatorConditions(key, config)) },
+        "player-consume-item" to AttributeFactory { key, config -> PlayerConsumeItemActivator(key, createActivatorAttributes(key, config), createActivatorConditions(key, config)) },
     )
 )
 
@@ -180,5 +183,17 @@ class PlayerPotionEffectActivator(
         val player = event.entity as? Player ?: return
         val itemStack = item.getItem(player.inventory) ?: return
         activate(event, player, item, itemStack)
+    }
+}
+
+class PlayerConsumeItemActivator(
+    key: String,
+    attributes: Set<ActivatorAttribute<*>>,
+    conditions: Set<ActivatorCondition<*>>
+) : Activator(key, attributes, conditions) {
+    @EventHandler(ignoreCancelled = true)
+    private fun onConsume(event: PlayerItemConsumeEvent) {
+        val itemStack = item.getItem(event.player.inventory) ?: return
+        activate(event, event.player, item, itemStack)
     }
 }

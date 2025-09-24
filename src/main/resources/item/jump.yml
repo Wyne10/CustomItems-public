@@ -1,6 +1,6 @@
 name: '<green><lang:effect.minecraft.jump_boost> III'
 material: POTION
-potionColor: 6422390
+potionColor: 2293580
 potionEffect:
   type: JUMP
   amplifier: 2

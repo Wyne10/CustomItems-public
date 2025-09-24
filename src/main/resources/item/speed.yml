@@ -1,0 +1,7 @@
+name: '<light_purple><lang:effect.minecraft.speed> III'
+material: POTION
+potionColor: 8171462
+potionEffect:
+  type: SPEED
+  amplifier: 2
+  duration: 1728000

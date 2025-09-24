@@ -1,0 +1,15 @@
+name: '<light_purple><lang:effect.minecraft.saturation>'
+material: POTION
+potionColor: 16262179
+potionEffect:
+  type: SATURATION
+  duration: 1728000
+activators:
+  # Workaround as saturation potion doesn't work as intended
+  player-consume-item:
+    is-item-type: [ POTION ]
+    is-potion-type: [ SATURATION ]
+    player-potion-effects:
+      saturation:
+        type: SATURATION
+        duration: 1728000
