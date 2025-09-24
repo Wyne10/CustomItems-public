@@ -4,3 +4,8 @@ potionColor: 14270531
 potionEffect:
   type: FAST_DIGGING
   duration: 1728000
+activators:
+  player-hit-player:
+    identifier: EMPTY
+    player-remove-effects: [ FAST_DIGGING ]
+    entity-remove-effects: [ FAST_DIGGING ]

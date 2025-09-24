@@ -14,3 +14,7 @@ activators:
       saturation:
         type: SATURATION
         duration: 1728000
+  player-hit-player:
+    identifier: EMPTY
+    player-remove-effects: [ SATURATION ]
+    entity-remove-effects: [ SATURATION ]
