@@ -2,6 +2,7 @@ package org.bigcraft.customitems.config
 
 import org.bukkit.Material
 import org.bukkit.configuration.ConfigurationSection
+import org.bukkit.potion.PotionEffectType
 import org.bukkit.util.Vector
 
 const val RANGE_DELIMITER = ".."
@@ -37,6 +38,11 @@ fun ConfigurationSection.getBlockMaterial(path: String, def: Material = Material
 
 fun ConfigurationSection.getIntNullable(path: String, def: Int? = null): Int? =
     if (contains(path)) getInt(path) else def
+
+fun ConfigurationSection.getPotionTypeEnumSet(path: String): Set<PotionEffectType> =
+    getStringList(path)
+        .mapNotNull { runCatching { PotionEffectType.getByName(it) }.getOrNull() }
+        .toSet()
 
 inline fun <reified E : Enum<E>> ConfigurationSection.getEnumSet(key: String): Set<E> {
     return if (isBoolean(key) && getBoolean(key)) {

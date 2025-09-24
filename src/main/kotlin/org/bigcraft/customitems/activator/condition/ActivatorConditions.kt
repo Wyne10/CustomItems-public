@@ -6,6 +6,7 @@ import me.wyne.wutils.config.configurables.attribute.AttributeMap
 import org.bigcraft.customitems.activator.test
 import org.bigcraft.customitems.config.getIntComparator
 import org.bigcraft.customitems.config.getEnumSet
+import org.bigcraft.customitems.config.getPotionTypeEnumSet
 import org.bigcraft.customitems.item.CustomItem
 import org.bukkit.Bukkit
 import org.bukkit.Material
@@ -51,18 +52,14 @@ val ACTIVATOR_CONDITION_MAP = AttributeMap(
         "is-item-cooldown" to AttributeFactory { key, config -> ItemCooldownCondition(key, config.getIntComparator(key)) },
         "is-item-equipment" to AttributeFactory { key, config -> ItemEquipmentCondition(key, config.getEnumSet<EquipmentSlot>(key)) },
         "is-item-type" to AttributeFactory { key, config -> ItemTypeCondition(key, config.getEnumSet<Material>(key)) },
-        "is-potion-type" to AttributeFactory { key, config -> PotionTypeCondition(key, config.getStringList(key)
-                .mapNotNull { runCatching { PotionEffectType.getByName(it) }.getOrNull() }
-                .toSet()) },
+        "is-potion-type" to AttributeFactory { key, config -> PotionTypeCondition(key, config.getPotionTypeEnumSet(key)) },
         "is-damager-type" to AttributeFactory { key, config -> DamagerTypeCondition(key, config.getEnumSet<EntityType>(key)) },
         "is-entity-type" to AttributeFactory { key, config -> EntityTypeCondition(key, config.getEnumSet<EntityType>(key)) },
         "has-damager-meta" to AttributeFactory { key, config -> DamagerMetaCondition(key, config.getStringList(key).toSet()) },
         "has-entity-meta" to AttributeFactory { key, config -> EntityMetaCondition(key, config.getStringList(key).toSet()) },
         "is-damage-cause" to AttributeFactory { key, config -> DamageCauseCondition(key, config.getEnumSet<EntityDamageEvent.DamageCause>(key)) },
         "is-effect-action" to AttributeFactory { key, config -> EffectActionCondition(key, config.getEnumSet<EntityPotionEffectEvent.Action>(key)) },
-        "is-effect-type" to AttributeFactory { key, config -> EffectTypeCondition(key, config.getStringList(key)
-                .mapNotNull { runCatching { PotionEffectType.getByName(it) }.getOrNull() }
-                .toSet()) },
+        "is-effect-type" to AttributeFactory { key, config -> EffectTypeCondition(key, config.getPotionTypeEnumSet(key)) },
     )
 )
 

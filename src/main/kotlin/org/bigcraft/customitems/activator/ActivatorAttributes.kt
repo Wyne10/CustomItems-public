@@ -16,6 +16,7 @@ import org.bigcraft.customitems.config.IntOperation
 import org.bigcraft.customitems.config.getEnumSet
 import org.bigcraft.customitems.config.getIntOperation
 import org.bigcraft.customitems.config.getMillis
+import org.bigcraft.customitems.config.getPotionTypeEnumSet
 import org.bigcraft.customitems.item.CustomItem
 import org.bukkit.Bukkit
 import org.bukkit.configuration.ConfigurationSection
@@ -30,6 +31,7 @@ import org.bukkit.inventory.EquipmentSlot
 import org.bukkit.inventory.ItemStack
 import org.bukkit.metadata.FixedMetadataValue
 import org.bukkit.potion.PotionEffect
+import org.bukkit.potion.PotionEffectType
 import kotlin.random.Random
 
 val ACTIVATOR_ATTRIBUTE_MAP = AttributeMap(
@@ -39,6 +41,8 @@ val ACTIVATOR_ATTRIBUTE_MAP = AttributeMap(
         "steal-level" to AttributeFactory { key, config -> LevelStealAttribute(key, config.getDouble(key)) },
         "entity-potion-effects" to EntityPotionEffectsAttribute.Factory,
         "player-potion-effects" to PlayerPotionEffectsAttribute.Factory,
+        "entity-remove-effects" to AttributeFactory { key, config -> EntityRemoveEffectsAttribute(key, config.getPotionTypeEnumSet(key)) },
+        "player-remove-effects" to AttributeFactory { key, config -> PlayerRemoveEffectsAttribute(key, config.getPotionTypeEnumSet(key)) },
         "consume-projectile" to AttributeFactory { key, config -> ConsumeProjectileAttribute(key, config.getBoolean(key)) },
         "set-projectile-meta" to AttributeFactory { key, config -> ProjectileMetaAttribute(key, config.getString(key)!!) },
         "set-damager-health" to AttributeFactory { key, config -> DamagerHealthAttribute(key, config.getDouble(key)) },
@@ -117,6 +121,22 @@ class EntityPotionEffectsAttribute(
     }
 }
 
+class EntityRemoveEffectsAttribute(
+    key: String,
+    effects: Set<PotionEffectType>
+) : ActivatorAttribute<Set<PotionEffectType>>(key, effects) {
+    override fun isApplicable(event: Event, player: Player, customItem: CustomItem, item: ItemStack) =
+        event is EntityEvent
+
+    override fun apply(event: Event, player: Player, customItem: CustomItem, item: ItemStack) {
+        event as EntityEvent
+        val target = event.entity as? LivingEntity ?: return
+        value.forEach { potionEffect ->
+            target.removePotionEffect(potionEffect)
+        }
+    }
+}
+
 class PlayerPotionEffectsAttribute(
     key: String,
     effects: Set<PotionEffect>
@@ -133,6 +153,17 @@ class PlayerPotionEffectsAttribute(
                 key,
                 PotionEffectsAttribute(key, config).value.map { it.value }.toSet()
             )
+        }
+    }
+}
+
+class PlayerRemoveEffectsAttribute(
+    key: String,
+    effects: Set<PotionEffectType>
+) : ActivatorAttribute<Set<PotionEffectType>>(key, effects) {
+    override fun apply(event: Event, player: Player, customItem: CustomItem, item: ItemStack) {
+        value.forEach { potionEffect ->
+            player.removePotionEffect(potionEffect)
         }
     }
 }
