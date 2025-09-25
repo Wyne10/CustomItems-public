@@ -24,16 +24,19 @@ import org.bigcraft.customitems.config.getMillis
 import org.bigcraft.customitems.config.getPotionTypeEnumSet
 import org.bigcraft.customitems.item.CustomItem
 import org.bukkit.Bukkit
+import org.bukkit.Material
 import org.bukkit.configuration.ConfigurationSection
 import org.bukkit.entity.LivingEntity
 import org.bukkit.entity.Player
 import org.bukkit.event.Cancellable
 import org.bukkit.event.Event
+import org.bukkit.event.block.BlockBreakEvent
 import org.bukkit.event.entity.EntityDamageByEntityEvent
 import org.bukkit.event.entity.EntityEvent
 import org.bukkit.event.entity.PlayerDeathEvent
 import org.bukkit.inventory.EquipmentSlot
 import org.bukkit.inventory.ItemStack
+import org.bukkit.inventory.meta.BlockStateMeta
 import org.bukkit.metadata.FixedMetadataValue
 import org.bukkit.potion.PotionEffect
 import org.bukkit.potion.PotionEffectType
@@ -41,6 +44,8 @@ import kotlin.random.Random
 
 val ACTIVATOR_ATTRIBUTE_MAP = AttributeMap(
     mapOf(
+        "condition-cancel-event" to AttributeFactory { key, config -> CancelEventAttribute(key, config.getBoolean(key)) },
+        "cooldown-cancel-event" to AttributeFactory { key, config -> CancelEventAttribute(key, config.getBoolean(key)) },
         "cancel-event" to AttributeFactory { key, config -> CancelEventAttribute(key, config.getBoolean(key)) },
         "commands" to AttributeFactory { key, config -> CommandsAttribute(key, config.getStringList(key)) },
         "steal-level" to AttributeFactory { key, config -> LevelStealAttribute(key, config.getDouble(key)) },
@@ -56,7 +61,8 @@ val ACTIVATOR_ATTRIBUTE_MAP = AttributeMap(
         "set-item-amount" to AttributeFactory { key, config -> ItemAmountAttribute(key, config.getIntOperation(key)) },
         "jack-o-lantern" to JackOLanternAttribute.Factory,
         "repair" to AttributeFactory { key, config -> RepairAttribute(key, config.getEnumSet<EquipmentSlot>(key)) },
-        "force-field" to org.bigcraft.customitems.activator.ForceFieldAttribute.Factory
+        "force-field" to org.bigcraft.customitems.activator.ForceFieldAttribute.Factory,
+        "save-block-drop-state" to AttributeFactory { key, config -> SaveBlockDropStateAttribute(key, config.getEnumSet<Material>(key)) }
     )
 )
 
@@ -276,6 +282,25 @@ class ForceFieldAttribute(
                 )
             )
         }
+    }
+}
+
+class SaveBlockDropStateAttribute(
+    key: String,
+    types: Set<Material>
+) : ActivatorAttribute<Set<Material>>(key, types) {
+    override fun isApplicable(event: Event, player: Player, customItem: CustomItem, item: ItemStack) =
+        event is BlockBreakEvent
+
+    override fun apply(event: Event, player: Player, customItem: CustomItem, item: ItemStack) {
+        event as BlockBreakEvent
+        if (event.block.type !in value) return
+        event.isDropItems = false
+        val drop = ItemStack(event.block.type)
+        val dropMeta = drop.itemMeta as? BlockStateMeta ?: return
+        dropMeta.blockState = event.block.state
+        drop.itemMeta = dropMeta
+        event.block.world.dropItem(event.block.location, drop)
     }
 }
 

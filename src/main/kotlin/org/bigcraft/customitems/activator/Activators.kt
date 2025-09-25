@@ -15,6 +15,7 @@ import org.bukkit.entity.Projectile
 import org.bukkit.event.Event
 import org.bukkit.event.EventHandler
 import org.bukkit.event.block.Action
+import org.bukkit.event.block.BlockBreakEvent
 import org.bukkit.event.entity.EntityDamageByEntityEvent
 import org.bukkit.event.entity.EntityDamageEvent
 import org.bukkit.event.entity.EntityPotionEffectEvent
@@ -23,7 +24,6 @@ import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.event.player.PlayerItemConsumeEvent
 import org.bukkit.inventory.ItemStack
 
-// TODO Maybe make item stack search a separate attribute?
 val ACTIVATOR_MAP = AttributeMap(
     mapOf(
         "right-click" to AttributeFactory { key, config -> RightClickActivator(key, createItemIdentifier(key, config), createActivatorAttributes(key, config), createActivatorConditions(key, config)) },
@@ -36,6 +36,7 @@ val ACTIVATOR_MAP = AttributeMap(
         "player-damage" to AttributeFactory { key, config -> PlayerDamageActivator(key, createItemIdentifier(key, config), createActivatorAttributes(key, config), createActivatorConditions(key, config)) },
         "player-potion-effect" to AttributeFactory { key, config -> PlayerPotionEffectActivator(key, createItemIdentifier(key, config), createActivatorAttributes(key, config), createActivatorConditions(key, config)) },
         "player-consume-item" to AttributeFactory { key, config -> PlayerConsumeItemActivator(key, createItemIdentifier(key, config), createActivatorAttributes(key, config), createActivatorConditions(key, config)) },
+        "block-break" to AttributeFactory { key, config -> BlockBreakActivator(key, createItemIdentifier(key, config), createActivatorAttributes(key, config), createActivatorConditions(key, config)) },
     )
 )
 
@@ -62,11 +63,16 @@ abstract class Activator(
         itemIdentifier.getItem(event, player, item)
 
     fun activate(event: Event, player: Player, itemStack: ItemStack) {
-        if (conditions.any { !it.isApplicable(event, player, item, itemStack) })
+        if (conditions.any { !it.isApplicable(event, player, item, itemStack) }) {
+            attributes.firstOrNull { it.key == "condition-cancel-event" }?.apply(event, player, item, itemStack)
             return
-        if (item.cooldowns.any { it.isCooldowned(player, itemStack) })
+        }
+        if (item.cooldowns.any { it.isCooldowned(player, itemStack) }) {
+            attributes.firstOrNull { it.key == "cooldown-cancel-event" }?.apply(event, player, item, itemStack)
             return
+        }
         attributes
+            .filter { it.key != "condition-cancel-event" && it.key != "cooldown-cancel-event" }
             .filter { it.isApplicable(event, player, item, itemStack) }
             .forEach { it.apply(event, player, item, itemStack) }
         item.cooldowns.forEach { it.apply(player, itemStack) }
@@ -211,6 +217,19 @@ class PlayerConsumeItemActivator(
 ) : Activator(key, itemIdentifier, attributes, conditions) {
     @EventHandler(ignoreCancelled = true)
     private fun onConsume(event: PlayerItemConsumeEvent) {
+        val itemStack = getItemStack(event, event.player) ?: return
+        activate(event, event.player, itemStack)
+    }
+}
+
+class BlockBreakActivator(
+    key: String,
+    itemIdentifier: ItemIdentifier,
+    attributes: Set<ActivatorAttribute<*>>,
+    conditions: Set<ActivatorCondition<*>>
+) : Activator(key, itemIdentifier, attributes, conditions) {
+    @EventHandler(ignoreCancelled = true)
+    private fun onBreak(event: BlockBreakEvent) {
         val itemStack = getItemStack(event, event.player) ?: return
         activate(event, event.player, itemStack)
     }

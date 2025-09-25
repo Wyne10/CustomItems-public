@@ -1,0 +1,12 @@
+name: '<gold>Золотая кирка Джейка'
+material: GOLDEN_PICKAXE
+durability: 0
+restrictions:
+  cancel-storage: [ANVIL]
+  cancel-enchant-prepare: true
+activators:
+  block-break:
+    condition-cancel-event: true
+    has-target-block: [SPAWNER]
+    is-item-equipment: [HAND]
+    save-block-drop-state: [SPAWNER]

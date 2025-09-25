@@ -81,7 +81,7 @@ bukkit {
     author = findProperty("author").toString()
     main = "org.bigcraft.customitems.CustomItems"
     apiVersion = "1.16"
-    softDepend = listOf("PlaceholderAPI", "CommandAPI", "NBTAPI")
+    softDepend = listOf("PlaceholderAPI", "CommandAPI", "NBTAPI", "CustomEnchants")
     permissions {
         register("customitems.*") {
             children = listOf("customitems.reload")
