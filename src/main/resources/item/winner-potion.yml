@@ -1,0 +1,30 @@
+name: '<blue>Зелье победиетля'
+material: POTION
+potionColor: 436715
+potionEffects:
+  strength:
+    type: INCREASE_DAMAGE
+    amplifier: 2
+    duration: 9600
+  speed:
+    type: SPEED
+    amplifier: 2
+    duration: 9600
+  invisibility:
+    type: INVISIBILITY
+    duration: 9600
+  haste:
+    type: FAST_DIGGING
+    amplifier: 1
+    duration: 1800
+  regeneration:
+    type: REGENERATION
+    amplifier: 1
+    duration: 600
+  resistance:
+    type: DAMAGE_RESISTANCE
+    amplifier: 1
+    duration: 600
+  heal:
+    type: HEAL
+    amplifier: 1

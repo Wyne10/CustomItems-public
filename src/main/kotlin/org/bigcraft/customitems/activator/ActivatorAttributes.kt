@@ -1,11 +1,16 @@
 package org.bigcraft.customitems.activator
 
 import com.destroystokyo.paper.event.player.PlayerLaunchProjectileEvent
+import me.wyne.wutils.common.Args
+import me.wyne.wutils.common.ConfigUtils
 import me.wyne.wutils.common.Ticks
+import me.wyne.wutils.common.VectorUtils
+import me.wyne.wutils.config.configurables.animation.attribute.ForceFieldAttribute
 import me.wyne.wutils.config.configurables.attribute.Attribute
 import me.wyne.wutils.config.configurables.attribute.AttributeBase
 import me.wyne.wutils.config.configurables.attribute.AttributeFactory
 import me.wyne.wutils.config.configurables.attribute.AttributeMap
+import me.wyne.wutils.config.configurables.attribute.CompositeAttributeFactory
 import me.wyne.wutils.config.configurables.item.attribute.PotionEffectsAttribute
 import me.wyne.wutils.i18n.kotlin.placeholderString
 import org.bigcraft.customitems.CustomItems
@@ -51,6 +56,7 @@ val ACTIVATOR_ATTRIBUTE_MAP = AttributeMap(
         "set-item-amount" to AttributeFactory { key, config -> ItemAmountAttribute(key, config.getIntOperation(key)) },
         "jack-o-lantern" to JackOLanternAttribute.Factory,
         "repair" to AttributeFactory { key, config -> RepairAttribute(key, config.getEnumSet<EquipmentSlot>(key)) },
+        "force-field" to org.bigcraft.customitems.activator.ForceFieldAttribute.Factory
     )
 )
 
@@ -234,6 +240,42 @@ class ItemAmountAttribute(
 ) : ActivatorAttribute<IntOperation>(key, operation) {
     override fun apply(event: Event, player: Player, customItem: CustomItem, item: ItemStack) {
         item.amount = value.evaluate(item.amount)
+    }
+}
+
+class ForceFieldAttribute(
+    key: String,
+    forceFieldData: ForceFieldAttribute.ForceFieldData
+) : ActivatorAttribute<ForceFieldAttribute.ForceFieldData>(key, forceFieldData) {
+    override fun apply(event: Event, player: Player, customItem: CustomItem, item: ItemStack) {
+        val location = player.location.clone().add(value.offset)
+        location.world.getNearbyPlayers(location, value.radius)
+            .filterNot { it == player }
+            .forEach { it.velocity = it.location.toVector().subtract(location.toVector()).multiply(value.velocity) }
+    }
+
+    object Factory : CompositeAttributeFactory {
+        override fun fromSection(key: String, section: ConfigurationSection): Attribute<*> =
+            org.bigcraft.customitems.activator.ForceFieldAttribute(
+                key,
+                ForceFieldAttribute.ForceFieldData(
+                    ConfigUtils.getVectorOrZero(section, "offset"),
+                    section.getDouble("radius", 1.0),
+                    section.getDouble("velocity", 1.0)
+                )
+            )
+
+        override fun fromString(key: String, string: String): Attribute<*> {
+            val args = Args(string, " ")
+            return org.bigcraft.customitems.activator.ForceFieldAttribute(
+                key,
+                ForceFieldAttribute.ForceFieldData(
+                    VectorUtils.getVectorOrZero(args.get(2)),
+                    args.get(0, "1.0").toDouble(),
+                    args.get(1, "1.0").toDouble()
+                )
+            )
+        }
     }
 }
 
