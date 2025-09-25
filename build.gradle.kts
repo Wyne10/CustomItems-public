@@ -21,6 +21,7 @@ dependencies {
     implementation(libs.guice)
     implementation(libs.adventureMini)
     implementation(libs.adventureBukkit)
+    implementation(libs.adventurePlain)
 
     implementation(libs.wutilsConfig)
     implementation(libs.wutilsConfigurables)

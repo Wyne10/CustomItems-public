@@ -66,7 +66,7 @@ class CustomItemManager @Inject constructor(plugin: CustomItems, private val blo
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
     private fun onPlace(event: BlockPlaceEvent) {
         val customItem = getItem(event.itemInHand) ?: return
-        if (!customItem.isBlock()) return
+        if (!customItem.isBlock) return
         blockManager.placeBlock(event.block, customItem)
     }
 

@@ -89,6 +89,7 @@ object InitializeInjector : PluginStep<CustomItems> {
                 Stage.PRODUCTION,
                 PluginModule(plugin),
                 CustomItemModule,
+                CompositorModule,
                 PlaceholderModule,
                 CommandModule
             )

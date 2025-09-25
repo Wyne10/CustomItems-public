@@ -7,6 +7,7 @@ import me.wyne.wutils.config.configurables.attribute.AttributeBase
 import me.wyne.wutils.config.configurables.attribute.AttributeFactory
 import me.wyne.wutils.config.configurables.attribute.CompositeAttribute
 import me.wyne.wutils.config.configurables.attribute.CompositeAttributeFactory
+import me.wyne.wutils.config.configurables.attribute.StringCollectionAttribute
 import me.wyne.wutils.config.configurables.item.ItemStackAttribute
 import me.wyne.wutils.config.configurables.item.MetaAttribute
 import org.bigcraft.customitems.CustomItems
@@ -21,7 +22,8 @@ import org.bukkit.persistence.PersistentDataType
 val ITEM_ATTRIBUTE_MAP = mapOf(
     "nbt" to AttributeFactory { key, config -> NbtTagAttribute(key, NBT.parseNBT(config.getString(key))) },
     "pdc-tag" to PdcTagAttribute.Factory,
-    "pdc-tags" to AttributeFactory(::PdcTagsAttribute)
+    "pdc-tags" to AttributeFactory(::PdcTagsAttribute),
+    "compositor" to StringCollectionAttribute.SetFactory()
 )
 
 class NbtTagAttribute(

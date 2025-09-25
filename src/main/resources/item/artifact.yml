@@ -1,0 +1,17 @@
+name: 'Артефакт'
+material: CONDUIT
+compositor:
+  - 'hunter'
+  - 'snowman'
+  - 'illuminator'
+  - 'enderman'
+  - 'anti-phantom'
+  - 'telekinesis'
+  - 'gravity'
+  - 'lifesteal'
+  - 'justice'
+lore:
+  - '<gray>Совмещенные эффекты:'
+  - '<composable-list>'
+restrictions:
+  cancel-place: true

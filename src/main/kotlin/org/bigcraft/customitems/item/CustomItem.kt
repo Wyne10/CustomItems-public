@@ -4,16 +4,14 @@ import me.wyne.wutils.config.configurables.AttributeConfigurable
 import me.wyne.wutils.config.configurables.ItemConfigurable
 import me.wyne.wutils.config.configurables.attribute.AttributeContainerBuilder
 import me.wyne.wutils.config.configurables.attribute.ImmutableAttributeContainer
-import me.wyne.wutils.config.configurables.item.ItemAttribute
-import me.wyne.wutils.i18n.I18n
-import me.wyne.wutils.i18n.language.component.PlaceholderLocalizedComponent
+import me.wyne.wutils.i18n.kotlin.replace
+import me.wyne.wutils.i18n.kotlin.replaceComponent
 import org.bigcraft.customitems.ConfigurableFactory
 import org.bigcraft.customitems.CustomItems
 import org.bigcraft.customitems.activator.ACTIVATOR_MAP
 import org.bigcraft.customitems.activator.Activator
 import org.bigcraft.customitems.attribute.*
 import org.bigcraft.customitems.block.CustomBlockManager
-import org.bukkit.Material
 import org.bukkit.NamespacedKey
 import org.bukkit.block.Block
 import org.bukkit.configuration.ConfigurationSection
@@ -29,29 +27,28 @@ class CustomItem(
     private val restrictions: Set<Restriction>,
     private val activators: Set<Activator>,
     private val blockAttributes: Set<BlockAttribute<*>>,
-    val cooldowns: MutableSet<Cooldown>
-) {
+    val cooldowns: MutableSet<Cooldown>,
+) : ItemAttributeAccessor by DefaultItemAttributeAccessor(itemAttributes, restrictions, activators, blockAttributes),
+    ItemComposable by DefaultItemComposable(key) {
 
     fun createItemStack(): ItemStack {
-        val itemStack = itemAttributes.build()
+        val itemStack = itemAttributes.build("composable-list" replace "")
         itemStack.editMeta { meta -> meta.persistentDataContainer.set(ITEM_TAG_KEY, PersistentDataType.STRING, key) }
         return itemStack
     }
 
     fun createItemStack(player: Player): ItemStack {
-        val itemStack = itemAttributes.build(player)
+        val itemStack = itemAttributes.build(player, "composable-list" replace "")
         itemStack.editMeta { meta -> meta.persistentDataContainer.set(ITEM_TAG_KEY, PersistentDataType.STRING, key) }
         return itemStack
     }
 
     infix fun isCustomItem(item: ItemStack?): Boolean =
         item?.itemMeta?.persistentDataContainer?.get(ITEM_TAG_KEY, PersistentDataType.STRING) == key
+                || item?.let { isComposed(it) } ?: false
 
     infix fun isCustomItem(block: Block): Boolean =
-        isBlock() && CustomBlockManager.instance.getCustomBlock(block)?.itemKey == key
-
-    infix fun hasCustomItem(inventory: Inventory): Boolean =
-        inventory.filterNotNull().any { isCustomItem(it) }
+        isBlock && CustomBlockManager.instance.getCustomBlock(block)?.itemKey == key
 
     infix fun getItem(inventory: Inventory): ItemStack? =
         inventory.filterNotNull().firstOrNull { isCustomItem(it) }
@@ -63,13 +60,6 @@ class CustomItem(
         return iterationOrder.mapNotNull { inventory.getItem(it) }
             .firstOrNull { isCustomItem(it) }
     }
-
-    fun isBlock(): Boolean =
-        itemAttributes.getValue(ItemAttribute.MATERIAL.key, Material.STONE).isBlock && blockAttributes.isNotEmpty()
-
-    fun getName(localeContainer: Any): PlaceholderLocalizedComponent =
-        I18n.global.accessor(localeContainer, itemAttributes.getValue(ItemAttribute.NAME.key))
-            .getPlaceholderComponent(I18n.toPlayer(localeContainer))
 
     object Factory : ConfigurableFactory<CustomItem> {
         override fun fromConfig(config: ConfigurationSection): CustomItem =
@@ -100,7 +90,7 @@ class CustomItem(
                 AttributeConfigurable(
                     ImmutableAttributeContainer(COOLDOWN_MAP),
                     config.getConfigurationSection(COOLDOWN_SECTION_KEY)
-                ).getSet(Cooldown::class.java)
+                ).getSet(Cooldown::class.java),
             ).apply {
                 restrictions.forEach { it.apply(this) }
                 activators.forEach { it.apply(this) }
@@ -115,10 +105,8 @@ class CustomItem(
         const val COOLDOWN_SECTION_KEY = "cooldowns"
 
         val ITEM_TAG_KEY = NamespacedKey(CustomItems.instance, "ci-key")
+        val COMPOSE_TAG_KEY = NamespacedKey(CustomItems.instance, "ci-compose")
         val INVENTORY_INDICES = (0..35).toSet()
     }
 
 }
-
-fun ItemStack?.isCustomItem(): Boolean =
-    this?.itemMeta?.persistentDataContainer?.has(CustomItem.ITEM_TAG_KEY, PersistentDataType.STRING) ?: false

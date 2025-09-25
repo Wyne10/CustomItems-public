@@ -3,6 +3,7 @@ package org.bigcraft.customitems.module
 import com.google.inject.AbstractModule
 import org.bigcraft.customitems.CustomItems
 import org.bigcraft.customitems.command.CustomItemsCommand
+import org.bigcraft.customitems.placeholder.ItemPlaceholders
 
 private class OptionalModule(
     private val className: String,
@@ -21,7 +22,8 @@ private class OptionalModule(
 
 val PlaceholderModule: AbstractModule = OptionalModule(
     className = "me.clip.placeholderapi.PlaceholderAPI",
-    exceptionMessage = "PlaceholderAPI not found, placeholders are not registered"
+    exceptionMessage = "PlaceholderAPI not found, placeholders are not registered",
+    ItemPlaceholders::class.java
 )
 
 val CommandModule: AbstractModule = OptionalModule(

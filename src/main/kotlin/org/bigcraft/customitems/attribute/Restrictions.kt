@@ -147,8 +147,7 @@ class ConsumptionRestriction(key: String, isActive: Boolean) : Restriction(key, 
 class RenameRestriction(key: String, isActive: Boolean) : Restriction(key, isActive) {
     @EventHandler(ignoreCancelled = true, priority = EventPriority.LOWEST)
     private fun onEvent(event: InventoryClickEvent) {
-        if (event.clickedInventory !is AnvilInventory) return
-        val inventory = event.clickedInventory as AnvilInventory
+        val inventory = event.clickedInventory as? AnvilInventory ?: return
         if (!item.isCustomItem(inventory.firstItem)) return
         if (event.slot == 2 && (inventory.renameText != null || inventory.renameText?.isNotEmpty() == true))
             event.isCancelled = true
@@ -158,8 +157,7 @@ class RenameRestriction(key: String, isActive: Boolean) : Restriction(key, isAct
 class AnvilRestriction(key: String, isActive: Boolean) : Restriction(key, isActive) {
     @EventHandler(ignoreCancelled = true, priority = EventPriority.LOWEST)
     private fun onEvent(event: InventoryClickEvent) {
-        if (event.clickedInventory !is AnvilInventory) return
-        val inventory = event.clickedInventory as AnvilInventory
+        val inventory = event.clickedInventory as? AnvilInventory ?: return
         if (event.slot == 2 && (item isCustomItem inventory.firstItem || item isCustomItem inventory.secondItem))
             event.isCancelled = true
     }

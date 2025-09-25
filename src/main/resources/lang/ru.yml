@@ -1,3 +1,6 @@
+### Format
+format-composable-entry: "<gray> - %ci_<key>_name-plain%"
+
 ### Messages
 
 ## Info
