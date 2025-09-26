@@ -12,7 +12,9 @@ import me.wyne.wutils.config.configurables.attribute.AttributeFactory
 import me.wyne.wutils.config.configurables.attribute.AttributeMap
 import me.wyne.wutils.config.configurables.attribute.CompositeAttributeFactory
 import me.wyne.wutils.config.configurables.item.attribute.PotionEffectsAttribute
+import me.wyne.wutils.i18n.kotlin.placeholderComponent
 import me.wyne.wutils.i18n.kotlin.placeholderString
+import me.wyne.wutils.i18n.kotlin.replace
 import org.bigcraft.customitems.CustomItems
 import org.bigcraft.customitems.attribute.JackOLanternAttribute
 import org.bigcraft.customitems.attribute.PlayerExplosionAttribute
@@ -62,7 +64,8 @@ val ACTIVATOR_ATTRIBUTE_MAP = AttributeMap(
         "jack-o-lantern" to JackOLanternAttribute.Factory,
         "repair" to AttributeFactory { key, config -> RepairAttribute(key, config.getEnumSet<EquipmentSlot>(key)) },
         "force-field" to org.bigcraft.customitems.activator.ForceFieldAttribute.Factory,
-        "save-block-drop-state" to AttributeFactory { key, config -> SaveBlockDropStateAttribute(key, config.getEnumSet<Material>(key)) }
+        "save-block-drop-state" to AttributeFactory { key, config -> SaveBlockDropStateAttribute(key, config.getEnumSet<Material>(key)) },
+        "action-bar" to AttributeFactory { key, config -> ActionBarAttribute(key, config.getString(key)!!) }
     )
 )
 
@@ -301,6 +304,15 @@ class SaveBlockDropStateAttribute(
         dropMeta.blockState = event.block.state
         drop.itemMeta = dropMeta
         event.block.world.dropItem(event.block.location, drop)
+    }
+}
+
+class ActionBarAttribute(
+    key: String,
+    message: String
+) : ActivatorAttribute<String>(key, message) {
+    override fun apply(event: Event, player: Player, customItem: CustomItem, item: ItemStack) {
+        player.placeholderComponent(value, "key" replace customItem.key).sendActionBar(player)
     }
 }
 

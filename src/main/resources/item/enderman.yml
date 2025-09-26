@@ -8,3 +8,4 @@ activators:
     is-projectile-type: [ ENDER_PEARL ]
     chance: 0.5
     consume-projectile: false
+    action-bar: 'info-activation'

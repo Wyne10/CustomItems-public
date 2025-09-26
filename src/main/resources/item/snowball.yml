@@ -13,6 +13,3 @@ activators:
         type: SLOW
         amplifier: 5
         duration: 200
-      blind:
-        type: BLINDNESS
-        duration: 200

@@ -10,3 +10,4 @@ activators:
         type: REGENERATION
         amplifier: 1
         duration: 20
+    action-bar: 'info-activation'

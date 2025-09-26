@@ -4,6 +4,7 @@ format-composable-entry: "<gray> - %ci_<key>_name-plain%"
 ### Messages
 
 ## Info
+info-activation: "<gray>Только что сработал эффект: %ci_<key>_name%"
 
 ## Error
 error-item-not-found: "<red>Предмет '<key>' не существует!"

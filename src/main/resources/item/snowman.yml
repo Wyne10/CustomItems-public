@@ -10,3 +10,4 @@ activators:
       slow:
         type: SLOW
         duration: 100
+    action-bar: 'info-activation'

@@ -5,3 +5,4 @@ restrictions:
 activators:
   player-kill-player:
     lock-drop: 3s
+    action-bar: 'info-activation'

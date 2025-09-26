@@ -8,3 +8,4 @@ activators:
     is-effect-action: [ADDED, CHANGED]
     is-effect-type: [BLINDNESS, JUMP, POISON, WITHER, SLOW, WEAKNESS]
     cancel-event: true
+    action-bar: 'info-activation'

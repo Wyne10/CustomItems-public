@@ -6,3 +6,5 @@ activators:
   entity-hit-player:
     is-damager-type: [PHANTOM]
     set-damager-health: 0.0
+    cancel-event: true
+    action-bar: 'info-activation'

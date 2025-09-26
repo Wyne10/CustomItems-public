@@ -35,10 +35,12 @@ import org.bukkit.util.Vector
 class PlayerExplosionAttribute(
     key: String,
     offset: Vector,
-    power: Float
+    power: Float,
+    private val setFire: Boolean,
+    private val breakBlocks: Boolean,
 ) : ActivatorAttribute<Pair<Vector, Float>>(key, offset to power) {
     override fun apply(event: Event, player: Player, customItem: CustomItem, item: ItemStack) {
-        player.location.world.createExplosion(player.eyeLocation.getRelative(value.first), value.second)
+        player.location.world.createExplosion(player.eyeLocation.getRelative(value.first), value.second, setFire, breakBlocks)
     }
 
     object Factory : CompositeAttributeFactory {
@@ -46,7 +48,9 @@ class PlayerExplosionAttribute(
             PlayerExplosionAttribute(
                 key,
                 ConfigUtils.getVectorOrZero(section, "offset"),
-                section.getDouble("power").toFloat()
+                section.getDouble("power").toFloat(),
+                section.getBoolean("set-fire"),
+                section.getBoolean("break-blocks")
             )
 
         override fun fromString(key: String, string: String): Attribute<*> {
@@ -54,7 +58,9 @@ class PlayerExplosionAttribute(
             return PlayerExplosionAttribute(
                 key,
                 VectorUtils.getVectorOrZero(args.get(0)),
-                args.get(1, "1.0").toFloat()
+                args.get(1, "1.0").toFloat(),
+                args.get(2, "false").toBoolean(),
+                args.get(3, "false").toBoolean(),
             )
         }
     }

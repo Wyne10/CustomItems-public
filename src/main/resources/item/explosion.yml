@@ -9,3 +9,4 @@ activators:
     player-explosion:
       offset: 0,0,3
       power: 5
+      break-blocks: false

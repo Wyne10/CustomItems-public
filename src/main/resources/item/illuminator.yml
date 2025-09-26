@@ -9,3 +9,4 @@ activators:
       glow:
         type: GLOWING
         duration: 300
+    action-bar: 'info-activation'

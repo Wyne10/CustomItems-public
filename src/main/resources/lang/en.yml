@@ -4,6 +4,7 @@ format-composable-entry: "<gray> - %ci_<key>_name-plain%"
 ### Messages
 
 ## Info
+info-activation: "<gray>Effect invoked: %ci_<key>_name%"
 
 ## Error
 error-item-not-found: "<red>Item '<key>' doesn't exist!"

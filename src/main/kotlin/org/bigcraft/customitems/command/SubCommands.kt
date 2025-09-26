@@ -45,6 +45,7 @@ class GiveCommand(private val itemManager: CustomItemManager) : SubCommand("give
             val item = itemManager.getItem(args.key)!!
             val amount = args.amount
             val targets = args.targets
+            if (targets.isEmpty()) return@CommandExecutor
             targets.forEach { player ->
                 player.inventory.addItem(item.createItemStack(player).also { it.amount = amount }) }
             sender.placeholderComponent(
@@ -53,7 +54,7 @@ class GiveCommand(private val itemManager: CustomItemManager) : SubCommand("give
                 "item-amount" replace amount,
                 "targets" replace targets
                     .map { it.name }
-                    .reduce(I18n::reduceRawString)
+                    .reduce { s1, s2 -> "$s1, $s2" }
             ).replace("item-name" replaceComponent item.getName(sender).get())
                 .sendMessage(sender)
         })
