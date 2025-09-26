@@ -4,8 +4,6 @@ import me.wyne.wutils.config.configurables.AttributeConfigurable
 import me.wyne.wutils.config.configurables.ItemConfigurable
 import me.wyne.wutils.config.configurables.attribute.AttributeContainerBuilder
 import me.wyne.wutils.config.configurables.attribute.ImmutableAttributeContainer
-import me.wyne.wutils.i18n.kotlin.replace
-import me.wyne.wutils.i18n.kotlin.replaceComponent
 import org.bigcraft.customitems.ConfigurableFactory
 import org.bigcraft.customitems.CustomItems
 import org.bigcraft.customitems.activator.ACTIVATOR_MAP
@@ -32,14 +30,16 @@ class CustomItem(
     ItemComposable by DefaultItemComposable(key) {
 
     fun createItemStack(): ItemStack {
-        val itemStack = itemAttributes.build("composable-list" replace "")
+        val itemStack = itemAttributes.build()
         itemStack.editMeta { meta -> meta.persistentDataContainer.set(ITEM_TAG_KEY, PersistentDataType.STRING, key) }
+        updateView(itemStack)
         return itemStack
     }
 
     fun createItemStack(player: Player): ItemStack {
-        val itemStack = itemAttributes.build(player, "composable-list" replace "")
+        val itemStack = itemAttributes.build(player)
         itemStack.editMeta { meta -> meta.persistentDataContainer.set(ITEM_TAG_KEY, PersistentDataType.STRING, key) }
+        updateView(itemStack)
         return itemStack
     }
 

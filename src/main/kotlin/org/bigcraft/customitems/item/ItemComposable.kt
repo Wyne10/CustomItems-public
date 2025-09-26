@@ -12,7 +12,7 @@ interface ItemComposable {
     fun compose(compositor: ItemStack): ItemStack
     fun getComposable(compositor: ItemStack): Set<String>
     fun getComposed(compositor: ItemStack): Set<String>
-    fun getComposableList(compositor: ItemStack, localeContainer: Any?): List<PlaceholderLocalizedComponent>
+    fun getComposedList(compositor: ItemStack, localeContainer: Any?): List<PlaceholderLocalizedComponent>
 }
 
 class DefaultItemComposable(
@@ -45,7 +45,7 @@ class DefaultItemComposable(
     override fun getComposable(compositor: ItemStack): Set<String> {
         val customItem = CustomItemManager.instance.getItem(compositor) ?: return emptySet()
         if (!customItem.isCompositor) return emptySet()
-        return customItem.composableSet
+        return customItem.compositorSet
     }
 
     override fun getComposed(compositor: ItemStack): Set<String> {
@@ -53,7 +53,7 @@ class DefaultItemComposable(
         return composedString.split(",").toSet()
     }
 
-    override fun getComposableList(compositor: ItemStack, localeContainer: Any?): List<PlaceholderLocalizedComponent> =
+    override fun getComposedList(compositor: ItemStack, localeContainer: Any?): List<PlaceholderLocalizedComponent> =
         getComposed(compositor)
             .map { I18n.global.accessor(localeContainer, "format-composable-entry")
                     .getPlaceholderComponent(I18n.toPlayer(localeContainer), "key" replace it) }

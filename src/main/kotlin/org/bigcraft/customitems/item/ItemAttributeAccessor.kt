@@ -15,7 +15,7 @@ import org.bukkit.inventory.ItemStack
 interface ItemAttributeAccessor {
     val isBlock: Boolean
     val isCompositor: Boolean
-    val composableSet: Set<String>
+    val compositorSet: Set<String>
     fun getName(localeContainer: Any?): PlaceholderLocalizedComponent
     fun updateView(item: ItemStack)
 }
@@ -32,7 +32,7 @@ class DefaultItemAttributeAccessor(
     override val isCompositor: Boolean
         get() = itemAttributes.attributes.contains("compositor")
 
-    override val composableSet: Set<String>
+    override val compositorSet: Set<String>
         get() = itemAttributes.getValue("compositor", emptySet())
 
     override fun getName(localeContainer: Any?): PlaceholderLocalizedComponent =
@@ -45,14 +45,20 @@ class DefaultItemAttributeAccessor(
         itemAttributes.get<LoreAttribute>(ItemAttribute.LORE.key)?.apply(item)
         item.editMeta {
             if (!it.hasLore()) return@editMeta
-            var index = it.lore?.indexOfFirst { line -> line.contains("<composable-list>") } ?: return@editMeta
+            var index = it.lore?.indexOfFirst { line -> line.contains("<composed-list>") } ?: return@editMeta
             val newLore = it.loreComponents!!.toMutableList()
-            newLore.removeAt(index)
-            for (composable in customItem.getComposableList(item, null)) {
+            val composableList = customItem.getComposedList(item, null)
+            if (composableList.isEmpty())
+                newLore.removeAt(index)
+            else
+                index++
+            for (composable in composableList) {
                 newLore.add(index, composable.bungee())
                 index++
             }
             it.loreComponents = newLore
+            it.lore = it.lore!!
+                .map { line -> line.replace("<composed-list>", "") }
         }
     }
 }

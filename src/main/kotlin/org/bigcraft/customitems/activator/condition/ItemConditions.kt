@@ -29,6 +29,11 @@ class ItemEquipmentCondition(key: String, slots: Set<EquipmentSlot>) : Activator
         value.any { customItem.isCustomItem(player.inventory.getItem(it)) }
 }
 
+class ItemComposedCondition(key: String, isActive: Boolean) : ActivatorCondition<Boolean>(key, isActive) {
+    override fun isApplicable(event: Event, player: Player, customItem: CustomItem, item: ItemStack): Boolean =
+        customItem.isComposed(item)
+}
+
 class ItemTypeCondition(key: String, types: Set<Material>) : ActivatorCondition<Set<Material>>(key, types) {
     override fun isApplicable(event: Event, player: Player, customItem: CustomItem, item: ItemStack): Boolean =
         item.type in value

@@ -19,6 +19,7 @@ import org.bukkit.event.block.BlockBreakEvent
 import org.bukkit.event.entity.EntityDamageByEntityEvent
 import org.bukkit.event.entity.EntityDamageEvent
 import org.bukkit.event.entity.EntityPotionEffectEvent
+import org.bukkit.event.entity.EntityResurrectEvent
 import org.bukkit.event.entity.PlayerDeathEvent
 import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.event.player.PlayerItemConsumeEvent
@@ -37,6 +38,7 @@ val ACTIVATOR_MAP = AttributeMap(
         "player-potion-effect" to AttributeFactory { key, config -> PlayerPotionEffectActivator(key, createItemIdentifier(key, config), createActivatorAttributes(key, config), createActivatorConditions(key, config)) },
         "player-consume-item" to AttributeFactory { key, config -> PlayerConsumeItemActivator(key, createItemIdentifier(key, config), createActivatorAttributes(key, config), createActivatorConditions(key, config)) },
         "block-break" to AttributeFactory { key, config -> BlockBreakActivator(key, createItemIdentifier(key, config), createActivatorAttributes(key, config), createActivatorConditions(key, config)) },
+        "player-resurrect" to AttributeFactory { key, config -> PlayerResurrectActivator(key, createItemIdentifier(key, config), createActivatorAttributes(key, config), createActivatorConditions(key, config)) },
     )
 )
 
@@ -232,5 +234,19 @@ class BlockBreakActivator(
     private fun onBreak(event: BlockBreakEvent) {
         val itemStack = getItemStack(event, event.player) ?: return
         activate(event, event.player, itemStack)
+    }
+}
+
+class PlayerResurrectActivator(
+    key: String,
+    itemIdentifier: ItemIdentifier,
+    attributes: Set<ActivatorAttribute<*>>,
+    conditions: Set<ActivatorCondition<*>>
+) : Activator(key, itemIdentifier, attributes, conditions) {
+    @EventHandler(ignoreCancelled = true)
+    private fun onResurrect(event: EntityResurrectEvent) {
+        val player = event.entity as? Player ?: return
+        val itemStack = getItemStack(event, player) ?: return
+        activate(event, player, itemStack)
     }
 }

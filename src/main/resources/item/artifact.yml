@@ -11,7 +11,6 @@ compositor:
   - 'lifesteal'
   - 'justice'
 lore:
-  - '<gray>Совмещенные эффекты:'
-  - '<composable-list>'
+  - '<gray>Совмещенные эффекты:<composed-list>'
 restrictions:
   cancel-place: true

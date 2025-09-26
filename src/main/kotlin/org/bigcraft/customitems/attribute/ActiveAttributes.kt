@@ -134,6 +134,42 @@ class RepairAttribute(
     }
 }
 
+class ForceFieldAttribute(
+    key: String,
+    forceFieldData: me.wyne.wutils.config.configurables.animation.attribute.ForceFieldAttribute.ForceFieldData
+) : ActivatorAttribute<me.wyne.wutils.config.configurables.animation.attribute.ForceFieldAttribute.ForceFieldData>(key, forceFieldData) {
+    override fun apply(event: Event, player: Player, customItem: CustomItem, item: ItemStack) {
+        val location = player.location.clone().add(value.offset)
+        location.world.getNearbyPlayers(location, value.radius)
+            .filterNot { it == player }
+            .forEach { it.velocity = it.location.toVector().subtract(location.toVector()).multiply(value.velocity) }
+    }
+
+    object Factory : CompositeAttributeFactory {
+        override fun fromSection(key: String, section: ConfigurationSection): Attribute<*> =
+            ForceFieldAttribute(
+                key,
+                me.wyne.wutils.config.configurables.animation.attribute.ForceFieldAttribute.ForceFieldData(
+                    ConfigUtils.getVectorOrZero(section, "offset"),
+                    section.getDouble("radius", 1.0),
+                    section.getDouble("velocity", 1.0)
+                )
+            )
+
+        override fun fromString(key: String, string: String): Attribute<*> {
+            val args = Args(string, " ")
+            return ForceFieldAttribute(
+                key,
+                me.wyne.wutils.config.configurables.animation.attribute.ForceFieldAttribute.ForceFieldData(
+                    VectorUtils.getVectorOrZero(args.get(2)),
+                    args.get(0, "1.0").toDouble(),
+                    args.get(1, "1.0").toDouble()
+                )
+            )
+        }
+    }
+}
+
 fun Location.getRelative(localOffset: Vector): Location {
     if (localOffset.isEmpty())
         return this
