@@ -6,7 +6,10 @@ restrictions:
   cancel-enchant-prepare: true
 activators:
   block-break:
-    condition-cancel-event: true
     has-target-block: [SPAWNER]
     is-item-equipment: [HAND]
     save-block-drop-state: [SPAWNER]
+  block-break-1:
+    not-has-target-block: [SPAWNER]
+    is-item-equipment: [HAND]
+    cancel-event: true

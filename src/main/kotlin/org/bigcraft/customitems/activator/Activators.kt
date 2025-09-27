@@ -40,7 +40,14 @@ val ACTIVATOR_MAP = AttributeMap(
         "block-break" to AttributeFactory { key, config -> BlockBreakActivator(key, createItemIdentifier(key, config), createActivatorAttributes(key, config), createActivatorConditions(key, config)) },
         "player-resurrect" to AttributeFactory { key, config -> PlayerResurrectActivator(key, createItemIdentifier(key, config), createActivatorAttributes(key, config), createActivatorConditions(key, config)) },
     )
-)
+).cheese(1)
+
+private fun AttributeMap.cheese(amount: Int): AttributeMap {
+    for (i in 1..amount) {
+        keyMap.toMap().forEach { (key, factory) -> put("$key-$i", factory) }
+    }
+    return this
+}
 
 private fun createItemIdentifier(key: String, config: ConfigurationSection) =
     runCatching { ItemIdentifiers.valueOf(config.getString("$key.identifier", "PLAYER")!!).identifier }

@@ -91,7 +91,7 @@ class ExplodeDropAttribute(
     @EventHandler(ignoreCancelled = true)
     private fun onExplode(event: EntityExplodeEvent) {
         event.blockList().forEach { block ->
-            if (!item.isCustomItem(block)) return
+            if (!item.isCustomItem(block)) return@forEach
             block.world.dropItem(block.location, item.createItemStack())
             block.type = Material.AIR
         }
@@ -100,7 +100,7 @@ class ExplodeDropAttribute(
     @EventHandler(ignoreCancelled = true)
     private fun onBlockExplode(event: BlockExplodeEvent) {
         event.blockList().forEach { block ->
-            if (!item.isCustomItem(block)) return
+            if (!item.isCustomItem(block)) return@forEach
             block.world.dropItem(block.location, item.createItemStack())
             block.type = Material.AIR
         }

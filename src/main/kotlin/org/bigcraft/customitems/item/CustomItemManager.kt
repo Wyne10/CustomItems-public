@@ -49,6 +49,7 @@ class CustomItemManager @Inject constructor(plugin: CustomItems, private val blo
     override fun load(config: ConfigurationSection) {
         restrictionRegistry.close()
         activatorRegistry.close()
+        blockManager.blockAttributesRegistry.close()
         super.load(config)
         loadFiles()
     }
@@ -79,7 +80,7 @@ class CustomItemManager @Inject constructor(plugin: CustomItems, private val blo
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
     private fun onExplode(event: EntityExplodeEvent) {
         event.blockList().forEach { block ->
-            val customBlock = blockManager.getCustomBlock(block) ?: return
+            val customBlock = blockManager.getCustomBlock(block) ?: return@forEach
             blockManager.breakBlock(customBlock)
         }
     }
@@ -87,7 +88,7 @@ class CustomItemManager @Inject constructor(plugin: CustomItems, private val blo
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
     private fun onBlockExplode(event: BlockExplodeEvent) {
         event.blockList().forEach { block ->
-            val customBlock = blockManager.getCustomBlock(block) ?: return
+            val customBlock = blockManager.getCustomBlock(block) ?: return@forEach
             blockManager.breakBlock(customBlock)
         }
     }
