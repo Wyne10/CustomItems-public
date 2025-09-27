@@ -41,7 +41,7 @@ val ACTIVATOR_MAP = AttributeMap(
         "block-break" to AttributeFactory { key, config -> BlockBreakActivator(key, createItemIdentifier(key, config), createActivatorAttributes(key, config), createActivatorConditions(key, config)) },
         "player-resurrect" to AttributeFactory { key, config -> PlayerResurrectActivator(key, createItemIdentifier(key, config), createActivatorAttributes(key, config), createActivatorConditions(key, config)) },
     )
-).cheese(1)
+)
 
 private fun AttributeMap.cheese(amount: Int): AttributeMap {
     for (i in 1..amount) {

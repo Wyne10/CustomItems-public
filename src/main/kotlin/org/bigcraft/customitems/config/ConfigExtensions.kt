@@ -4,6 +4,7 @@ import org.bukkit.Material
 import org.bukkit.configuration.ConfigurationSection
 import org.bukkit.potion.PotionEffectType
 import org.bukkit.util.Vector
+import kotlin.collections.Set
 
 const val RANGE_DELIMITER = ".."
 const val COMMA_DELIMITER = ","

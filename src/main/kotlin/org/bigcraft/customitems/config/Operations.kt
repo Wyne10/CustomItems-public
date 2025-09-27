@@ -82,9 +82,9 @@ class Power<T : Number> : Operation<T> {
         first.operations<T>().power(first, second)
 }
 
-class None<T : Number> : Operation<T> {
+class Set<T : Number> : Operation<T> {
     override fun evaluate(first: T, second: T): T =
-        first
+        second
 }
 
 fun <T : Number> getOperation(symbol: String): Operation<T> {
@@ -94,7 +94,7 @@ fun <T : Number> getOperation(symbol: String): Operation<T> {
         "*" -> Multiply()
         "/" -> Divide()
         "**" -> Power()
-        else -> None()
+        else -> Set()
     }
 }
 

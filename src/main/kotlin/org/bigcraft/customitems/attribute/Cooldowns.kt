@@ -8,11 +8,9 @@ import me.wyne.wutils.config.configurables.attribute.AttributeFactory
 import me.wyne.wutils.config.configurables.attribute.AttributeMap
 import me.wyne.wutils.config.configurables.attribute.ImmutableAttributeContainer
 import org.bigcraft.customitems.config.getMillis
-import org.bigcraft.customitems.item.CustomItem
 import org.bigcraft.customitems.item.CustomItemManager
 import org.bukkit.configuration.ConfigurationSection
 import org.bukkit.entity.Player
-import org.bukkit.event.Event
 import org.bukkit.inventory.ItemStack
 import java.util.UUID
 
