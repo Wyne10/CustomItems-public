@@ -10,6 +10,7 @@ import org.bukkit.Material
 import org.bukkit.block.Container
 import org.bukkit.block.Furnace
 import org.bukkit.event.EventHandler
+import org.bukkit.event.EventPriority
 import org.bukkit.event.block.BlockBreakEvent
 import org.bukkit.event.block.BlockBurnEvent
 import org.bukkit.event.block.BlockExplodeEvent
@@ -37,7 +38,7 @@ class BreakDropAttribute(
     drop: Boolean,
 ) : BlockAttribute<Boolean>(key, drop) {
 
-    @EventHandler(ignoreCancelled = true)
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGHEST)
     private fun onBreak(event: BlockBreakEvent) {
         if (!item.isCustomItem(event.block)) return
         event.isDropItems = false
@@ -56,7 +57,7 @@ class BreakMagnetAttribute(
     magnet: Boolean,
 ) : BlockAttribute<Boolean>(key, magnet) {
 
-    @EventHandler(ignoreCancelled = true)
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGHEST)
     private fun onBreak(event: BlockBreakEvent) {
         if (!item.isCustomItem(event.block)) return
         event.isDropItems = false
@@ -75,7 +76,7 @@ class BurnDropAttribute(
     drop: Boolean
 ) : BlockAttribute<Boolean>(key, drop) {
 
-    @EventHandler(ignoreCancelled = true)
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGHEST)
     private fun onBurn(event: BlockBurnEvent) {
         if (!item.isCustomItem(event.block)) return
         event.block.world.dropItem(event.block.location, item.createItemStack())
@@ -88,7 +89,7 @@ class ExplodeDropAttribute(
     drop: Boolean
 ) : BlockAttribute<Boolean>(key, drop) {
 
-    @EventHandler(ignoreCancelled = true)
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGHEST)
     private fun onExplode(event: EntityExplodeEvent) {
         event.blockList().forEach { block ->
             if (!item.isCustomItem(block)) return@forEach
@@ -97,7 +98,7 @@ class ExplodeDropAttribute(
         }
     }
 
-    @EventHandler(ignoreCancelled = true)
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGHEST)
     private fun onBlockExplode(event: BlockExplodeEvent) {
         event.blockList().forEach { block ->
             if (!item.isCustomItem(block)) return@forEach
