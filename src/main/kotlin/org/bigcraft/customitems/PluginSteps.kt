@@ -74,7 +74,7 @@ object InitializeI18n : PluginStep<CustomItems> {
             .setComponentInterpreter(ComponentInterpreters.valueOf(
                     plugin.config.getString("serializer", "MINI_MESSAGE")!!
                 ).get(EmptyValidator()))
-            .setUsePlayerLanguage(plugin.config.getBoolean("userPlayerLanguage", true))
+            .setUsePlayerLanguage(plugin.config.getBoolean("usePlayerLanguage", true))
             .loadLanguage("lang/ru.yml")
             .loadLanguage("lang/en.yml")
             .build()

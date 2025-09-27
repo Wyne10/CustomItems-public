@@ -8,4 +8,4 @@ activators:
     set-item-amount: -1
     force-field:
       radius: 5
-      velocity: 1
+      velocity: 1.5
