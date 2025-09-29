@@ -42,7 +42,7 @@ val Double.Operations: Operations<Double>
 
 //endregion
 
-//region operations
+//region Operations
 
 interface Operation<T : Number> {
     fun evaluate(first: T, second: T): T
@@ -54,6 +54,11 @@ interface ContainedOperation<T : Number> {
 
 class IntOperation(private val second: Int, private val operation: Operation<Int>) : ContainedOperation<Int> {
     override fun evaluate(value: Int): Int =
+        operation.evaluate(value, second)
+}
+
+class DoubleOperation(private val second: Double, private val operation: Operation<Double>) : ContainedOperation<Double> {
+    override fun evaluate(value: Double): Double =
         operation.evaluate(value, second)
 }
 
@@ -101,6 +106,11 @@ fun <T : Number> getOperation(symbol: String): Operation<T> {
 fun ConfigurationSection.getIntOperation(path: String): IntOperation {
     val (operation, number) = OPERATION_SYMBOLS_REGEX.matchEntire(getString(path)!!)!!.destructured
     return IntOperation(number.toInt(), getOperation(operation))
+}
+
+fun ConfigurationSection.getDoubleOperation(path: String): DoubleOperation {
+    val (operation, number) = OPERATION_SYMBOLS_REGEX.matchEntire(getString(path)!!)!!.destructured
+    return DoubleOperation(number.toDouble(), getOperation(operation))
 }
 
 val OPERATION_SYMBOLS_REGEX = Regex("(\\+|-|\\*|/|\\*\\*)?(-?\\d+(?:\\.\\d+)?)")

@@ -14,7 +14,9 @@ import org.bigcraft.customitems.CustomItems
 import org.bigcraft.customitems.attribute.JackOLanternAttribute
 import org.bigcraft.customitems.attribute.PlayerExplosionAttribute
 import org.bigcraft.customitems.attribute.RepairAttribute
+import org.bigcraft.customitems.config.DoubleOperation
 import org.bigcraft.customitems.config.IntOperation
+import org.bigcraft.customitems.config.getDoubleOperation
 import org.bigcraft.customitems.config.getEnumSet
 import org.bigcraft.customitems.config.getIntOperation
 import org.bigcraft.customitems.config.getMillis
@@ -34,6 +36,7 @@ import org.bukkit.inventory.ItemStack
 import org.bukkit.metadata.FixedMetadataValue
 import org.bukkit.potion.PotionEffect
 import org.bukkit.potion.PotionEffectType
+import kotlin.math.roundToInt
 import kotlin.random.Random
 
 val ACTIVATOR_ATTRIBUTE_MAP = AttributeMap(
@@ -49,14 +52,15 @@ val ACTIVATOR_ATTRIBUTE_MAP = AttributeMap(
         "player-remove-effects" to AttributeFactory { key, config -> PlayerRemoveEffectsAttribute(key, config.getPotionTypeEnumSet(key)) },
         "consume-projectile" to AttributeFactory { key, config -> ConsumeProjectileAttribute(key, config.getBoolean(key)) },
         "set-projectile-meta" to AttributeFactory { key, config -> ProjectileMetaAttribute(key, config.getString(key)!!) },
-        "set-damager-health" to AttributeFactory { key, config -> DamagerHealthAttribute(key, config.getDouble(key)) },
+        "set-damager-health" to AttributeFactory { key, config -> DamagerHealthAttribute(key, config.getDoubleOperation(key)) },
         "lock-drop" to AttributeFactory { key, config -> DropLockAttribute(key, config.getMillis(key)) },
         "player-explosion" to PlayerExplosionAttribute.Factory,
         "set-item-amount" to AttributeFactory { key, config -> ItemAmountAttribute(key, config.getIntOperation(key)) },
         "jack-o-lantern" to JackOLanternAttribute.Factory,
         "repair" to AttributeFactory { key, config -> RepairAttribute(key, config.getEnumSet<EquipmentSlot>(key)) },
         "force-field" to org.bigcraft.customitems.attribute.ForceFieldAttribute.Factory,
-        "action-bar" to AttributeFactory { key, config -> ActionBarAttribute(key, config.getString(key)!!) }
+        "action-bar" to AttributeFactory { key, config -> ActionBarAttribute(key, config.getString(key)!!) },
+        "set-player-exp" to AttributeFactory { key, config -> PlayerExpAttribute(key, config.getIntOperation(key)) },
     )
 )
 
@@ -107,11 +111,11 @@ class EntityPotionEffectsAttribute(
     effects: Set<PotionEffect>
 ) : ActivatorAttribute<Set<PotionEffect>>(key, effects) {
     override fun isApplicable(event: Event, player: Player, customItem: CustomItem, item: ItemStack) =
-        event is EntityEvent
+        event is EntityEvent && event.entity is LivingEntity
 
     override fun apply(event: Event, player: Player, customItem: CustomItem, item: ItemStack) {
         event as EntityEvent
-        val target = event.entity as? LivingEntity ?: return
+        val target = event.entity as LivingEntity
         value.forEach { potionEffect ->
             potionEffect.apply(target)
         }
@@ -132,11 +136,11 @@ class EntityRemoveEffectsAttribute(
     effects: Set<PotionEffectType>
 ) : ActivatorAttribute<Set<PotionEffectType>>(key, effects) {
     override fun isApplicable(event: Event, player: Player, customItem: CustomItem, item: ItemStack) =
-        event is EntityEvent
+        event is EntityEvent && event.entity is LivingEntity
 
     override fun apply(event: Event, player: Player, customItem: CustomItem, item: ItemStack) {
         event as EntityEvent
-        val target = event.entity as? LivingEntity ?: return
+        val target = event.entity as LivingEntity
         value.forEach { potionEffect ->
             target.removePotionEffect(potionEffect)
         }
@@ -204,14 +208,15 @@ class ProjectileMetaAttribute(
 
 class DamagerHealthAttribute(
     key: String,
-    health: Double
-) : ActivatorAttribute<Double>(key, health) {
+    operation: DoubleOperation
+) : ActivatorAttribute<DoubleOperation>(key, operation) {
     override fun isApplicable(event: Event, player: Player, customItem: CustomItem, item: ItemStack) =
         event is EntityDamageByEntityEvent && event.damager is LivingEntity
 
     override fun apply(event: Event, player: Player, customItem: CustomItem, item: ItemStack) {
         event as EntityDamageByEntityEvent
-        (event.damager as LivingEntity).health = value
+        val damager = event.damager as LivingEntity
+        damager.health = value.evaluate(damager.health)
     }
 }
 
@@ -254,5 +259,61 @@ class ActionBarAttribute(
     }
 }
 
+class PlayerExpAttribute(
+    key: String,
+    operation: IntOperation
+) : ActivatorAttribute<IntOperation>(key, operation) {
+    override fun apply(event: Event, player: Player, customItem: CustomItem, item: ItemStack) {
+        val currentExp = player.currentExp
+        player.exp = 0f
+        player.level = 0
+        player.giveExp(value.evaluate(currentExp))
+    }
+}
+
 fun Double.test(): Boolean =
     Random.nextDouble() < this
+
+/**
+ * One can determine how much experience has been collected to reach a level using the equations:
+ *
+ * ```
+ * Total experience =
+ * level^2 + 6 × level (at levels 0–16)
+ * 2.5 × level^2 – 40.5 × level + 360 (at levels 17–31)
+ * 4.5 × level^2 – 162.5 × level + 2220 (at levels 32+)
+ * ```
+ */
+val Player.levelExp: Int
+    get() =
+        when {
+            level <= 16 -> (level * level) + 6 * level
+            level <= 31 -> 2.5 * (level * level) - 40.5 * level + 360
+            else -> 4.5 * (level * level) - 162.5 * level + 2220
+        }.toInt()
+
+/**
+ * The formulas for figuring out how many experience orbs needed to get to the next level are as follows:
+ *
+ * ```
+ * Experience required =
+ * 2 × current_level + 7 (for levels 0–15)
+ * 5 × current_level – 38 (for levels 16–30)
+ * 9 × current_level – 158 (for levels 31+)
+ * ```
+ */
+val Player.expToLevelUp: Int
+    get() =
+        when {
+            level <= 15 -> 2 * level + 7
+            level <= 30 -> 5 * level - 38
+            else -> 9 * level - 158
+        }
+
+val Player.currentExp: Int
+    get() {
+        var currentExp = 0
+        currentExp += levelExp
+        currentExp += (expToLevelUp * exp).roundToInt()
+        return currentExp
+    }
