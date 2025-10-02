@@ -18,7 +18,6 @@ import org.bukkit.event.entity.EntityDamageEvent
 import org.bukkit.event.entity.EntityPotionEffectEvent
 import org.bukkit.inventory.EquipmentSlot
 import org.bukkit.inventory.ItemStack
-import org.bukkit.potion.PotionEffectType
 
 val ACTIVATOR_CONDITION_MAP = AttributeMap(
     mapOf(

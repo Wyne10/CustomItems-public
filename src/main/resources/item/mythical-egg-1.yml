@@ -1,0 +1,11 @@
+name: '<gold>Загадочное яйцо призыва'
+material: WITCH_SPAWN_EGG
+activators:
+  right-click:
+    has-target-block: [SPAWNER]
+    is-item-equipment: [HAND]
+    set-custom-block: 'mythical-spawner-1'
+  right-click-1:
+    not-has-target-block: [SPAWNER]
+    is-item-equipment: [HAND]
+    cancel-event: true

@@ -1,7 +1,9 @@
 package org.bigcraft.customitems.attribute
 
 import com.destroystokyo.paper.event.block.AnvilDamagedEvent
+import me.wyne.wutils.common.Args
 import me.wyne.wutils.common.inventory.IUtils
+import me.wyne.wutils.config.configurables.attribute.Attribute
 import me.wyne.wutils.config.configurables.attribute.AttributeFactory
 import me.wyne.wutils.config.configurables.attribute.AttributeMap
 import org.bigcraft.customitems.block.CustomBlockManager
@@ -9,6 +11,8 @@ import org.bigcraft.customitems.item.RegisterableCustomItemAttribute
 import org.bukkit.Material
 import org.bukkit.block.Container
 import org.bukkit.block.Furnace
+import org.bukkit.configuration.ConfigurationSection
+import org.bukkit.entity.EntityType
 import org.bukkit.event.EventHandler
 import org.bukkit.event.EventPriority
 import org.bukkit.event.block.BlockBreakEvent
@@ -16,6 +20,8 @@ import org.bukkit.event.block.BlockBurnEvent
 import org.bukkit.event.block.BlockExplodeEvent
 import org.bukkit.event.block.BlockPlaceEvent
 import org.bukkit.event.entity.EntityExplodeEvent
+import org.bukkit.event.entity.SpawnerSpawnEvent
+import kotlin.random.Random
 
 val BLOCK_ATTRIBUTE_MAP = AttributeMap(
     mapOf(
@@ -25,6 +31,7 @@ val BLOCK_ATTRIBUTE_MAP = AttributeMap(
         "explode-drop" to AttributeFactory { key, config -> ExplodeDropAttribute(key, config.getBoolean(key)) },
         "furnace-speed" to AttributeFactory { key, config -> FurnaceSpeedAttribute(key, config.getDouble(key)) },
         "unbreakable-anvil" to AttributeFactory { key, config -> UnbreakableAnvilAttribute(key, config.getBoolean(key)) },
+        "random-spawner" to RandomSpawner.Factory
     )
 )
 
@@ -138,3 +145,44 @@ class UnbreakableAnvilAttribute(
     }
 
 }
+
+class RandomSpawner(
+    key: String,
+    types: Map<EntityType, Int>
+) : BlockAttribute<Map<EntityType, Int>>(key, types) {
+
+    @EventHandler(ignoreCancelled = true)
+    private fun onCreatureSpawn(event: SpawnerSpawnEvent) {
+        event.spawner.spawnedType = value.weightedRandom() ?: return
+        event.spawner.update()
+    }
+
+    object Factory : AttributeFactory {
+        override fun create(key: String, config: ConfigurationSection): Attribute<*> {
+            val types = config.getStringList(key)
+                .map { Args(it, ":") }
+                .associate { EntityType.valueOf(it[0]) to it[1].toInt() }
+            return RandomSpawner(key, types)
+        }
+    }
+
+}
+
+fun <K> Map<K, Int>.weightedRandom(): K? {
+    if (isEmpty()) return null
+
+    val totalWeight = values.sum()
+    if (totalWeight <= 0) return null
+
+    var randomWeight = Random.nextInt(totalWeight)
+    for ((key, weight) in this) {
+        if (weight <= 0) continue
+        if (randomWeight < weight) return key
+        randomWeight -= weight
+    }
+
+    return null
+}
+
+val <K> Map<K, Int>.percentage: Map<K, Double>
+    get() = map { (key, weight) -> key to weight / values.sum().toDouble() }.toMap()

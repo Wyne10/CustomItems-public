@@ -14,6 +14,7 @@ import org.bigcraft.customitems.CustomItems
 import org.bigcraft.customitems.attribute.JackOLanternAttribute
 import org.bigcraft.customitems.attribute.PlayerExplosionAttribute
 import org.bigcraft.customitems.attribute.RepairAttribute
+import org.bigcraft.customitems.block.CustomBlockManager
 import org.bigcraft.customitems.config.DoubleOperation
 import org.bigcraft.customitems.config.IntOperation
 import org.bigcraft.customitems.config.getDoubleOperation
@@ -22,15 +23,18 @@ import org.bigcraft.customitems.config.getIntOperation
 import org.bigcraft.customitems.config.getMillis
 import org.bigcraft.customitems.config.getPotionTypeEnumSet
 import org.bigcraft.customitems.item.CustomItem
+import org.bigcraft.customitems.item.CustomItemManager
 import org.bukkit.Bukkit
 import org.bukkit.configuration.ConfigurationSection
 import org.bukkit.entity.LivingEntity
 import org.bukkit.entity.Player
 import org.bukkit.event.Cancellable
 import org.bukkit.event.Event
+import org.bukkit.event.block.BlockEvent
 import org.bukkit.event.entity.EntityDamageByEntityEvent
 import org.bukkit.event.entity.EntityEvent
 import org.bukkit.event.entity.PlayerDeathEvent
+import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.inventory.EquipmentSlot
 import org.bukkit.inventory.ItemStack
 import org.bukkit.metadata.FixedMetadataValue
@@ -61,6 +65,7 @@ val ACTIVATOR_ATTRIBUTE_MAP = AttributeMap(
         "force-field" to org.bigcraft.customitems.attribute.ForceFieldAttribute.Factory,
         "action-bar" to AttributeFactory { key, config -> ActionBarAttribute(key, config.getString(key)!!) },
         "set-player-exp" to AttributeFactory { key, config -> PlayerExpAttribute(key, config.getIntOperation(key)) },
+        "set-custom-block" to AttributeFactory { key, config -> SetCustomBlockAttribute(key, config.getString(key)!!) }
     )
 )
 
@@ -268,6 +273,33 @@ class PlayerExpAttribute(
         player.exp = 0f
         player.level = 0
         player.giveExp(value.evaluate(currentExp))
+    }
+}
+
+class SetCustomBlockAttribute(
+    key: String,
+    blockKey: String
+) : ActivatorAttribute<String>(key, blockKey) {
+
+    private val customBlock by lazy {
+        CustomItemManager.instance.getItem(value)!!
+    }
+
+    override fun isApplicable(event: Event, player: Player, customItem: CustomItem, item: ItemStack) =
+        customBlock.isBlock && (event is BlockEvent || event is PlayerInteractEvent)
+
+    override fun apply(event: Event, player: Player, customItem: CustomItem, item: ItemStack) {
+        if (event is BlockEvent) {
+            val block = event.block
+            if (block.type != customBlock.material)
+                block.type = customBlock.material
+            CustomBlockManager.instance.placeBlock(block, customBlock)
+        } else if (event is PlayerInteractEvent) {
+            val block = event.clickedBlock ?: return
+            if (block.type != customBlock.material)
+                block.type = customBlock.material
+            CustomBlockManager.instance.placeBlock(block, customBlock)
+        }
     }
 }
 

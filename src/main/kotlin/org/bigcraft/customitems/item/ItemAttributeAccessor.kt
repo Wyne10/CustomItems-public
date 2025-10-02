@@ -13,6 +13,7 @@ import org.bukkit.Material
 import org.bukkit.inventory.ItemStack
 
 interface ItemAttributeAccessor {
+    val material: Material
     val isBlock: Boolean
     val isCompositor: Boolean
     val compositorSet: Set<String>
@@ -26,8 +27,11 @@ class DefaultItemAttributeAccessor(
     private val activators: Set<Activator>,
     private val blockAttributes: Set<BlockAttribute<*>>,
 ) : ItemAttributeAccessor {
+    override val material: Material
+        get() = itemAttributes.getValue(ItemAttribute.MATERIAL.key, Material.STONE)
+
     override val isBlock: Boolean
-        get() = itemAttributes.getValue(ItemAttribute.MATERIAL.key, Material.STONE).isBlock && blockAttributes.isNotEmpty()
+        get() = material.isBlock && blockAttributes.isNotEmpty()
 
     override val isCompositor: Boolean
         get() = itemAttributes.attributes.contains("compositor")

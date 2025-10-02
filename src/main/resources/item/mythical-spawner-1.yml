@@ -1,0 +1,9 @@
+name: '<gold>Загадочный спавер'
+material: SPAWNER
+block:
+  random-spawner:
+    - 'PIGLIN_BRUTE:25'
+    - 'WITCH:7'
+    - 'BLAZE:20'
+    - 'ZOMBIE:18'
+    - 'SKELETON:30'
