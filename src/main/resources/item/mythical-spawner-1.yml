@@ -1,6 +1,7 @@
 name: '<gold>Загадочный спавер'
 material: SPAWNER
 block:
+  drop-drop: true
   random-spawner:
     - 'PIGLIN_BRUTE:25'
     - 'WITCH:7'

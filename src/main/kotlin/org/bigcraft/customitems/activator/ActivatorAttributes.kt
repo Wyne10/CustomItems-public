@@ -238,7 +238,7 @@ class DropLockAttribute(
         val drops = event.drops.toList()
         event.drops.clear()
         val items = drops
-            .map { killedPlayer.world.dropItem(killedPlayer.location, it) }
+            .map { killedPlayer.world.dropItemNaturally(killedPlayer.location, it) }
         items.forEach { it.owner = player.uniqueId }
         Bukkit.getScheduler().runTaskLater(CustomItems.instance, Runnable {
             items.forEach { it.owner = null }
