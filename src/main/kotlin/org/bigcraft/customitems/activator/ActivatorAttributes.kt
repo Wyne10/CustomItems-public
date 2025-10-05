@@ -1,11 +1,13 @@
 package org.bigcraft.customitems.activator
 
 import com.destroystokyo.paper.event.player.PlayerLaunchProjectileEvent
+import me.wyne.wutils.common.Args
 import me.wyne.wutils.common.Ticks
 import me.wyne.wutils.config.configurables.attribute.Attribute
 import me.wyne.wutils.config.configurables.attribute.AttributeBase
 import me.wyne.wutils.config.configurables.attribute.AttributeFactory
 import me.wyne.wutils.config.configurables.attribute.AttributeMap
+import me.wyne.wutils.config.configurables.attribute.CompositeAttributeFactory
 import me.wyne.wutils.config.configurables.item.attribute.PotionEffectsAttribute
 import me.wyne.wutils.i18n.kotlin.placeholderComponent
 import me.wyne.wutils.i18n.kotlin.placeholderString
@@ -32,6 +34,7 @@ import org.bukkit.event.Cancellable
 import org.bukkit.event.Event
 import org.bukkit.event.block.BlockEvent
 import org.bukkit.event.entity.EntityDamageByEntityEvent
+import org.bukkit.event.entity.EntityDamageEvent
 import org.bukkit.event.entity.EntityEvent
 import org.bukkit.event.entity.PlayerDeathEvent
 import org.bukkit.event.player.PlayerInteractEvent
@@ -65,7 +68,9 @@ val ACTIVATOR_ATTRIBUTE_MAP = AttributeMap(
         "force-field" to org.bigcraft.customitems.attribute.ForceFieldAttribute.Factory,
         "action-bar" to AttributeFactory { key, config -> ActionBarAttribute(key, config.getString(key)!!) },
         "set-player-exp" to AttributeFactory { key, config -> PlayerExpAttribute(key, config.getIntOperation(key)) },
-        "set-custom-block" to AttributeFactory { key, config -> SetCustomBlockAttribute(key, config.getString(key)!!) }
+        "set-custom-block" to AttributeFactory { key, config -> SetCustomBlockAttribute(key, config.getString(key)!!) },
+        "call-entity-damage" to CallEntityDamageAttribute.Factory,
+        "cause-entity-damage" to CauseEntityDamageAttribute.Factory,
     )
 )
 
@@ -299,6 +304,75 @@ class SetCustomBlockAttribute(
             if (block.type != customBlock.material)
                 block.type = customBlock.material
             CustomBlockManager.instance.placeBlock(block, customBlock)
+        }
+    }
+}
+
+open class CallEntityDamageAttribute(
+    key: String,
+    cause: EntityDamageEvent.DamageCause,
+    damage: Double
+) : ActivatorAttribute<Pair<EntityDamageEvent.DamageCause, Double>>(key, cause to damage) {
+    override fun isApplicable(event: Event, player: Player, customItem: CustomItem, item: ItemStack) =
+        event is EntityEvent
+
+    override fun apply(event: Event, player: Player, customItem: CustomItem, item: ItemStack) {
+        event as EntityEvent
+        EntityDamageByEntityEvent(player, event.entity, value.first, value.second).callEvent()
+    }
+
+    object Factory : CompositeAttributeFactory {
+        override fun fromSection(key: String, section: ConfigurationSection): Attribute<*> =
+            CallEntityDamageAttribute(
+                key,
+                runCatching { EntityDamageEvent.DamageCause.valueOf(section.getString("cause")!!) }.getOrDefault(EntityDamageEvent.DamageCause.ENTITY_ATTACK),
+                section.getDouble("damage")
+            )
+
+        override fun fromString(key: String, string: String): Attribute<*> {
+            val args = Args(string, ":")
+            return CallEntityDamageAttribute(
+                key,
+                runCatching { EntityDamageEvent.DamageCause.valueOf(args.get(0, "ENTITY_ATTACK")) }.getOrDefault(EntityDamageEvent.DamageCause.ENTITY_ATTACK),
+                args.get(1, "0.0").toDouble()
+            )
+        }
+    }
+}
+
+class CauseEntityDamageAttribute(
+    key: String,
+    cause: EntityDamageEvent.DamageCause,
+    damage: Double
+) : CallEntityDamageAttribute(key, cause, damage) {
+    override fun apply(event: Event, player: Player, customItem: CustomItem, item: ItemStack) {
+        event as EntityEvent
+        val event = EntityDamageByEntityEvent(player, event.entity, value.first, value.second)
+        if (!event.callEvent()) return
+        val damage = event.finalDamage
+        val entity = event.entity as? LivingEntity ?: return
+        entity.damage(damage)
+    }
+
+    object Factory : CompositeAttributeFactory {
+        override fun fromSection(key: String, section: ConfigurationSection): Attribute<*> =
+            CauseEntityDamageAttribute(
+                key,
+                runCatching { EntityDamageEvent.DamageCause.valueOf(section.getString("cause")!!) }.getOrDefault(
+                    EntityDamageEvent.DamageCause.ENTITY_ATTACK
+                ),
+                section.getDouble("damage")
+            )
+
+        override fun fromString(key: String, string: String): Attribute<*> {
+            val args = Args(string, ":")
+            return CauseEntityDamageAttribute(
+                key,
+                runCatching { EntityDamageEvent.DamageCause.valueOf(args.get(0, "ENTITY_ATTACK")) }.getOrDefault(
+                    EntityDamageEvent.DamageCause.ENTITY_ATTACK
+                ),
+                args.get(1, "0.0").toDouble()
+            )
         }
     }
 }
