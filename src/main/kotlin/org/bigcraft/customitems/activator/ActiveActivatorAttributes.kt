@@ -1,10 +1,10 @@
-package org.bigcraft.customitems.attribute
+package org.bigcraft.customitems.activator
 
 import me.wyne.wutils.common.Args
-import me.wyne.wutils.common.ConfigUtils
 import me.wyne.wutils.common.Ticks
-import me.wyne.wutils.common.VectorUtils
+import me.wyne.wutils.common.config.ConfigUtils
 import me.wyne.wutils.common.event.RegisterableListener
+import me.wyne.wutils.common.vector.VectorUtils
 import me.wyne.wutils.config.configurables.ItemConfigurable
 import me.wyne.wutils.config.configurables.attribute.Attribute
 import me.wyne.wutils.config.configurables.attribute.CompositeAttributeFactory
@@ -12,7 +12,7 @@ import me.wyne.wutils.config.configurables.attribute.ImmutableAttributeContainer
 import me.wyne.wutils.config.configurables.item.attribute.EnchantmentAttribute
 import me.wyne.wutils.config.configurables.item.attribute.MaterialAttribute
 import org.bigcraft.customitems.CustomItems
-import org.bigcraft.customitems.activator.ActivatorAttribute
+import org.bigcraft.customitems.item.PdcTagAttribute
 import org.bigcraft.customitems.config.getMillis
 import org.bigcraft.customitems.item.CustomItem
 import org.bigcraft.customitems.item.CustomItemManager
@@ -98,7 +98,15 @@ class JackOLanternAttribute(
         val JACK_O_LANTERN_ITEM: ItemStack = ItemConfigurable(
             ImmutableAttributeContainer.builder()
                 .with(MaterialAttribute(Material.JACK_O_LANTERN))
-                .with(PdcTagAttribute("ci-key", PdcTagAttribute.PdcTag(PersistentDataType.STRING as PersistentDataType<Any, Any>, "jack-o-lantern")))
+                .with(
+                    PdcTagAttribute(
+                        "ci-key",
+                        PdcTagAttribute.PdcTag(
+                            PersistentDataType.STRING as PersistentDataType<Any, Any>,
+                            "jack-o-lantern"
+                        )
+                    )
+                )
                 .with(EnchantmentAttribute(EnchantmentAttribute.EnchantmentData(Enchantment.BINDING_CURSE, 1)))
                 .buildImmutable()
         ).build()

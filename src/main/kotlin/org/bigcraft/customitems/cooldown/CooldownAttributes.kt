@@ -1,4 +1,4 @@
-package org.bigcraft.customitems.attribute
+package org.bigcraft.customitems.cooldown
 
 import me.wyne.wutils.common.Ticks
 import me.wyne.wutils.config.configurables.attribute.AttributeBase

@@ -1,4 +1,4 @@
-package org.bigcraft.customitems.attribute
+package org.bigcraft.customitems.block
 
 import com.destroystokyo.paper.event.block.AnvilDamagedEvent
 import me.wyne.wutils.common.Args
@@ -6,7 +6,6 @@ import me.wyne.wutils.common.inventory.IUtils
 import me.wyne.wutils.config.configurables.attribute.Attribute
 import me.wyne.wutils.config.configurables.attribute.AttributeFactory
 import me.wyne.wutils.config.configurables.attribute.AttributeMap
-import org.bigcraft.customitems.block.CustomBlockManager
 import org.bigcraft.customitems.item.RegisterableCustomItemAttribute
 import org.bukkit.Material
 import org.bukkit.block.Container
@@ -22,6 +21,7 @@ import org.bukkit.event.block.BlockExplodeEvent
 import org.bukkit.event.block.BlockPlaceEvent
 import org.bukkit.event.entity.EntityExplodeEvent
 import org.bukkit.event.entity.SpawnerSpawnEvent
+import kotlin.collections.iterator
 import kotlin.random.Random
 
 val BLOCK_ATTRIBUTE_MAP = AttributeMap(

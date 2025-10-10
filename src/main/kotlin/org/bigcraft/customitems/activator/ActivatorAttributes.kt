@@ -13,9 +13,6 @@ import me.wyne.wutils.i18n.kotlin.placeholderComponent
 import me.wyne.wutils.i18n.kotlin.placeholderString
 import me.wyne.wutils.i18n.kotlin.replace
 import org.bigcraft.customitems.CustomItems
-import org.bigcraft.customitems.attribute.JackOLanternAttribute
-import org.bigcraft.customitems.attribute.PlayerExplosionAttribute
-import org.bigcraft.customitems.attribute.RepairAttribute
 import org.bigcraft.customitems.block.CustomBlockManager
 import org.bigcraft.customitems.config.DoubleOperation
 import org.bigcraft.customitems.config.IntOperation
@@ -65,7 +62,7 @@ val ACTIVATOR_ATTRIBUTE_MAP = AttributeMap(
         "set-item-amount" to AttributeFactory { key, config -> ItemAmountAttribute(key, config.getIntOperation(key)) },
         "jack-o-lantern" to JackOLanternAttribute.Factory,
         "repair" to AttributeFactory { key, config -> RepairAttribute(key, config.getEnumSet<EquipmentSlot>(key)) },
-        "force-field" to org.bigcraft.customitems.attribute.ForceFieldAttribute.Factory,
+        "force-field" to ForceFieldAttribute.Factory,
         "action-bar" to AttributeFactory { key, config -> ActionBarAttribute(key, config.getString(key)!!) },
         "set-player-exp" to AttributeFactory { key, config -> PlayerExpAttribute(key, config.getIntOperation(key)) },
         "set-custom-block" to AttributeFactory { key, config -> SetCustomBlockAttribute(key, config.getString(key)!!) },

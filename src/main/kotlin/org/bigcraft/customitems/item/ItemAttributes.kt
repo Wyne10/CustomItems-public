@@ -1,4 +1,4 @@
-package org.bigcraft.customitems.attribute
+package org.bigcraft.customitems.item
 
 import de.tr7zw.nbtapi.NBT
 import de.tr7zw.nbtapi.iface.ReadableNBT
@@ -18,6 +18,7 @@ import org.bukkit.configuration.ConfigurationSection
 import org.bukkit.inventory.ItemStack
 import org.bukkit.inventory.meta.ItemMeta
 import org.bukkit.persistence.PersistentDataType
+import kotlin.collections.get
 
 val ITEM_ATTRIBUTE_MAP = mapOf(
     "nbt" to AttributeFactory { key, config -> NbtTagAttribute(key, NBT.parseNBT(config.getString(key))) },

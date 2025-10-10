@@ -7,8 +7,7 @@ import me.wyne.wutils.config.configurables.item.attribute.NameAttribute
 import me.wyne.wutils.i18n.I18n
 import me.wyne.wutils.i18n.language.component.PlaceholderLocalizedComponent
 import org.bigcraft.customitems.activator.Activator
-import org.bigcraft.customitems.attribute.BlockAttribute
-import org.bigcraft.customitems.attribute.Restriction
+import org.bigcraft.customitems.block.BlockAttribute
 import org.bukkit.Material
 import org.bukkit.inventory.ItemStack
 

@@ -1,11 +1,9 @@
-package org.bigcraft.customitems.attribute
+package org.bigcraft.customitems.item
 
 import com.destroystokyo.paper.event.player.PlayerLaunchProjectileEvent
 import me.wyne.wutils.config.configurables.attribute.AttributeFactory
 import me.wyne.wutils.config.configurables.attribute.AttributeMap
 import org.bigcraft.customitems.config.getEnumSet
-import org.bigcraft.customitems.item.CustomItemManager
-import org.bigcraft.customitems.item.RegisterableCustomItemAttribute
 import org.bukkit.Keyed
 import org.bukkit.NamespacedKey
 import org.bukkit.entity.EntityType

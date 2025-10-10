@@ -1,4 +1,4 @@
-package org.bigcraft.customitems.attribute
+package org.bigcraft.customitems.cooldown
 
 import me.wyne.wutils.common.cooldown.CooldownMap
 import me.wyne.wutils.common.cooldown.Period

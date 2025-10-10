@@ -28,6 +28,7 @@ dependencies {
     implementation(libs.wutilsLog)
     implementation(libs.wutilsI18nKotlin)
     implementation(libs.wutilsCommon)
+    implementation(libs.wutilsAnimation)
     implementation(libs.wutilsJson)
 }
 

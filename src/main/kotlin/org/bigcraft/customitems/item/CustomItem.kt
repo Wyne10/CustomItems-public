@@ -8,8 +8,11 @@ import org.bigcraft.customitems.ConfigurableFactory
 import org.bigcraft.customitems.CustomItems
 import org.bigcraft.customitems.activator.ACTIVATOR_MAP
 import org.bigcraft.customitems.activator.Activator
-import org.bigcraft.customitems.attribute.*
+import org.bigcraft.customitems.block.BLOCK_ATTRIBUTE_MAP
+import org.bigcraft.customitems.block.BlockAttribute
 import org.bigcraft.customitems.block.CustomBlockManager
+import org.bigcraft.customitems.cooldown.COOLDOWN_MAP
+import org.bigcraft.customitems.cooldown.Cooldown
 import org.bukkit.NamespacedKey
 import org.bukkit.block.Block
 import org.bukkit.configuration.ConfigurationSection
