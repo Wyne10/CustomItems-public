@@ -61,6 +61,8 @@ val ACTIVATOR_CONDITION_MAP = AttributeMap(
         "is-damage-cause" to AttributeFactory { key, config -> DamageCauseCondition(key, config.getEnumSet<EntityDamageEvent.DamageCause>(key)) },
         "is-effect-action" to AttributeFactory { key, config -> EffectActionCondition(key, config.getEnumSet<EntityPotionEffectEvent.Action>(key)) },
         "is-effect-type" to AttributeFactory { key, config -> EffectTypeCondition(key, config.getPotionTypeEnumSet(key)) },
+        "is-within-aoe" to AttributeFactory { key, config -> WithinAoeCondition(key, config.getStringList(key).toSet()) },
+        "is-aoe-affected" to AttributeFactory { key, config -> AoeAffectedCondition(key, config.getStringList(key).toSet()) },
     )
 )
 

@@ -1,5 +1,6 @@
 package org.bigcraft.customitems.activator.condition
 
+import org.bigcraft.customitems.aoe.AoeManager
 import org.bigcraft.customitems.config.IntComparator
 import org.bigcraft.customitems.item.CustomItem
 import org.bukkit.Material
@@ -131,4 +132,17 @@ class DamageCauseCondition(key: String, causes: Set<EntityDamageEvent.DamageCaus
         if (event !is EntityDamageEvent) return true
         return event.cause in value
     }
+}
+
+class WithinAoeCondition(key: String, aoeKeys: Set<String>) : ActivatorCondition<Set<String>>(key, aoeKeys) {
+    override fun isApplicable(event: Event, player: Player, customItem: CustomItem, item: ItemStack): Boolean =
+        value.flatMap { AoeManager.instance.getAoe(it) }
+            .any { it.bounds.contains(player) }
+}
+
+class AoeAffectedCondition(key: String, aoeKeys: Set<String>) : ActivatorCondition<Set<String>>(key, aoeKeys) {
+    override fun isApplicable(event: Event, player: Player, customItem: CustomItem, item: ItemStack): Boolean =
+        value.flatMap { AoeManager.instance.getAoe(it) }
+            .filter { it.owner != player }
+            .any { it.bounds.contains(player) }
 }

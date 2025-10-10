@@ -1,8 +1,12 @@
 package org.bigcraft.customitems.activator
 
 import com.destroystokyo.paper.event.player.PlayerLaunchProjectileEvent
+import me.wyne.wutils.animation.data.AnimationParticle
+import me.wyne.wutils.animation.runnable.ParticleArray
 import me.wyne.wutils.common.Args
 import me.wyne.wutils.common.Ticks
+import me.wyne.wutils.common.range.LocationRange
+import me.wyne.wutils.config.configurables.animation.attribute.AnimationParticleAttribute
 import me.wyne.wutils.config.configurables.attribute.Attribute
 import me.wyne.wutils.config.configurables.attribute.AttributeBase
 import me.wyne.wutils.config.configurables.attribute.AttributeFactory
@@ -13,6 +17,8 @@ import me.wyne.wutils.i18n.kotlin.placeholderComponent
 import me.wyne.wutils.i18n.kotlin.placeholderString
 import me.wyne.wutils.i18n.kotlin.replace
 import org.bigcraft.customitems.CustomItems
+import org.bigcraft.customitems.aoe.AoeManager
+import org.bigcraft.customitems.aoe.AreaOfEffect
 import org.bigcraft.customitems.block.CustomBlockManager
 import org.bigcraft.customitems.config.DoubleOperation
 import org.bigcraft.customitems.config.IntOperation
@@ -59,7 +65,6 @@ val ACTIVATOR_ATTRIBUTE_MAP = AttributeMap(
         "set-damager-health" to AttributeFactory { key, config -> DamagerHealthAttribute(key, config.getDoubleOperation(key)) },
         "lock-drop" to AttributeFactory { key, config -> DropLockAttribute(key, config.getMillis(key)) },
         "player-explosion" to PlayerExplosionAttribute.Factory,
-        "set-item-amount" to AttributeFactory { key, config -> ItemAmountAttribute(key, config.getIntOperation(key)) },
         "jack-o-lantern" to JackOLanternAttribute.Factory,
         "repair" to AttributeFactory { key, config -> RepairAttribute(key, config.getEnumSet<EquipmentSlot>(key)) },
         "force-field" to ForceFieldAttribute.Factory,
@@ -68,6 +73,8 @@ val ACTIVATOR_ATTRIBUTE_MAP = AttributeMap(
         "set-custom-block" to AttributeFactory { key, config -> SetCustomBlockAttribute(key, config.getString(key)!!) },
         "call-entity-damage" to CallEntityDamageAttribute.Factory,
         "cause-entity-damage" to CauseEntityDamageAttribute.Factory,
+        "create-aoe" to CreateAoeAttribute.Factory,
+        "set-item-amount" to AttributeFactory { key, config -> ItemAmountAttribute(key, config.getIntOperation(key)) },
     )
 )
 
@@ -369,6 +376,41 @@ class CauseEntityDamageAttribute(
                     EntityDamageEvent.DamageCause.ENTITY_ATTACK
                 ),
                 args.get(1, "0.0").toDouble()
+            )
+        }
+    }
+}
+
+class CreateAoeAttribute(
+    key: String,
+    aoeKey: String,
+    private val radius: Double,
+    private val durationMillis: Long,
+    private val particle: AnimationParticle?
+) : ActivatorAttribute<String>(key, aoeKey) {
+    override fun apply(event: Event, player: Player, customItem: CustomItem, item: ItemStack) {
+        val bounds = LocationRange(player.location, radius)
+        val renderer = if (particle != null) ParticleArray(player.world, bounds.iterator().asSequence().toSet(), particle) else null
+        AoeManager.instance.startAoe(
+            AreaOfEffect(
+                value,
+                player,
+                durationMillis,
+                bounds,
+                renderer
+            )
+        )
+    }
+
+    object Factory : AttributeFactory {
+        override fun create(key: String, config: ConfigurationSection): Attribute<*> {
+            val section = config.getConfigurationSection(key)!!
+            return CreateAoeAttribute(
+                key,
+                section.getString("key")!!,
+                section.getDouble("radius"),
+                section.getMillis("duration"),
+                AnimationParticleAttribute.Factory().fromSection("particle", section.getConfigurationSection("particle")).value
             )
         }
     }
