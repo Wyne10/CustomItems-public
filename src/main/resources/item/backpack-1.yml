@@ -1,0 +1,8 @@
+name: 'Рюкзак <gray>(I уровень)'
+material: PINK_SHULKER_BOX
+restrictions:
+  cancel-place: true
+activators:
+  right-click:
+    is-item-equipment: [HAND, OFF_HAND]
+    open-storage: 1

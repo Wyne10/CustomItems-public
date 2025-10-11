@@ -74,6 +74,7 @@ val ACTIVATOR_ATTRIBUTE_MAP = AttributeMap(
         "call-entity-damage" to CallEntityDamageAttribute.Factory,
         "cause-entity-damage" to CauseEntityDamageAttribute.Factory,
         "create-aoe" to CreateAoeAttribute.Factory,
+        "open-storage" to AttributeFactory { key, config -> StorageAttribute(key, config.getInt("key")) },
         "set-item-amount" to AttributeFactory { key, config -> ItemAmountAttribute(key, config.getIntOperation(key)) },
     )
 )
