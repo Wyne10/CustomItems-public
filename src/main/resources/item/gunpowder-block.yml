@@ -1,5 +1,7 @@
 name: '<gray>Взрывчатое вещество'
 material: CLAY
+restrictions:
+  cancel-smelt: true
 block:
   break-drop: true
   explode-drop: true

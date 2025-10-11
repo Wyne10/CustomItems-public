@@ -1,6 +1,7 @@
 name: '<gold>Охотник'
 material: DIAMOND_SWORD
 restrictions:
+  cancel-craft: true
   cancel-storage: [ANVIL]
   cancel-enchant-prepare: true
 activators:

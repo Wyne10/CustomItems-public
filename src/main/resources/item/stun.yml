@@ -6,7 +6,7 @@ activators:
     set-item-amount: -1
     create-aoe:
       key: 'stun'
-      radius: 2
+      radius: 15
       duration: 15s
       particle:
         particle: REDSTONE

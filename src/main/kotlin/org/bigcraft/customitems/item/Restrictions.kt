@@ -19,6 +19,7 @@ import org.bukkit.event.entity.EntityDamageEvent
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause
 import org.bukkit.event.entity.ItemDespawnEvent
 import org.bukkit.event.inventory.CraftItemEvent
+import org.bukkit.event.inventory.FurnaceSmeltEvent
 import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.event.inventory.InventoryType
 import org.bukkit.event.player.PlayerDropItemEvent
@@ -33,6 +34,7 @@ val RESTRICTION_MAP = AttributeMap(
         "cancel-place" to AttributeFactory { key, config -> PlaceRestriction(key, config.getBoolean(key)) },
         "cancel-craft" to AttributeFactory { key, config -> CraftRestriction(key, config.getBoolean(key)) },
         "cancel-craft-vanilla" to AttributeFactory { key, config -> VanillaCraftRestriction(key, config.getBoolean(key)) },
+        "cancel-smelt" to AttributeFactory { key, config -> SmeltingRestriction(key, config.getBoolean(key)) },
         "cancel-storage" to AttributeFactory { key, config -> StorageRestriction(key, config.getEnumSet<InventoryType>(key)) },
         "cancel-damage" to AttributeFactory { key, config -> DamageRestriction(key, config.getEnumSet<DamageCause>(key)) },
         "cancel-despawn" to AttributeFactory { key, config -> DespawnRestriction(key, config.getBoolean(key)) },
@@ -88,6 +90,13 @@ class VanillaCraftRestriction(key: String, isActive: Boolean) : Restriction(key,
             if (event.inventory.any(item::isCustomItem))
                 event.isCancelled = true
         }
+    }
+}
+
+class SmeltingRestriction(key: String, isActive: Boolean) : Restriction(key, isActive) {
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.LOWEST)
+    private fun onEvent(event: FurnaceSmeltEvent) {
+        cancelEvent(event, event.source)
     }
 }
 

@@ -1,6 +1,7 @@
 name: '<gold>Золотая кирка Джейка'
 material: GOLDEN_PICKAXE
 restrictions:
+  cancel-craft: true
   cancel-storage: [ANVIL]
   cancel-enchant-prepare: true
 enchantment: 'customenchants:spawner'

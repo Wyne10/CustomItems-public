@@ -1,6 +1,8 @@
 name: '<red>Взрывная штучка'
 material: FIRE_CHARGE
 glow: true
+restrictions:
+  cancel-craft: true
 activators:
   right-click:
     is-item-equipment: [HAND, OFF_HAND]

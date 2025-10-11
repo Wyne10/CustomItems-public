@@ -7,5 +7,5 @@ potionEffect:
 activators:
   player-hit-player:
     identifier: EMPTY
-    player-remove-effects: [ FAST_DIGGING ]
-    entity-remove-effects: [ FAST_DIGGING ]
+    player-remove-effects: [FAST_DIGGING]
+    entity-remove-effects: [FAST_DIGGING]

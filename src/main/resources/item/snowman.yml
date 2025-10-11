@@ -2,6 +2,7 @@ name: 'Снеговик'
 material: SNOW_BLOCK
 glow: true
 restrictions:
+  cancel-craft: true
   cancel-place: true
 activators:
   player-hit-player:

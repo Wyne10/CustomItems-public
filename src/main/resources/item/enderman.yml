@@ -5,7 +5,7 @@ restrictions:
   cancel-projectile: true
 activators:
   player-launch-projectile:
-    is-projectile-type: [ENDER_PEARL]
     chance: 0.5
+    is-projectile-type: [ENDER_PEARL]
     consume-projectile: false
     action-bar: 'info-activation'
