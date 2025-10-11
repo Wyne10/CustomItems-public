@@ -21,4 +21,10 @@ activators:
     is-aoe-affected: ['stun']
     is-consumed-item-type: [CHORUS_FRUIT]
     cancel-event: true
-
+  player-move:
+    identifier: EMPTY
+    is-aoe-affected: ['stun']
+    player-potion-effects:
+      slow:
+        type: SLOW
+        duration: 20

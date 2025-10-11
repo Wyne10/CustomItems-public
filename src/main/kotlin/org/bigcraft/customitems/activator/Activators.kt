@@ -24,6 +24,7 @@ import org.bukkit.event.entity.EntityResurrectEvent
 import org.bukkit.event.entity.PlayerDeathEvent
 import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.event.player.PlayerItemConsumeEvent
+import org.bukkit.event.player.PlayerMoveEvent
 import org.bukkit.inventory.EquipmentSlot
 import org.bukkit.inventory.ItemStack
 
@@ -41,6 +42,7 @@ val ACTIVATOR_MAP = AttributeMap(
         "player-consume-item" to AttributeFactory { key, config -> PlayerConsumeItemActivator(key, createItemIdentifier(key, config), createActivatorAttributes(key, config), createActivatorConditions(key, config)) },
         "player-block-break" to AttributeFactory { key, config -> BlockBreakActivator(key, createItemIdentifier(key, config), createActivatorAttributes(key, config), createActivatorConditions(key, config)) },
         "player-resurrect" to AttributeFactory { key, config -> PlayerResurrectActivator(key, createItemIdentifier(key, config), createActivatorAttributes(key, config), createActivatorConditions(key, config)) },
+        "player-move" to AttributeFactory { key, config -> PlayerMoveActivator(key, createItemIdentifier(key, config), createActivatorAttributes(key, config), createActivatorConditions(key, config)) },
     )
 ).cheese(1)
 
@@ -258,5 +260,19 @@ class PlayerResurrectActivator(
         val player = event.entity as? Player ?: return
         val itemStack = getItemStack(event, player) ?: return
         activate(event, player, itemStack)
+    }
+}
+
+class PlayerMoveActivator(
+    key: String,
+    itemIdentifier: ItemIdentifier,
+    attributes: Set<ActivatorAttribute<*>>,
+    conditions: Set<ActivatorCondition<*>>
+) : Activator(key, itemIdentifier, attributes, conditions) {
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGH)
+    private fun onResurrect(event: PlayerMoveEvent) {
+        if (!event.hasChangedPosition()) return
+        val itemStack = getItemStack(event, event.player) ?: return
+        activate(event, event.player, itemStack)
     }
 }
