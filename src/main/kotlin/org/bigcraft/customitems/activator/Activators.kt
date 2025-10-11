@@ -24,6 +24,7 @@ import org.bukkit.event.entity.EntityResurrectEvent
 import org.bukkit.event.entity.PlayerDeathEvent
 import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.event.player.PlayerItemConsumeEvent
+import org.bukkit.inventory.EquipmentSlot
 import org.bukkit.inventory.ItemStack
 
 val ACTIVATOR_MAP = AttributeMap(
@@ -100,6 +101,7 @@ class RightClickActivator(
     private fun onRightClick(event: PlayerInteractEvent) {
         val itemStack = getItemStack(event, event.player) ?: return
         if (event.action != Action.RIGHT_CLICK_AIR && event.action != Action.RIGHT_CLICK_BLOCK) return
+        if (event.hand != EquipmentSlot.HAND) return
         activate(event, event.player, itemStack)
     }
 }
