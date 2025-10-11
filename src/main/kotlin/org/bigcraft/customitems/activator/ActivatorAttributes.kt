@@ -12,10 +12,13 @@ import me.wyne.wutils.config.configurables.attribute.AttributeBase
 import me.wyne.wutils.config.configurables.attribute.AttributeFactory
 import me.wyne.wutils.config.configurables.attribute.AttributeMap
 import me.wyne.wutils.config.configurables.attribute.CompositeAttributeFactory
+import me.wyne.wutils.config.configurables.gui.attribute.SoundAttribute
 import me.wyne.wutils.config.configurables.item.attribute.PotionEffectsAttribute
+import me.wyne.wutils.i18n.I18n
 import me.wyne.wutils.i18n.kotlin.placeholderComponent
 import me.wyne.wutils.i18n.kotlin.placeholderString
 import me.wyne.wutils.i18n.kotlin.replace
+import net.kyori.adventure.sound.Sound
 import org.bigcraft.customitems.CustomItems
 import org.bigcraft.customitems.aoe.AoeManager
 import org.bigcraft.customitems.aoe.AreaOfEffect
@@ -69,6 +72,7 @@ val ACTIVATOR_ATTRIBUTE_MAP = AttributeMap(
         "repair" to AttributeFactory { key, config -> RepairAttribute(key, config.getEnumSet<EquipmentSlot>(key)) },
         "force-field" to ForceFieldAttribute.Factory,
         "action-bar" to AttributeFactory { key, config -> ActionBarAttribute(key, config.getString(key)!!) },
+        "player-sound" to AttributeFactory { key, config -> PlayerSoundAttribute(key, SoundAttribute.Factory().create(key, config).value as Sound) },
         "set-player-exp" to AttributeFactory { key, config -> PlayerExpAttribute(key, config.getIntOperation(key)) },
         "set-custom-block" to AttributeFactory { key, config -> SetCustomBlockAttribute(key, config.getString(key)!!) },
         "call-entity-damage" to CallEntityDamageAttribute.Factory,
@@ -271,6 +275,15 @@ class ActionBarAttribute(
 ) : ActivatorAttribute<String>(key, message) {
     override fun apply(event: Event, player: Player, customItem: CustomItem, item: ItemStack) {
         player.placeholderComponent(value, "key" replace customItem.key).sendActionBar(player)
+    }
+}
+
+class PlayerSoundAttribute(
+    key: String,
+    sound: Sound
+) : ActivatorAttribute<Sound>(key, sound) {
+    override fun apply(event: Event, player: Player, customItem: CustomItem, item: ItemStack) {
+        I18n.global.audiences.player(player).playSound(value)
     }
 }
 
