@@ -3,7 +3,7 @@ material: FEATHER
 restrictions:
   cancel-craft: true
 activators:
-  player-damage:
+  player-take-damage:
     is-damage-cause: [FALL]
     cancel-event: true
     action-bar: 'info-activation'

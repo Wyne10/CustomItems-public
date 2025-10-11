@@ -35,11 +35,11 @@ val ACTIVATOR_MAP = AttributeMap(
         "entity-hit-player" to AttributeFactory { key, config -> EntityHitPlayerActivator(key, createItemIdentifier(key, config), createActivatorAttributes(key, config), createActivatorConditions(key, config)) },
         "projectile-hit-player" to AttributeFactory { key, config -> ProjectileHitPlayerActivator(key, createItemIdentifier(key, config), createActivatorAttributes(key, config), createActivatorConditions(key, config)) },
         "player-hit-entity" to AttributeFactory { key, config -> PlayerHitEntityActivator(key, createItemIdentifier(key, config), createActivatorAttributes(key, config), createActivatorConditions(key, config)) },
-        "launch-projectile" to AttributeFactory { key, config -> LaunchProjectileActivator(key, createItemIdentifier(key, config), createActivatorAttributes(key, config), createActivatorConditions(key, config)) },
-        "player-damage" to AttributeFactory { key, config -> PlayerDamageActivator(key, createItemIdentifier(key, config), createActivatorAttributes(key, config), createActivatorConditions(key, config)) },
+        "player-launch-projectile" to AttributeFactory { key, config -> LaunchProjectileActivator(key, createItemIdentifier(key, config), createActivatorAttributes(key, config), createActivatorConditions(key, config)) },
+        "player-take-damage" to AttributeFactory { key, config -> PlayerDamageActivator(key, createItemIdentifier(key, config), createActivatorAttributes(key, config), createActivatorConditions(key, config)) },
         "player-potion-effect" to AttributeFactory { key, config -> PlayerPotionEffectActivator(key, createItemIdentifier(key, config), createActivatorAttributes(key, config), createActivatorConditions(key, config)) },
         "player-consume-item" to AttributeFactory { key, config -> PlayerConsumeItemActivator(key, createItemIdentifier(key, config), createActivatorAttributes(key, config), createActivatorConditions(key, config)) },
-        "block-break" to AttributeFactory { key, config -> BlockBreakActivator(key, createItemIdentifier(key, config), createActivatorAttributes(key, config), createActivatorConditions(key, config)) },
+        "player-block-break" to AttributeFactory { key, config -> BlockBreakActivator(key, createItemIdentifier(key, config), createActivatorAttributes(key, config), createActivatorConditions(key, config)) },
         "player-resurrect" to AttributeFactory { key, config -> PlayerResurrectActivator(key, createItemIdentifier(key, config), createActivatorAttributes(key, config), createActivatorConditions(key, config)) },
     )
 ).cheese(1)

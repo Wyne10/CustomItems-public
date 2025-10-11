@@ -11,7 +11,7 @@ activators:
       particle:
         particle: REDSTONE
         data: 16711684-1.0
-  launch-projectile:
+  player-launch-projectile:
     identifier: EMPTY
     is-aoe-affected: ['stun']
     is-projectile-type: [ENDER_PEARL]

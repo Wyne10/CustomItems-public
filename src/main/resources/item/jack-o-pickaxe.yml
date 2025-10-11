@@ -5,7 +5,7 @@ restrictions:
   cancel-enchant-prepare: true
 enchantment: 'customenchants:spawner'
 activators:
-  block-break:
+  player-block-break:
     is-target-block: [SPAWNER]
     is-item-equipment: [HAND]
     set-item-amount: -1

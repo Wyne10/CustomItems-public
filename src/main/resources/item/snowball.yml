@@ -2,7 +2,7 @@ name: '<aqua>Ком снега'
 material: SNOWBALL
 glow: true
 activators:
-  launch-projectile:
+  player-launch-projectile:
     is-item-equipment: [HAND, OFF_HAND]
     is-projectile-type: [SNOWBALL]
     set-projectile-meta: snowball
