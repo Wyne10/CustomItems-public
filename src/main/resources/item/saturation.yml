@@ -8,13 +8,13 @@ activators:
   # Workaround as saturation potion doesn't work as intended
   player-consume-item:
     is-item-equipment: [HAND, OFF_HAND]
-    is-item-type: [ POTION ]
-    is-potion-type: [ SATURATION ]
+    is-item-type: [POTION]
+    is-potion-type: [SATURATION]
     player-potion-effects:
       saturation:
         type: SATURATION
         duration: 1728000
   player-hit-player:
     identifier: EMPTY
-    player-remove-effects: [ SATURATION ]
-    entity-remove-effects: [ SATURATION ]
+    player-remove-effects: [SATURATION]
+    entity-remove-effects: [SATURATION]

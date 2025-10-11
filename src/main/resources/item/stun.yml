@@ -11,3 +11,14 @@ activators:
       particle:
         particle: REDSTONE
         data: 16711684-1.0
+  launch-projectile:
+    identifier: EMPTY
+    is-aoe-affected: ['stun']
+    is-projectile-type: [ENDER_PEARL]
+    cancel-event: true
+  player-consume-item:
+    identifier: EMPTY
+    is-aoe-affected: ['stun']
+    is-consumed-item-type: [CHORUS_FRUIT]
+    cancel-event: true
+

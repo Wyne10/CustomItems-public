@@ -3,6 +3,8 @@ material: SNOWBALL
 glow: true
 activators:
   launch-projectile:
+    is-item-equipment: [HAND, OFF_HAND]
+    is-projectile-type: [SNOWBALL]
     set-projectile-meta: snowball
   projectile-hit-player:
     identifier: EMPTY
