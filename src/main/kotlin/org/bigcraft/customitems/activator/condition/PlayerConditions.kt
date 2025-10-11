@@ -1,5 +1,7 @@
 package org.bigcraft.customitems.activator.condition
 
+import org.bigcraft.customitems.activator.currentExp
+import org.bigcraft.customitems.activator.levelExp
 import org.bigcraft.customitems.aoe.AoeManager
 import org.bigcraft.customitems.config.IntComparator
 import org.bigcraft.customitems.item.CustomItem
@@ -64,7 +66,7 @@ class LevelCondition(key: String, comparator: IntComparator) : ActivatorConditio
 
 class ExpCondition(key: String, comparator: IntComparator) : ActivatorCondition<IntComparator>(key, comparator) {
     override fun isApplicable(event: Event, player: Player, customItem: CustomItem, item: ItemStack): Boolean =
-        value.compare(player.exp.toInt())
+        value.compare(player.currentExp)
 }
 
 class FoodLevelCondition(key: String, comparator: IntComparator) : ActivatorCondition<IntComparator>(key, comparator) {
@@ -125,13 +127,6 @@ class InWorldCondition(key: String, worlds: Set<World>) : ActivatorCondition<Set
 class NotInWorldCondition(key: String, worlds: Set<World>) : ActivatorCondition<Set<World>>(key, worlds) {
     override fun isApplicable(event: Event, player: Player, customItem: CustomItem, item: ItemStack): Boolean =
         player.location.world !in value
-}
-
-class DamageCauseCondition(key: String, causes: Set<EntityDamageEvent.DamageCause>) : ActivatorCondition<Set<EntityDamageEvent.DamageCause>>(key, causes) {
-    override fun isApplicable(event: Event, player: Player, customItem: CustomItem, item: ItemStack): Boolean {
-        if (event !is EntityDamageEvent) return true
-        return event.cause in value
-    }
 }
 
 class WithinAoeCondition(key: String, aoeKeys: Set<String>) : ActivatorCondition<Set<String>>(key, aoeKeys) {

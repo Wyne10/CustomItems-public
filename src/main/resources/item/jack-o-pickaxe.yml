@@ -6,6 +6,6 @@ restrictions:
 enchantment: 'customenchants:spawner'
 activators:
   block-break:
-    has-target-block: [SPAWNER]
+    is-target-block: [SPAWNER]
     is-item-equipment: [HAND]
     set-item-amount: -1

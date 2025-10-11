@@ -6,6 +6,7 @@ import org.bukkit.entity.EntityType
 import org.bukkit.entity.Player
 import org.bukkit.event.Event
 import org.bukkit.event.entity.EntityDamageByEntityEvent
+import org.bukkit.event.entity.EntityDamageEvent
 import org.bukkit.event.entity.EntityEvent
 import org.bukkit.inventory.ItemStack
 
@@ -41,5 +42,12 @@ class ProjectileTypeCondition(key: String, types: Set<EntityType>) : ActivatorCo
     override fun isApplicable(event: Event, player: Player, customItem: CustomItem, item: ItemStack): Boolean {
         if (event !is PlayerLaunchProjectileEvent) return true
         return event.projectile.type in value
+    }
+}
+
+class DamageCauseCondition(key: String, causes: Set<EntityDamageEvent.DamageCause>) : ActivatorCondition<Set<EntityDamageEvent.DamageCause>>(key, causes) {
+    override fun isApplicable(event: Event, player: Player, customItem: CustomItem, item: ItemStack): Boolean {
+        if (event !is EntityDamageEvent) return true
+        return event.cause in value
     }
 }
