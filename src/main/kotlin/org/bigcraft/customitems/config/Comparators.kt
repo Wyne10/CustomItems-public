@@ -15,6 +15,11 @@ class IntComparator(private val second: Int, private val comparator: Comparator<
         comparator.compare(value, second)
 }
 
+class DoubleComparator(private val second: Double, private val comparator: Comparator<Double>) : ContainedComparator<Double> {
+    override fun compare(value: Double): Boolean =
+        comparator.compare(value, second)
+}
+
 class LessThan<T> : Comparator<T> {
     override fun compare(first: Comparable<T>, second: T): Boolean = first < second
 }
@@ -49,6 +54,11 @@ fun <T> getComparator(symbol: String): Comparator<T> {
 fun ConfigurationSection.getIntComparator(path: String): IntComparator {
     val (operator, number) = COMPARATOR_SYMBOLS_REGEX.matchEntire(getString(path)!!)!!.destructured
     return IntComparator(number.toInt(), getComparator(operator))
+}
+
+fun ConfigurationSection.getDoubleComparator(path: String): DoubleComparator {
+    val (operator, number) = COMPARATOR_SYMBOLS_REGEX.matchEntire(getString(path)!!)!!.destructured
+    return DoubleComparator(number.toDouble(), getComparator(operator))
 }
 
 val COMPARATOR_SYMBOLS_REGEX = Regex("(<=|>=|==|<|>)?(-?\\d+(?:\\.\\d+)?)")

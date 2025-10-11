@@ -4,6 +4,7 @@ import me.wyne.wutils.config.configurables.attribute.AttributeBase
 import me.wyne.wutils.config.configurables.attribute.AttributeFactory
 import me.wyne.wutils.config.configurables.attribute.AttributeMap
 import org.bigcraft.customitems.activator.test
+import org.bigcraft.customitems.config.getDoubleComparator
 import org.bigcraft.customitems.config.getIntComparator
 import org.bigcraft.customitems.config.getEnumSet
 import org.bigcraft.customitems.config.getPotionTypeEnumSet
@@ -34,7 +35,7 @@ val ACTIVATOR_CONDITION_MAP = AttributeMap(
         "is-level" to AttributeFactory { key, config -> LevelCondition(key, config.getIntComparator(key)) },
         "is-exp" to AttributeFactory { key, config -> ExpCondition(key, config.getIntComparator(key)) },
         "is-food-level" to AttributeFactory { key, config -> FoodLevelCondition(key, config.getIntComparator(key)) },
-        "is-health" to AttributeFactory { key, config -> HealthCondition(key, config.getIntComparator(key)) },
+        "is-health" to AttributeFactory { key, config -> HealthCondition(key, config.getDoubleComparator(key)) },
         "has-permissions" to AttributeFactory { key, config -> HasPermissionsCondition(key, config.getStringList(key).toSet()) },
         "not-has-permissions" to AttributeFactory { key, config -> NotHasPermissionsCondition(key, config.getStringList(key).toSet()) },
         "is-target-block" to AttributeFactory { key, config -> TargetBlockCondition(key, config.getEnumSet<Material>(key)) },

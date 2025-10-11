@@ -3,6 +3,7 @@ package org.bigcraft.customitems.activator.condition
 import org.bigcraft.customitems.activator.currentExp
 import org.bigcraft.customitems.activator.levelExp
 import org.bigcraft.customitems.aoe.AoeManager
+import org.bigcraft.customitems.config.DoubleComparator
 import org.bigcraft.customitems.config.IntComparator
 import org.bigcraft.customitems.item.CustomItem
 import org.bukkit.Material
@@ -74,9 +75,9 @@ class FoodLevelCondition(key: String, comparator: IntComparator) : ActivatorCond
         value.compare(player.foodLevel)
 }
 
-class HealthCondition(key: String, comparator: IntComparator) : ActivatorCondition<IntComparator>(key, comparator) {
+class HealthCondition(key: String, comparator: DoubleComparator) : ActivatorCondition<DoubleComparator>(key, comparator) {
     override fun isApplicable(event: Event, player: Player, customItem: CustomItem, item: ItemStack): Boolean =
-        value.compare(player.health.toInt())
+        value.compare(player.health)
 }
 
 class HasPermissionsCondition(key: String, permissions: Set<String>) : ActivatorCondition<Set<String>>(key, permissions) {
