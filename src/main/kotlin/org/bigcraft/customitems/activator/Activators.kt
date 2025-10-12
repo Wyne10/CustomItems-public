@@ -76,8 +76,8 @@ abstract class Activator(
     private val conditions: Set<ActivatorCondition<*>>
 ) : RegisterableCustomItemAttribute<Boolean>(key, true, CustomItemManager.instance.activatorRegistry) {
 
-    protected fun getItemStack(event: Event, player: Player): ItemStack? =
-        itemIdentifier.getItem(event, player, item)
+    protected fun getItemStack(player: Player): ItemStack? =
+        itemIdentifier.getItem(player, item)
 
     fun activate(event: Event, player: Player, itemStack: ItemStack) {
         if (conditions.any { !it.isApplicable(event, player, item, itemStack) }) {
@@ -100,7 +100,7 @@ class RightClickActivator(
 ) : Activator(key, itemIdentifier, attributes, conditions) {
     @EventHandler(priority = EventPriority.HIGH)
     private fun onRightClick(event: PlayerInteractEvent) {
-        val itemStack = getItemStack(event, event.player) ?: return
+        val itemStack = getItemStack(event.player) ?: return
         if (event.action != Action.RIGHT_CLICK_AIR && event.action != Action.RIGHT_CLICK_BLOCK) return
         if (event.hand != EquipmentSlot.HAND) return
         activate(event, event.player, itemStack)
@@ -116,7 +116,7 @@ class PlayerKillActivator(
     @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGH)
     private fun onDeath(event: PlayerDeathEvent) {
         val killer = event.entity.killer ?: return
-        val itemStack = getItemStack(event, killer) ?: return
+        val itemStack = getItemStack(killer) ?: return
         activate(event, killer, itemStack)
     }
 }
@@ -131,7 +131,7 @@ class PlayerHitActivator(
     private fun onDamage(event: EntityDamageByEntityEvent) {
         val damager = event.damager as? Player ?: return
         if (event.entity !is Player) return
-        val itemStack = getItemStack(event, damager) ?: return
+        val itemStack = getItemStack(damager) ?: return
         activate(event, damager, itemStack)
     }
 }
@@ -146,7 +146,7 @@ class EntityHitPlayerActivator(
     private fun onDamage(event: EntityDamageByEntityEvent) {
         val damaged = event.entity as? Player ?: return
         if (event.damager is Player) return
-        val itemStack = getItemStack(event, damaged) ?: return
+        val itemStack = getItemStack(damaged) ?: return
         activate(event, damaged, itemStack)
     }
 }
@@ -161,7 +161,7 @@ class ProjectileHitPlayerActivator(
     private fun onDamage(event: EntityDamageByEntityEvent) {
         val damaged = event.entity as? Player ?: return
         if (event.damager !is Projectile) return
-        val itemStack = getItemStack(event, damaged) ?: return
+        val itemStack = getItemStack(damaged) ?: return
         activate(event, damaged, itemStack)
     }
 }
@@ -176,7 +176,7 @@ class PlayerHitEntityActivator(
     private fun onDamage(event: EntityDamageByEntityEvent) {
         val damager = event.damager as? Player ?: return
         if (event.entity is Player) return
-        val itemStack = getItemStack(event, damager) ?: return
+        val itemStack = getItemStack(damager) ?: return
         activate(event, damager, itemStack)
     }
 }
@@ -189,7 +189,7 @@ class LaunchProjectileActivator(
 ) : Activator(key, itemIdentifier, attributes, conditions) {
     @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGH)
     private fun onLaunch(event: PlayerLaunchProjectileEvent) {
-        val itemStack = getItemStack(event, event.player) ?: return
+        val itemStack = getItemStack(event.player) ?: return
         activate(event, event.player, itemStack)
     }
 }
@@ -203,7 +203,7 @@ class PlayerDamageActivator(
     @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGH)
     private fun onDamage(event: EntityDamageEvent) {
         val damaged = event.entity as? Player ?: return
-        val itemStack = getItemStack(event, damaged) ?: return
+        val itemStack = getItemStack(damaged) ?: return
         activate(event, damaged, itemStack)
     }
 }
@@ -217,7 +217,7 @@ class PlayerPotionEffectActivator(
     @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGH)
     private fun onPotion(event: EntityPotionEffectEvent) {
         val player = event.entity as? Player ?: return
-        val itemStack = getItemStack(event, player) ?: return
+        val itemStack = getItemStack(player) ?: return
         activate(event, player, itemStack)
     }
 }
@@ -230,7 +230,7 @@ class PlayerConsumeItemActivator(
 ) : Activator(key, itemIdentifier, attributes, conditions) {
     @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGH)
     private fun onConsume(event: PlayerItemConsumeEvent) {
-        val itemStack = getItemStack(event, event.player) ?: return
+        val itemStack = getItemStack(event.player) ?: return
         activate(event, event.player, itemStack)
     }
 }
@@ -243,7 +243,7 @@ class BlockBreakActivator(
 ) : Activator(key, itemIdentifier, attributes, conditions) {
     @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGH)
     private fun onBreak(event: BlockBreakEvent) {
-        val itemStack = getItemStack(event, event.player) ?: return
+        val itemStack = getItemStack(event.player) ?: return
         activate(event, event.player, itemStack)
     }
 }
@@ -256,7 +256,7 @@ class BlockPlaceActivator(
 ) : Activator(key, itemIdentifier, attributes, conditions) {
     @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGH)
     private fun onPlace(event: BlockPlaceEvent) {
-        val itemStack = getItemStack(event, event.player) ?: return
+        val itemStack = getItemStack(event.player) ?: return
         activate(event, event.player, itemStack)
     }
 }
@@ -270,7 +270,7 @@ class PlayerResurrectActivator(
     @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGH)
     private fun onResurrect(event: EntityResurrectEvent) {
         val player = event.entity as? Player ?: return
-        val itemStack = getItemStack(event, player) ?: return
+        val itemStack = getItemStack(player) ?: return
         activate(event, player, itemStack)
     }
 }
@@ -284,7 +284,7 @@ class PlayerMoveActivator(
     @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGH)
     private fun onMove(event: PlayerMoveEvent) {
         if (!event.hasChangedPosition()) return
-        val itemStack = getItemStack(event, event.player) ?: return
+        val itemStack = getItemStack(event.player) ?: return
         activate(event, event.player, itemStack)
     }
 }
@@ -297,7 +297,7 @@ class CreateTrapActivator(
 ) : Activator(key, itemIdentifier, attributes, conditions) {
     @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGH)
     private fun onTrapCreation(event: CreateTrapEvent) {
-        val itemStack = getItemStack(event, event.player) ?: return
+        val itemStack = getItemStack(event.player) ?: return
         activate(event, event.player, itemStack)
     }
 }
