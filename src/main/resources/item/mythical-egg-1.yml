@@ -2,10 +2,10 @@ name: '<gold>Загадочное яйцо призыва'
 material: SKELETON_SPAWN_EGG
 activators:
   right-click:
+    identifier: HOLD
     is-target-block: [SPAWNER]
-    is-item-equipment: [HAND, OFF_HAND]
     set-custom-block: 'mythical-spawner-1'
   right-click-1:
+    identifier: HOLD
     not-is-target-block: [SPAWNER]
-    is-item-equipment: [HAND, OFF_HAND]
     cancel-event: true

@@ -7,6 +7,7 @@ restrictions:
 enchantment: 'customenchants:spawner'
 activators:
   player-block-break:
+    identifier: HOLD
     is-target-block: [SPAWNER]
     is-item-equipment: [HAND]
     set-item-amount: -1

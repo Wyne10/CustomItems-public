@@ -7,7 +7,7 @@ potionEffect:
 activators:
   # Workaround as saturation potion doesn't work as intended
   player-consume-item:
-    is-item-equipment: [HAND, OFF_HAND]
+    identifier: HOLD
     is-item-type: [POTION]
     is-potion-type: [SATURATION]
     player-potion-effects:

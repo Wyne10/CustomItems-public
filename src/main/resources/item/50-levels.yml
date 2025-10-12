@@ -4,6 +4,6 @@ restrictions:
   cancel-projectile: true
 activators:
   right-click:
-    is-item-equipment: [HAND, OFF_HAND]
+    identifier: HOLD
     set-item-amount: -1
     set-player-exp: '+5345'

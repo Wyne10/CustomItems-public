@@ -15,6 +15,7 @@ val SCHEME_SELECTOR_MAP = AttributeMap(
     mapOf(
         "biomes" to AttributeFactory { key, config -> BiomeSchemeSelector(key, config.getEnumSet<Biome>(key)) },
         "worlds" to AttributeFactory { key, config -> WorldSchemeSelector(key, config.getStringList(key).mapNotNull { Bukkit.getWorld(it) }.toSet()) },
+        "dimensions" to AttributeFactory { key, config -> DimensionSchemeSelector(key, config.getEnumSet<World.Environment>(key)) },
         "blocks" to AttributeFactory { key, config -> BlockSchemeSelector(key, config.getEnumSet<Material>(key)) }
     )
 )
@@ -29,6 +30,10 @@ class BiomeSchemeSelector(key: String, biomes: Set<Biome>) : AttributeBase<Set<B
 
 class WorldSchemeSelector(key: String, worlds: Set<World>) : AttributeBase<Set<World>>(key, worlds), SchemeSelector {
     override fun isApplicable(player: Player) = player.location.world in value
+}
+
+class DimensionSchemeSelector(key: String, dimensions: Set<World.Environment>) : AttributeBase<Set<World.Environment>>(key, dimensions), SchemeSelector {
+    override fun isApplicable(player: Player) = player.location.world.environment in value
 }
 
 class BlockSchemeSelector(key: String, blocks: Set<Material>) : AttributeBase<Set<Material>>(key, blocks), SchemeSelector {

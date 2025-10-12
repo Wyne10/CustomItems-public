@@ -4,6 +4,6 @@ restrictions:
   cancel-place: true
 activators:
   right-click:
-    is-item-equipment: [HAND, OFF_HAND]
+    identifier: HOLD
     open-storage: 1
     player-sound: 'block.shulker_box.open'
