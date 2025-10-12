@@ -134,9 +134,22 @@ class WithinAoeCondition(key: String, aoeKeys: Set<String>) : ActivatorCondition
             .any { it.bounds.contains(player) }
 }
 
+class NotWithinAoeCondition(key: String, aoeKeys: Set<String>) : ActivatorCondition<Set<String>>(key, aoeKeys) {
+    override fun isApplicable(event: Event, player: Player, customItem: CustomItem, item: ItemStack): Boolean =
+        value.flatMap { AoeManager.instance.getAoe(it) }
+            .none { it.bounds.contains(player) }
+}
+
 class AoeAffectedCondition(key: String, aoeKeys: Set<String>) : ActivatorCondition<Set<String>>(key, aoeKeys) {
     override fun isApplicable(event: Event, player: Player, customItem: CustomItem, item: ItemStack): Boolean =
         value.flatMap { AoeManager.instance.getAoe(it) }
             .filter { it.owner != player }
             .any { it.bounds.contains(player) }
+}
+
+class NotAoeAffectedCondition(key: String, aoeKeys: Set<String>) : ActivatorCondition<Set<String>>(key, aoeKeys) {
+    override fun isApplicable(event: Event, player: Player, customItem: CustomItem, item: ItemStack): Boolean =
+        value.flatMap { AoeManager.instance.getAoe(it) }
+            .filter { it.owner != player }
+            .none { it.bounds.contains(player) }
 }

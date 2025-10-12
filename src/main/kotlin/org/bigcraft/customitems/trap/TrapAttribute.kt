@@ -7,28 +7,37 @@ import com.sk89q.worldedit.extent.clipboard.Clipboard
 import com.sk89q.worldedit.function.operation.ForwardExtentCopy
 import com.sk89q.worldedit.function.operation.Operations
 import com.sk89q.worldedit.math.BlockVector3
+import com.sk89q.worldedit.regions.Region
 import com.sk89q.worldedit.session.ClipboardHolder
 import com.sk89q.worldedit.util.Location
 import com.sk89q.worldedit.world.World
+import me.wyne.wutils.animation.data.AnimationParticle
+import me.wyne.wutils.animation.runnable.ParticleArray
 import me.wyne.wutils.common.Ticks
 import me.wyne.wutils.common.event.RegisterableListener
+import me.wyne.wutils.common.range.LocationRange
 import me.wyne.wutils.config.configurables.attribute.Attribute
 import me.wyne.wutils.config.configurables.attribute.AttributeFactory
 import me.wyne.wutils.config.configurables.attribute.AttributeUtils
 import org.bigcraft.customitems.CustomItems
 import org.bigcraft.customitems.activator.ActivatorAttribute
+import org.bigcraft.customitems.aoe.AoeManager
+import org.bigcraft.customitems.aoe.AreaOfEffect
 import org.bigcraft.customitems.config.getMillis
 import org.bigcraft.customitems.item.CustomItem
 import org.bukkit.Bukkit
+import org.bukkit.Color
+import org.bukkit.Particle
 import org.bukkit.configuration.ConfigurationSection
 import org.bukkit.entity.Player
 import org.bukkit.event.Event
 import org.bukkit.inventory.ItemStack
+import org.bukkit.util.Vector
 
 class TrapAttribute(
     key: String,
     schemes: Set<Scheme>,
-    durationMillis: Long
+    private val durationMillis: Long
 ) : ActivatorAttribute<Set<Scheme>>(key, schemes), RegisterableListener {
 
     private val durationTicks = Ticks.ofMillis(durationMillis)
@@ -42,6 +51,7 @@ class TrapAttribute(
         val snapshot = snapshotRegion(clipboard, editLocation)
         if (!CreateTrapEvent(player, scheme, clipboard, snapshot, durationTicks).callEvent())
             return
+        createTrapAoe(scheme, player, snapshot.region, editWorld)
         Bukkit.getScheduler().runTaskLater(CustomItems.instance, Runnable {
             pasteClipboard(clipboard, editLocation.toVector().toBlockPoint(), editWorld)
         }, 1)
@@ -73,6 +83,22 @@ class TrapAttribute(
                     .build()
                 Operations.complete(operation)
             }
+    }
+
+    private fun createTrapAoe(scheme: Scheme, player: Player, region: Region, world: World) {
+        val min = Vector(region.minimumPoint.x, region.minimumPoint.y, region.minimumPoint.z)
+        val max = Vector(region.maximumPoint.x + 1, region.maximumPoint.y + 1, region.maximumPoint.z + 1)
+        val bounds = LocationRange(BukkitAdapter.adapt(world), min, max)
+        AoeManager.instance.startAoe(
+            AreaOfEffect(
+                scheme.key,
+                player,
+                durationMillis,
+                bounds,
+                ParticleArray(player.world, bounds.iterator().asSequence().toSet(), AnimationParticle(Particle.REDSTONE, 1, 0.0, Vector(0.0, 0.0, 0.0), Particle.DustOptions(
+                    Color.RED, 1.0f))), // TODO REMOVE
+            )
+        )
     }
 
     object Factory : AttributeFactory {

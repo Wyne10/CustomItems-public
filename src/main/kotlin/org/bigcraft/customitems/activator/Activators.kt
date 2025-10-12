@@ -18,6 +18,7 @@ import org.bukkit.event.EventHandler
 import org.bukkit.event.EventPriority
 import org.bukkit.event.block.Action
 import org.bukkit.event.block.BlockBreakEvent
+import org.bukkit.event.block.BlockPlaceEvent
 import org.bukkit.event.entity.EntityDamageByEntityEvent
 import org.bukkit.event.entity.EntityDamageEvent
 import org.bukkit.event.entity.EntityPotionEffectEvent
@@ -42,6 +43,7 @@ val ACTIVATOR_MAP = AttributeMap(
         "player-potion-effect" to AttributeFactory { key, config -> PlayerPotionEffectActivator(key, createItemIdentifier(key, config), createActivatorAttributes(key, config), createActivatorConditions(key, config)) },
         "player-consume-item" to AttributeFactory { key, config -> PlayerConsumeItemActivator(key, createItemIdentifier(key, config), createActivatorAttributes(key, config), createActivatorConditions(key, config)) },
         "player-block-break" to AttributeFactory { key, config -> BlockBreakActivator(key, createItemIdentifier(key, config), createActivatorAttributes(key, config), createActivatorConditions(key, config)) },
+        "player-block-place" to AttributeFactory { key, config -> BlockPlaceActivator(key, createItemIdentifier(key, config), createActivatorAttributes(key, config), createActivatorConditions(key, config)) },
         "player-resurrect" to AttributeFactory { key, config -> PlayerResurrectActivator(key, createItemIdentifier(key, config), createActivatorAttributes(key, config), createActivatorConditions(key, config)) },
         "player-move" to AttributeFactory { key, config -> PlayerMoveActivator(key, createItemIdentifier(key, config), createActivatorAttributes(key, config), createActivatorConditions(key, config)) },
         "player-create-trap" to AttributeFactory { key, config -> CreateTrapActivator(key, createItemIdentifier(key, config), createActivatorAttributes(key, config), createActivatorConditions(key, config)) },
@@ -82,12 +84,8 @@ abstract class Activator(
             attributes.firstOrNull { it.key == "condition-cancel-event" }?.apply(event, player, item, itemStack)
             return
         }
-        if (item.cooldowns.any { it.isCooldowned(player, itemStack) }) {
-            attributes.firstOrNull { it.key == "cooldown-cancel-event" }?.apply(event, player, item, itemStack)
-            return
-        }
         attributes
-            .filter { it.key != "condition-cancel-event" && it.key != "cooldown-cancel-event" }
+            .filter { it.key != "condition-cancel-event" }
             .filter { it.isApplicable(event, player, item, itemStack) }
             .forEach { it.apply(event, player, item, itemStack) }
         item.cooldowns.forEach { it.apply(player, itemStack) }
@@ -246,6 +244,19 @@ class BlockBreakActivator(
 ) : Activator(key, itemIdentifier, attributes, conditions) {
     @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGH)
     private fun onBreak(event: BlockBreakEvent) {
+        val itemStack = getItemStack(event, event.player) ?: return
+        activate(event, event.player, itemStack)
+    }
+}
+
+class BlockPlaceActivator(
+    key: String,
+    itemIdentifier: ItemIdentifier,
+    attributes: Set<ActivatorAttribute<*>>,
+    conditions: Set<ActivatorCondition<*>>
+) : Activator(key, itemIdentifier, attributes, conditions) {
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGH)
+    private fun onPlace(event: BlockPlaceEvent) {
         val itemStack = getItemStack(event, event.player) ?: return
         activate(event, event.player, itemStack)
     }

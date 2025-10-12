@@ -1,11 +1,28 @@
 name: '<light_purple>Трапка'
 material: POPPED_CHORUS_FRUIT
+restrictions:
+  cancel-craft: true
+cooldowns:
+  player-cooldown:
+    duration: 60s
+    visual: true
 activators:
   right-click:
     is-item-equipment: [HAND, OFF_HAND]
-    set-item-amount: -1
+    not-is-within-aoe: ['holytrap']
+    is-custom-item-cooldowned: false
     create-trap:
       duration: 18s
       schemes:
-        default:
-          path: 'scheme/trap.schem'
+        holytrap:
+          path: 'scheme/holytrap.schem'
+  player-create-trap:
+    block-blacklist: [CHEST]
+    set-item-amount: -1
+    condition-cancel-event: true
+  player-block-place:
+    is-within-aoe: ['holytrap']
+    cancel-event: true
+  player-block-break:
+    is-within-aoe: ['holytrap']
+    cancel-event: true

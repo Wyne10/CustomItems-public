@@ -1,5 +1,7 @@
 name: 'Стан'
 material: NETHER_STAR
+restrictions:
+  cancel-craft: true
 activators:
   right-click:
     is-item-equipment: [HAND, OFF_HAND]

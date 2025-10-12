@@ -56,7 +56,7 @@ import kotlin.random.Random
 val ACTIVATOR_ATTRIBUTE_MAP = AttributeMap(
     mapOf(
         "condition-cancel-event" to AttributeFactory { key, config -> CancelEventAttribute(key, config.getBoolean(key)) },
-        "cooldown-cancel-event" to AttributeFactory { key, config -> CancelEventAttribute(key, config.getBoolean(key)) },
+        "cooldown-cancel-event" to AttributeFactory { key, config -> CooldownCancelEventAttribute(key, config.getBoolean(key)) },
         "cancel-event" to AttributeFactory { key, config -> CancelEventAttribute(key, config.getBoolean(key)) },
         "commands" to AttributeFactory { key, config -> CommandsAttribute(key, config.getStringList(key)) },
         "steal-level" to AttributeFactory { key, config -> LevelStealAttribute(key, config.getDouble(key)) },
@@ -96,6 +96,19 @@ class CancelEventAttribute(
 ) : ActivatorAttribute<Boolean>(key, value) {
     override fun isApplicable(event: Event, player: Player, customItem: CustomItem, item: ItemStack) =
         event is Cancellable
+
+    override fun apply(event: Event, player: Player, customItem: CustomItem, item: ItemStack) {
+        event as Cancellable
+        event.isCancelled = value
+    }
+}
+
+class CooldownCancelEventAttribute(
+    key: String,
+    value: Boolean
+) : ActivatorAttribute<Boolean>(key, value) {
+    override fun isApplicable(event: Event, player: Player, customItem: CustomItem, item: ItemStack) =
+        event is Cancellable && customItem.cooldowns.any { it.isCooldowned(player, item) }
 
     override fun apply(event: Event, player: Player, customItem: CustomItem, item: ItemStack) {
         event as Cancellable

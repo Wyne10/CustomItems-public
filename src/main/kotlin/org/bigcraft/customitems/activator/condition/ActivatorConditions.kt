@@ -46,10 +46,15 @@ val ACTIVATOR_CONDITION_MAP = AttributeMap(
         "not-is-in-biome" to AttributeFactory { key, config -> NotInBiomeCondition(key, config.getEnumSet<Biome>(key)) },
         "is-in-world" to AttributeFactory { key, config -> InWorldCondition(key, config.getStringList(key).mapNotNull { Bukkit.getWorld(it) }.toSet()) },
         "not-is-in-world" to AttributeFactory { key, config -> NotInWorldCondition(key, config.getStringList(key).mapNotNull { Bukkit.getWorld(it) }.toSet()) },
+        "is-within-aoe" to AttributeFactory { key, config -> WithinAoeCondition(key, config.getStringList(key).toSet()) },
+        "not-is-within-aoe" to AttributeFactory { key, config -> NotWithinAoeCondition(key, config.getStringList(key).toSet()) },
+        "is-aoe-affected" to AttributeFactory { key, config -> AoeAffectedCondition(key, config.getStringList(key).toSet()) },
+        "not-is-aoe-affected" to AttributeFactory { key, config -> NotAoeAffectedCondition(key, config.getStringList(key).toSet()) },
         "is-weather" to AttributeFactory { key, config -> WeatherCondition(key, config.getEnumSet<Weather>(key)) },
         "is-day-time" to AttributeFactory { key, config -> DayTimeCondition(key, config.getIntComparator(key)) },
         "is-item-durability" to AttributeFactory { key, config -> ItemDurabilityCondition(key, config.getIntComparator(key)) },
         "is-item-cooldown" to AttributeFactory { key, config -> ItemCooldownCondition(key, config.getIntComparator(key)) },
+        "is-custom-item-cooldowned" to AttributeFactory { key, config -> CustomItemCooldownCondition(key, config.getBoolean(key)) },
         "is-item-equipment" to AttributeFactory { key, config -> ItemEquipmentCondition(key, config.getEnumSet<EquipmentSlot>(key)) },
         "is-item-composed" to AttributeFactory { key, config -> ItemComposedCondition(key, config.getBoolean(key)) },
         "is-item-type" to AttributeFactory { key, config -> ItemTypeCondition(key, config.getEnumSet<Material>(key)) },
@@ -63,8 +68,6 @@ val ACTIVATOR_CONDITION_MAP = AttributeMap(
         "is-damage-cause" to AttributeFactory { key, config -> DamageCauseCondition(key, config.getEnumSet<EntityDamageEvent.DamageCause>(key)) },
         "is-effect-action" to AttributeFactory { key, config -> EffectActionCondition(key, config.getEnumSet<EntityPotionEffectEvent.Action>(key)) },
         "is-effect-type" to AttributeFactory { key, config -> EffectTypeCondition(key, config.getPotionTypeEnumSet(key)) },
-        "is-within-aoe" to AttributeFactory { key, config -> WithinAoeCondition(key, config.getStringList(key).toSet()) },
-        "is-aoe-affected" to AttributeFactory { key, config -> AoeAffectedCondition(key, config.getStringList(key).toSet()) },
         "block-blacklist" to AttributeFactory { key, config -> TrapBlockCondition(key, config.getEnumSet<Material>(key)) }
     )
 )

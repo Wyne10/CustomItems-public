@@ -32,7 +32,7 @@ class ItemEquipmentCondition(key: String, slots: Set<EquipmentSlot>) : Activator
 
 class ItemComposedCondition(key: String, isActive: Boolean) : ActivatorCondition<Boolean>(key, isActive) {
     override fun isApplicable(event: Event, player: Player, customItem: CustomItem, item: ItemStack): Boolean =
-        customItem.isComposed(item)
+        customItem.isComposed(item) == value
 }
 
 class ItemTypeCondition(key: String, types: Set<Material>) : ActivatorCondition<Set<Material>>(key, types) {
@@ -52,4 +52,9 @@ class PotionTypeCondition(key: String, types: Set<PotionEffectType>) : Activator
         val potionMeta = item.itemMeta as? PotionMeta ?: return true
         return value.any { potionMeta.hasCustomEffect(it) }
     }
+}
+
+class CustomItemCooldownCondition(key: String, isActive: Boolean) : ActivatorCondition<Boolean>(key, isActive) {
+    override fun isApplicable(event: Event, player: Player, customItem: CustomItem, item: ItemStack) =
+        customItem.cooldowns.any { it.isCooldowned(player, item) } == value
 }
