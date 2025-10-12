@@ -18,8 +18,14 @@ activators:
           path: 'scheme/holytrap.schem'
   player-create-trap:
     block-blacklist: [CHEST]
+    region-whitelist: ['__global__']
     set-item-amount: -1
     condition-cancel-event: true
+    cooldown: ['player-cooldown']
+    player-explosion:
+      offset: 0,0,0
+      power: 1
+      break-blocks: false
   player-block-place:
     is-within-aoe: ['holytrap']
     cancel-event: true

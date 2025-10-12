@@ -59,6 +59,7 @@ val ACTIVATOR_ATTRIBUTE_MAP = AttributeMap(
         "cooldown-cancel-event" to AttributeFactory { key, config -> CooldownCancelEventAttribute(key, config.getBoolean(key)) },
         "cancel-event" to AttributeFactory { key, config -> CancelEventAttribute(key, config.getBoolean(key)) },
         "commands" to AttributeFactory { key, config -> CommandsAttribute(key, config.getStringList(key)) },
+        "cooldown" to AttributeFactory { key, config -> CooldownAttribute(key, config.getStringList(key).toSet()) },
         "steal-level" to AttributeFactory { key, config -> LevelStealAttribute(key, config.getDouble(key)) },
         "entity-potion-effects" to EntityPotionEffectsAttribute.Factory,
         "player-potion-effects" to PlayerPotionEffectsAttribute.Factory,
@@ -122,6 +123,17 @@ class CommandsAttribute(
 ) : ActivatorAttribute<List<String>>(key, commands) {
     override fun apply(event: Event, player: Player, customItem: CustomItem, item: ItemStack) {
         value.forEach { Bukkit.dispatchCommand(Bukkit.getConsoleSender(), player.placeholderString(it).get()) }
+    }
+}
+
+class CooldownAttribute(
+    key: String,
+    cooldowns: Set<String>
+) : ActivatorAttribute<Set<String>>(key, cooldowns) {
+    override fun apply(event: Event, player: Player, customItem: CustomItem, item: ItemStack) {
+        customItem.cooldowns
+            .filter { it.key in value }
+            .forEach { it.apply(player, item) }
     }
 }
 

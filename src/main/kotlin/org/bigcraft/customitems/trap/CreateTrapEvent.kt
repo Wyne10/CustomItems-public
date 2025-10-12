@@ -1,6 +1,7 @@
 package org.bigcraft.customitems.trap
 
 import com.sk89q.worldedit.extent.clipboard.Clipboard
+import org.bukkit.Location
 import org.bukkit.entity.Player
 import org.bukkit.event.Cancellable
 import org.bukkit.event.HandlerList
@@ -11,6 +12,7 @@ class CreateTrapEvent(
     val scheme: Scheme,
     val clipboard: Clipboard,
     val snapshot: Clipboard,
+    val location: Location,
     val durationTicks: Long
 ) : PlayerEvent(player), Cancellable {
 

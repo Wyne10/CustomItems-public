@@ -88,7 +88,6 @@ abstract class Activator(
             .filter { it.key != "condition-cancel-event" }
             .filter { it.isApplicable(event, player, item, itemStack) }
             .forEach { it.apply(event, player, item, itemStack) }
-        item.cooldowns.forEach { it.apply(player, itemStack) }
     }
 
 }

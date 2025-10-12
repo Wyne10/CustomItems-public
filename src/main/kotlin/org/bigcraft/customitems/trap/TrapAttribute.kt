@@ -49,7 +49,7 @@ class TrapAttribute(
         val editLocation = BukkitAdapter.adapt(location)
         val editWorld = BukkitAdapter.adapt(location.world)
         val snapshot = snapshotRegion(clipboard, editLocation)
-        if (!CreateTrapEvent(player, scheme, clipboard, snapshot, durationTicks).callEvent())
+        if (!CreateTrapEvent(player, scheme, clipboard, snapshot, location, durationTicks).callEvent())
             return
         createTrapAoe(scheme, player, snapshot.region, editWorld)
         Bukkit.getScheduler().runTaskLater(CustomItems.instance, Runnable {
