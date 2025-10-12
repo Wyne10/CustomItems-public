@@ -32,6 +32,7 @@ import org.bigcraft.customitems.config.getMillis
 import org.bigcraft.customitems.config.getPotionTypeEnumSet
 import org.bigcraft.customitems.item.CustomItem
 import org.bigcraft.customitems.item.CustomItemManager
+import org.bigcraft.customitems.trap.TrapAttribute
 import org.bukkit.Bukkit
 import org.bukkit.configuration.ConfigurationSection
 import org.bukkit.entity.LivingEntity
@@ -79,6 +80,7 @@ val ACTIVATOR_ATTRIBUTE_MAP = AttributeMap(
         "cause-entity-damage" to CauseEntityDamageAttribute.Factory,
         "create-aoe" to CreateAoeAttribute.Factory,
         "open-storage" to AttributeFactory { key, config -> StorageAttribute(key, config.getInt("key")) },
+        "create-trap" to TrapAttribute.Factory,
         "set-item-amount" to AttributeFactory { key, config -> ItemAmountAttribute(key, config.getIntOperation(key)) },
     )
 )

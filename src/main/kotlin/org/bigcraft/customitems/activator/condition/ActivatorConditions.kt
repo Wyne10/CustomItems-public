@@ -65,6 +65,7 @@ val ACTIVATOR_CONDITION_MAP = AttributeMap(
         "is-effect-type" to AttributeFactory { key, config -> EffectTypeCondition(key, config.getPotionTypeEnumSet(key)) },
         "is-within-aoe" to AttributeFactory { key, config -> WithinAoeCondition(key, config.getStringList(key).toSet()) },
         "is-aoe-affected" to AttributeFactory { key, config -> AoeAffectedCondition(key, config.getStringList(key).toSet()) },
+        "block-blacklist" to AttributeFactory { key, config -> TrapBlockCondition(key, config.getEnumSet<Material>(key)) }
     )
 )
 

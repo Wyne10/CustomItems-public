@@ -17,6 +17,8 @@ dependencies {
     compileOnly(libs.placeholderApi)
     compileOnly(libs.commandApi)
     compileOnly(libs.nbtApi)
+    compileOnly(libs.worldEdit)
+    compileOnly(libs.worldGuard)
 
     implementation(libs.guice)
     implementation(libs.adventureMini)
@@ -52,6 +54,8 @@ tasks {
         val viaVersion = "5.4.2"
         val commandApiVersion = "9.4.2"
         downloadPlugins {
+            // https://dev.bukkit.org/projects/worldedit/files/4793142/download
+            // https://dev.bukkit.org/projects/worldguard/files/3342964/download
             url("https://ci.extendedclip.com/view/Plugins/job/PlaceholderAPI/197/artifact/build/libs/PlaceholderAPI-2.11.6.jar")
             url("https://download.luckperms.net/1604/bukkit/loader/LuckPerms-Bukkit-5.5.15.jar")
             github("dmulloy2", "ProtocolLib", "5.4.0", "ProtocolLib.jar")
@@ -83,7 +87,7 @@ bukkit {
     author = findProperty("author").toString()
     main = "org.bigcraft.customitems.CustomItems"
     apiVersion = "1.16"
-    softDepend = listOf("PlaceholderAPI", "CommandAPI", "NBTAPI", "CustomEnchants")
+    softDepend = listOf("PlaceholderAPI", "CommandAPI", "NBTAPI", "CustomEnchants", "WorldEdit", "WorldGuard")
     permissions {
         register("customitems.*") {
             children = listOf("customitems.reload")

@@ -1,7 +1,6 @@
 package org.bigcraft.customitems.activator.condition
 
 import org.bigcraft.customitems.activator.currentExp
-import org.bigcraft.customitems.activator.levelExp
 import org.bigcraft.customitems.aoe.AoeManager
 import org.bigcraft.customitems.config.DoubleComparator
 import org.bigcraft.customitems.config.IntComparator
@@ -12,7 +11,6 @@ import org.bukkit.block.Biome
 import org.bukkit.block.BlockFace
 import org.bukkit.entity.Player
 import org.bukkit.event.Event
-import org.bukkit.event.entity.EntityDamageEvent
 import org.bukkit.inventory.ItemStack
 
 class SneakingCondition(key: String, isActive: Boolean) : ActivatorCondition<Boolean>(key, isActive) {

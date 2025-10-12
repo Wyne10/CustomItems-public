@@ -9,6 +9,7 @@ import org.bigcraft.customitems.activator.condition.ACTIVATOR_CONDITION_MAP
 import org.bigcraft.customitems.activator.condition.ActivatorCondition
 import org.bigcraft.customitems.item.CustomItemManager
 import org.bigcraft.customitems.item.RegisterableCustomItemAttribute
+import org.bigcraft.customitems.trap.CreateTrapEvent
 import org.bukkit.configuration.ConfigurationSection
 import org.bukkit.entity.Player
 import org.bukkit.entity.Projectile
@@ -43,6 +44,7 @@ val ACTIVATOR_MAP = AttributeMap(
         "player-block-break" to AttributeFactory { key, config -> BlockBreakActivator(key, createItemIdentifier(key, config), createActivatorAttributes(key, config), createActivatorConditions(key, config)) },
         "player-resurrect" to AttributeFactory { key, config -> PlayerResurrectActivator(key, createItemIdentifier(key, config), createActivatorAttributes(key, config), createActivatorConditions(key, config)) },
         "player-move" to AttributeFactory { key, config -> PlayerMoveActivator(key, createItemIdentifier(key, config), createActivatorAttributes(key, config), createActivatorConditions(key, config)) },
+        "player-create-trap" to AttributeFactory { key, config -> CreateTrapActivator(key, createItemIdentifier(key, config), createActivatorAttributes(key, config), createActivatorConditions(key, config)) },
     )
 ).cheese(1)
 
@@ -270,8 +272,21 @@ class PlayerMoveActivator(
     conditions: Set<ActivatorCondition<*>>
 ) : Activator(key, itemIdentifier, attributes, conditions) {
     @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGH)
-    private fun onResurrect(event: PlayerMoveEvent) {
+    private fun onMove(event: PlayerMoveEvent) {
         if (!event.hasChangedPosition()) return
+        val itemStack = getItemStack(event, event.player) ?: return
+        activate(event, event.player, itemStack)
+    }
+}
+
+class CreateTrapActivator(
+    key: String,
+    itemIdentifier: ItemIdentifier,
+    attributes: Set<ActivatorAttribute<*>>,
+    conditions: Set<ActivatorCondition<*>>
+) : Activator(key, itemIdentifier, attributes, conditions) {
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGH)
+    private fun onTrapCreation(event: CreateTrapEvent) {
         val itemStack = getItemStack(event, event.player) ?: return
         activate(event, event.player, itemStack)
     }

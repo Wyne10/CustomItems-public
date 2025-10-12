@@ -8,6 +8,8 @@ import me.wyne.wutils.animation.runnable.ParticleArray
 import me.wyne.wutils.common.Ticks
 import me.wyne.wutils.common.range.LocationRange
 import org.bigcraft.customitems.CustomItems
+import org.bigcraft.customitems.aoe.event.AoeFinishEvent
+import org.bigcraft.customitems.aoe.event.AoeStartEvent
 import org.bukkit.Location
 import org.bukkit.entity.Player
 
@@ -27,8 +29,10 @@ class AreaOfEffect(
             aoe.addStep(ParallelAnimationStep(renderer, 0, 5, durationTicks))
         aoe.addStep(BlockingAnimationStep(AnimationRunnable.runnable {
             manager.removeAoe(this)
+            AoeFinishEvent(this).callEvent()
         }, durationTicks))
-        aoe.run()
+        if (AoeStartEvent(this).callEvent())
+            aoe.run()
     }
 
     fun getAffected(): Set<Player> =
