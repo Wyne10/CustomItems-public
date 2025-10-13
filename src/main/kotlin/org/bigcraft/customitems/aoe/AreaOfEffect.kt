@@ -35,6 +35,11 @@ class AreaOfEffect(
             aoe.run()
     }
 
+    fun getWithin(): Set<Player> =
+        Location(bounds.world, bounds.center.x, bounds.center.y, bounds.center.z)
+            .getNearbyPlayers(bounds.span.x, bounds.span.y, bounds.span.z)
+            .toSet()
+
     fun getAffected(): Set<Player> =
         Location(bounds.world, bounds.center.x, bounds.center.y, bounds.center.z)
             .getNearbyPlayers(bounds.span.x, bounds.span.y, bounds.span.z)

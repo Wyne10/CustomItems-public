@@ -100,6 +100,15 @@ class TrapAttribute(
                     Color.RED, 1.0f))), // TODO REMOVE
             )
         )
+        AoeManager.instance.startAoe(
+            AreaOfEffect(
+                "${scheme.key}-pre",
+                player,
+                durationMillis - 1500,
+                bounds,
+                null
+            )
+        )
     }
 
     object Factory : AttributeFactory {

@@ -73,6 +73,7 @@ val ACTIVATOR_ATTRIBUTE_MAP = AttributeMap(
         "jack-o-lantern" to JackOLanternAttribute.Factory,
         "repair" to AttributeFactory { key, config -> RepairAttribute(key, config.getEnumSet<EquipmentSlot>(key)) },
         "force-field" to ForceFieldAttribute.Factory,
+        "force" to ForceAttribute.Factory,
         "action-bar" to AttributeFactory { key, config -> ActionBarAttribute(key, config.getString(key)!!) },
         "player-sound" to AttributeFactory { key, config -> PlayerSoundAttribute(key, SoundAttribute.Factory().create(key, config).value as Sound) },
         "set-player-exp" to AttributeFactory { key, config -> PlayerExpAttribute(key, config.getIntOperation(key)) },

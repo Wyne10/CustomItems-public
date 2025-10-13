@@ -7,6 +7,7 @@ import me.wyne.wutils.config.configurables.attribute.AttributeMap
 import me.wyne.wutils.config.configurables.attribute.ImmutableAttributeContainer
 import org.bigcraft.customitems.activator.condition.ACTIVATOR_CONDITION_MAP
 import org.bigcraft.customitems.activator.condition.ActivatorCondition
+import org.bigcraft.customitems.aoe.event.AoeFinishEvent
 import org.bigcraft.customitems.item.CustomItemManager
 import org.bigcraft.customitems.item.RegisterableCustomItemAttribute
 import org.bigcraft.customitems.trap.CreateTrapEvent
@@ -47,6 +48,7 @@ val ACTIVATOR_MAP = AttributeMap(
         "player-resurrect" to AttributeFactory { key, config -> PlayerResurrectActivator(key, createItemIdentifier(key, config), createActivatorAttributes(key, config), createActivatorConditions(key, config)) },
         "player-move" to AttributeFactory { key, config -> PlayerMoveActivator(key, createItemIdentifier(key, config), createActivatorAttributes(key, config), createActivatorConditions(key, config)) },
         "player-create-trap" to AttributeFactory { key, config -> CreateTrapActivator(key, createItemIdentifier(key, config), createActivatorAttributes(key, config), createActivatorConditions(key, config)) },
+        "aoe-finish" to AttributeFactory { key, config -> AoeFinishActivator(key, createItemIdentifier(key, config), createActivatorAttributes(key, config), createActivatorConditions(key, config)) },
     )
 ).cheese(1)
 
@@ -299,5 +301,20 @@ class CreateTrapActivator(
     private fun onTrapCreation(event: CreateTrapEvent) {
         val itemStack = getItemStack(event.player) ?: return
         activate(event, event.player, itemStack)
+    }
+}
+
+class AoeFinishActivator(
+    key: String,
+    itemIdentifier: ItemIdentifier,
+    attributes: Set<ActivatorAttribute<*>>,
+    conditions: Set<ActivatorCondition<*>>
+) : Activator(key, itemIdentifier, attributes, conditions) {
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGH)
+    private fun onAoeFinish(event: AoeFinishEvent) {
+        event.areaOfEffect.getWithin().forEach {
+            val itemStack = getItemStack(it) ?: return
+            activate(event, it, itemStack)
+        }
     }
 }

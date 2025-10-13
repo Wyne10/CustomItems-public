@@ -4,10 +4,10 @@ restrictions:
   cancel-craft: true
 cooldowns:
   player-cooldown:
-    duration: 10s
+    duration: 50s
     visual: true
   other-cooldown:
-    duration: 10s
+    duration: 50s
     visual: true
     items: ['trap']
 activators:
@@ -93,3 +93,13 @@ activators:
       - 'stone'
       - 'default'
     cancel-event: true
+  aoe-finish:
+    is-aoe-finished:
+      - 'trap-pre'
+      - 'end-pre'
+      - 'sand-pre'
+      - 'snow-pre'
+      - 'stone-pre'
+    force:
+      offset: 0,-1,0
+      velocity: 2
