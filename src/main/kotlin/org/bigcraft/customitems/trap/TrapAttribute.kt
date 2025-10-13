@@ -34,6 +34,7 @@ import org.bukkit.event.Event
 import org.bukkit.inventory.ItemStack
 import org.bukkit.util.Vector
 
+// TODO Add fail safe
 class TrapAttribute(
     key: String,
     schemes: Set<Scheme>,

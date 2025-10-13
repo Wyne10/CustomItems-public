@@ -8,10 +8,10 @@ import me.wyne.wutils.config.configurables.attribute.AttributeFactory
 import me.wyne.wutils.config.configurables.attribute.AttributeMap
 import me.wyne.wutils.config.configurables.attribute.ImmutableAttributeContainer
 import org.bigcraft.customitems.config.getMillis
+import org.bigcraft.customitems.item.CustomItem
 import org.bigcraft.customitems.item.CustomItemManager
 import org.bukkit.configuration.ConfigurationSection
 import org.bukkit.entity.Player
-import org.bukkit.inventory.ItemStack
 import java.util.UUID
 
 val COOLDOWN_MAP = AttributeMap(
@@ -31,13 +31,13 @@ abstract class Cooldown(
     durationMillis: Long,
     private val attributes: Set<CooldownAttribute<*>>
 ) : AttributeBase<Long>(key, durationMillis) {
-    open fun isCooldowned(player: Player, item: ItemStack): Boolean {
-        attributes.forEach { it.onTest(player, item, this) }
+    open fun isCooldowned(player: Player, customItem: CustomItem): Boolean {
+        attributes.forEach { it.onTest(player, customItem, this) }
         return false
     }
 
-    open fun apply(player: Player, item: ItemStack) {
-        attributes.forEach { it.onApply(player, item, this) }
+    open fun apply(player: Player, customItem: CustomItem) {
+        attributes.forEach { it.onApply(player, customItem, this) }
     }
 }
 
@@ -49,14 +49,14 @@ class PlayerCooldown(
 
     private val cooldownMap = CooldownMap<UUID>()
 
-    override fun isCooldowned(player: Player, item: ItemStack): Boolean {
+    override fun isCooldowned(player: Player, customItem: CustomItem): Boolean {
         if (cooldownMap.isCooldowned(player.uniqueId))
-            super.isCooldowned(player, item)
+            super.isCooldowned(player, customItem)
         return cooldownMap.isCooldowned(player.uniqueId)
     }
 
-    override fun apply(player: Player, item: ItemStack) {
-        super.apply(player, item)
+    override fun apply(player: Player, customItem: CustomItem) {
+        super.apply(player, customItem)
         cooldownMap.put(player.uniqueId, value)
     }
 
@@ -70,14 +70,14 @@ class GlobalCooldown(
 
     private val cooldown = Period()
 
-    override fun isCooldowned(player: Player, item: ItemStack): Boolean {
+    override fun isCooldowned(player: Player, customItem: CustomItem): Boolean {
         if (!cooldown.isExpired)
-            super.isCooldowned(player, item)
+            super.isCooldowned(player, customItem)
         return !cooldown.isExpired
     }
 
-    override fun apply(player: Player, item: ItemStack) {
-        super.apply(player, item)
+    override fun apply(player: Player, customItem: CustomItem) {
+        super.apply(player, customItem)
         cooldown.put(value)
     }
 
@@ -86,17 +86,18 @@ class GlobalCooldown(
 class OtherCooldown(
     key: String,
     private val otherItems: Set<String>,
-    durationMillis: Long,
-    attributes: Set<CooldownAttribute<*>>
+    private val durationMillis: Long,
+    private val attributes: Set<CooldownAttribute<*>>
 ) : Cooldown(key, durationMillis, attributes) {
 
-    private val otherCooldown = PlayerCooldown("other-cooldown-${UUID.randomUUID()}", durationMillis, attributes)
+    override fun isCooldowned(player: Player, customItem: CustomItem): Boolean = false
 
-    override fun isCooldowned(player: Player, item: ItemStack): Boolean = false
-
-    override fun apply(player: Player, item: ItemStack) {
-        otherItems.mapNotNull { CustomItemManager.instance.getItem(it) }.forEach { it.cooldowns.add(otherCooldown) }
-        otherCooldown.apply(player, item)
+    override fun apply(player: Player, customItem: CustomItem) {
+        otherItems.mapNotNull { CustomItemManager.instance.getItem(it) }.forEach {
+            val cooldown = PlayerCooldown("other-cooldown-${customItem.key}", durationMillis, attributes)
+            it.cooldowns.add(cooldown)
+            cooldown.apply(player, it)
+        }
     }
 
 }

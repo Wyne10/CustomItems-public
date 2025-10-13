@@ -4,10 +4,10 @@ restrictions:
   cancel-craft: true
 cooldowns:
   player-cooldown:
-    duration: 50s
+    duration: 10s
     visual: true
   other-cooldown:
-    duration: 50s
+    duration: 10s
     visual: true
     items: ['trap']
 activators:
@@ -57,10 +57,18 @@ activators:
     region-whitelist: ['__global__']
     set-item-amount: -1
     cooldown: ['player-cooldown', 'other-cooldown']
+    condition-cancel-event: true
     player-explosion:
       offset: 0,0,0
       power: 1
       break-blocks: false
+    create-aoe:
+      key: 'stun'
+      radius: 15
+      duration: 18s
+      particle:
+        particle: REDSTONE
+        data: 16711684-1.0
   player-block-place:
     identifier: EMPTY
     is-within-aoe:

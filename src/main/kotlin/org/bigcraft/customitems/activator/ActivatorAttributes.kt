@@ -109,7 +109,7 @@ class CooldownCancelEventAttribute(
     value: Boolean
 ) : ActivatorAttribute<Boolean>(key, value) {
     override fun isApplicable(event: Event, player: Player, customItem: CustomItem, item: ItemStack) =
-        event is Cancellable && customItem.cooldowns.any { it.isCooldowned(player, item) }
+        event is Cancellable && customItem.cooldowns.any { it.isCooldowned(player, customItem) }
 
     override fun apply(event: Event, player: Player, customItem: CustomItem, item: ItemStack) {
         event as Cancellable
@@ -133,7 +133,7 @@ class CooldownAttribute(
     override fun apply(event: Event, player: Player, customItem: CustomItem, item: ItemStack) {
         customItem.cooldowns
             .filter { it.key in value }
-            .forEach { it.apply(player, item) }
+            .forEach { it.apply(player, customItem) }
     }
 }
 
