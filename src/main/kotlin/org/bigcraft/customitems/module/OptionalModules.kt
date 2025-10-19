@@ -3,6 +3,7 @@ package org.bigcraft.customitems.module
 import com.google.inject.AbstractModule
 import org.bigcraft.customitems.CustomItems
 import org.bigcraft.customitems.command.CustomItemsCommand
+import org.bigcraft.customitems.menu.AbstractMenusRegistry
 import org.bigcraft.customitems.placeholder.ItemPlaceholders
 
 private class OptionalModule(
@@ -30,4 +31,10 @@ val CommandModule: AbstractModule = OptionalModule(
     className = "dev.jorel.commandapi.CommandAPI",
     exceptionMessage = "CommandAPI not found, commands are not registered",
     CustomItemsCommand::class.java
+)
+
+val AbstractMenusModule: AbstractModule = OptionalModule(
+    className = "ru.abstractmenus.api.AbstractMenusPlugin",
+    exceptionMessage = "AbstractMenus not found, item property is not registered",
+    AbstractMenusRegistry::class.java
 )

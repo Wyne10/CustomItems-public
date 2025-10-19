@@ -4,6 +4,9 @@ import me.wyne.wutils.config.configurables.AttributeConfigurable
 import me.wyne.wutils.config.configurables.ItemConfigurable
 import me.wyne.wutils.config.configurables.attribute.AttributeContainerBuilder
 import me.wyne.wutils.config.configurables.attribute.ImmutableAttributeContainer
+import me.wyne.wutils.config.configurables.item.ContextItemStackAttribute
+import me.wyne.wutils.config.configurables.item.ItemAttributeContext
+import me.wyne.wutils.config.configurables.item.ItemStackAttribute
 import org.bigcraft.customitems.ConfigurableFactory
 import org.bigcraft.customitems.CustomItems
 import org.bigcraft.customitems.activator.ACTIVATOR_MAP
@@ -22,6 +25,7 @@ import org.bukkit.inventory.ItemStack
 import org.bukkit.inventory.PlayerInventory
 import org.bukkit.persistence.PersistentDataType
 
+
 class CustomItem(
     val key: String,
     private val itemAttributes: ItemConfigurable,
@@ -32,18 +36,24 @@ class CustomItem(
 ) : ItemAttributeAccessor by DefaultItemAttributeAccessor(itemAttributes, restrictions, activators, blockAttributes),
     ItemComposable by DefaultItemComposable(key) {
 
-    fun createItemStack(): ItemStack {
-        val itemStack = itemAttributes.build()
+    fun createItemStack(player: Player? = null): ItemStack {
+        val itemStack = itemAttributes.build(player)
         itemStack.editMeta { meta -> meta.persistentDataContainer.set(ITEM_TAG_KEY, PersistentDataType.STRING, key) }
         updateView(itemStack)
         return itemStack
     }
 
-    fun createItemStack(player: Player): ItemStack {
-        val itemStack = itemAttributes.build(player)
-        itemStack.editMeta { meta -> meta.persistentDataContainer.set(ITEM_TAG_KEY, PersistentDataType.STRING, key) }
-        updateView(itemStack)
-        return itemStack
+    fun applyItemStack(item: ItemStack, player: Player? = null) {
+        val context = ItemAttributeContext(player)
+        itemAttributes.getSet(ItemStackAttribute::class.java).forEach { attribute ->
+            if (attribute is ContextItemStackAttribute) {
+                attribute.apply(item, context)
+            } else {
+                attribute.apply(item)
+            }
+        }
+        item.editMeta { meta -> meta.persistentDataContainer.set(ITEM_TAG_KEY, PersistentDataType.STRING, key) }
+        updateView(item)
     }
 
     infix fun isCustomItem(item: ItemStack?): Boolean =

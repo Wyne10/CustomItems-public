@@ -19,6 +19,7 @@ dependencies {
     compileOnly(libs.nbtApi)
     compileOnly(libs.worldEdit)
     compileOnly(libs.worldGuard)
+    compileOnly(libs.abstractMenus)
 
     implementation(libs.guice)
     implementation(libs.adventureMini)
@@ -87,7 +88,7 @@ bukkit {
     author = findProperty("author").toString()
     main = "org.bigcraft.customitems.CustomItems"
     apiVersion = "1.16"
-    softDepend = listOf("PlaceholderAPI", "CommandAPI", "NBTAPI", "CustomEnchants", "WorldEdit", "WorldGuard")
+    softDepend = listOf("PlaceholderAPI", "CommandAPI", "NBTAPI", "CustomEnchants", "WorldEdit", "WorldGuard", "AbstractMenus")
     permissions {
         register("customitems.*") {
             children = listOf("customitems.reload")

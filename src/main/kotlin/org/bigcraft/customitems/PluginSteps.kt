@@ -91,7 +91,8 @@ object InitializeInjector : PluginStep<CustomItems> {
                 CustomItemModule,
                 CompositorModule,
                 PlaceholderModule,
-                CommandModule
+                CommandModule,
+                AbstractMenusModule
             )
         } catch (e: CreationException) {
             log.error("Guice injector creation exception", e)

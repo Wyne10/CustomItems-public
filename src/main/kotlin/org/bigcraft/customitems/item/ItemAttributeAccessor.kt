@@ -49,6 +49,7 @@ class DefaultItemAttributeAccessor(
         item.editMeta {
             if (!it.hasLore()) return@editMeta
             var index = it.lore?.indexOfFirst { line -> line.contains("<composed-list>") } ?: return@editMeta
+            if (index == -1) return@editMeta
             val newLore = it.loreComponents!!.toMutableList()
             val composableList = customItem.getComposedList(item, null)
             if (composableList.isEmpty())
