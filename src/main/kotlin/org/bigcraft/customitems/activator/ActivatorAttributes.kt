@@ -2,6 +2,7 @@ package org.bigcraft.customitems.activator
 
 import com.destroystokyo.paper.event.player.PlayerLaunchProjectileEvent
 import me.wyne.wutils.animation.data.AnimationParticle
+import me.wyne.wutils.animation.runnable.LocalSound
 import me.wyne.wutils.animation.runnable.ParticleArray
 import me.wyne.wutils.common.Args
 import me.wyne.wutils.common.Ticks
@@ -76,6 +77,7 @@ val ACTIVATOR_ATTRIBUTE_MAP = AttributeMap(
         "force" to ForceAttribute.Factory,
         "action-bar" to AttributeFactory { key, config -> ActionBarAttribute(key, config.getString(key)!!) },
         "player-sound" to AttributeFactory { key, config -> PlayerSoundAttribute(key, SoundAttribute.Factory().create(key, config).value as Sound) },
+        "local-sound" to AttributeFactory { key, config -> LocalSoundAttribute(key, SoundAttribute.Factory().create(key, config).value as Sound) },
         "set-player-exp" to AttributeFactory { key, config -> PlayerExpAttribute(key, config.getIntOperation(key)) },
         "set-custom-block" to AttributeFactory { key, config -> SetCustomBlockAttribute(key, config.getString(key)!!) },
         "call-entity-damage" to CallEntityDamageAttribute.Factory,
@@ -312,6 +314,15 @@ class PlayerSoundAttribute(
 ) : ActivatorAttribute<Sound>(key, sound) {
     override fun apply(event: Event, player: Player, customItem: CustomItem, item: ItemStack) {
         I18n.global.audiences.player(player).playSound(value)
+    }
+}
+
+class LocalSoundAttribute(
+    key: String,
+    sound: Sound
+) : ActivatorAttribute<Sound>(key, sound) {
+    override fun apply(event: Event, player: Player, customItem: CustomItem, item: ItemStack) {
+        LocalSound(player.location, value).run()
     }
 }
 
