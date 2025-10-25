@@ -68,7 +68,7 @@ activators:
       duration: 18s
       particle:
         particle: REDSTONE
-        data: 16711684-1.0
+        data: '16711684:1.0'
   player-block-place:
     identifier: EMPTY
     is-within-aoe:

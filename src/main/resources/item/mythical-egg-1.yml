@@ -6,6 +6,7 @@ activators:
     is-target-block: [SPAWNER]
     set-custom-block: 'mythical-spawner-1'
   right-click-1:
+    attributeType: 'right-click'
     identifier: HOLD
     not-is-target-block: [SPAWNER]
     cancel-event: true

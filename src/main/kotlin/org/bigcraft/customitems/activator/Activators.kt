@@ -50,7 +50,7 @@ val ACTIVATOR_MAP = AttributeMap(
         "player-create-trap" to AttributeFactory { key, config -> CreateTrapActivator(key, createItemIdentifier(key, config), createActivatorAttributes(key, config), createActivatorConditions(key, config)) },
         "aoe-finish" to AttributeFactory { key, config -> AoeFinishActivator(key, createItemIdentifier(key, config), createActivatorAttributes(key, config), createActivatorConditions(key, config)) },
     )
-).cheese(1)
+)
 
 private fun AttributeMap.cheese(amount: Int): AttributeMap {
     for (i in 1..amount) {
