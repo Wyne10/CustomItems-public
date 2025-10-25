@@ -1,5 +1,7 @@
 package org.bigcraft.customitems.activator.condition
 
+import com.sk89q.worldedit.bukkit.BukkitAdapter
+import com.sk89q.worldguard.WorldGuard
 import org.bigcraft.customitems.activator.currentExp
 import org.bigcraft.customitems.aoe.AoeManager
 import org.bigcraft.customitems.config.DoubleComparator
@@ -152,4 +154,20 @@ class NotAoeAffectedCondition(key: String, aoeKeys: Set<String>) : ActivatorCond
         value.flatMap { AoeManager.instance.getAoe(it) }
             .filter { it.owner != player }
             .none { it.bounds.contains(player) }
+}
+
+class WithinRegionCondition(key: String, regions: Set<String>) : ActivatorCondition<Set<String>>(key, regions) {
+    override fun isApplicable(event: Event, player: Player, customItem: CustomItem, item: ItemStack): Boolean {
+        val query = WorldGuard.getInstance().platform.regionContainer.createQuery();
+        val regions = query.getApplicableRegions(BukkitAdapter.adapt(player.location))
+        return regions?.any { it.id in value } ?: false
+    }
+}
+
+class NotWithinRegionCondition(key: String, regions: Set<String>) : ActivatorCondition<Set<String>>(key, regions) {
+    override fun isApplicable(event: Event, player: Player, customItem: CustomItem, item: ItemStack): Boolean {
+        val query = WorldGuard.getInstance().platform.regionContainer.createQuery();
+        val regions = query.getApplicableRegions(BukkitAdapter.adapt(player.location))
+        return regions?.none { it.id in value } ?: false
+    }
 }
