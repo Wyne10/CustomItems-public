@@ -11,11 +11,9 @@ import com.sk89q.worldedit.regions.Region
 import com.sk89q.worldedit.session.ClipboardHolder
 import com.sk89q.worldedit.util.Location
 import com.sk89q.worldedit.world.World
-import me.wyne.wutils.animation.data.AnimationParticle
-import me.wyne.wutils.animation.runnable.ParticleArray
 import me.wyne.wutils.common.Ticks
-import me.wyne.wutils.common.event.RegisterableListener
 import me.wyne.wutils.common.range.LocationRange
+import me.wyne.wutils.common.scheduler.ExtendedScheduler
 import me.wyne.wutils.config.configurables.attribute.Attribute
 import me.wyne.wutils.config.configurables.attribute.AttributeFactory
 import me.wyne.wutils.config.configurables.attribute.AttributeUtils
@@ -26,20 +24,19 @@ import org.bigcraft.customitems.aoe.AreaOfEffect
 import org.bigcraft.customitems.config.getMillis
 import org.bigcraft.customitems.item.CustomItem
 import org.bukkit.Bukkit
-import org.bukkit.Color
-import org.bukkit.Particle
 import org.bukkit.configuration.ConfigurationSection
 import org.bukkit.entity.Player
 import org.bukkit.event.Event
+import org.bukkit.event.server.PluginDisableEvent
 import org.bukkit.inventory.ItemStack
 import org.bukkit.util.Vector
+import java.util.function.Predicate
 
-// TODO Add fail safe
 class TrapAttribute(
     key: String,
     schemes: Set<Scheme>,
     private val durationMillis: Long
-) : ActivatorAttribute<Set<Scheme>>(key, schemes), RegisterableListener {
+) : ActivatorAttribute<Set<Scheme>>(key, schemes) {
 
     private val durationTicks = Ticks.ofMillis(durationMillis)
 
@@ -56,9 +53,9 @@ class TrapAttribute(
         Bukkit.getScheduler().runTaskLater(CustomItems.instance, Runnable {
             pasteClipboard(clipboard, editLocation.toVector().toBlockPoint(), editWorld)
         }, 1)
-        Bukkit.getScheduler().runTaskLater(CustomItems.instance, Runnable {
+        ExtendedScheduler.global.runTaskLaterPromised(CustomItems.instance, Runnable {
             pasteClipboard(snapshot, snapshot.origin, editWorld)
-        }, durationTicks)
+        }, Predicate { event -> event.plugin == CustomItems.instance }, durationTicks, PluginDisableEvent::class.java)
     }
 
     private fun snapshotRegion(clipboard: Clipboard, location: Location): Clipboard {
@@ -96,8 +93,7 @@ class TrapAttribute(
                 player,
                 durationMillis,
                 bounds,
-                ParticleArray(player.world, bounds.iterator().asSequence().toSet(), AnimationParticle(Particle.REDSTONE, 1, 0.0, Vector(0.0, 0.0, 0.0), Particle.DustOptions(
-                    Color.RED, 1.0f))), // TODO REMOVE
+                null
             )
         )
         AoeManager.instance.startAoe(

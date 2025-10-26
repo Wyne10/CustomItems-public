@@ -71,7 +71,6 @@ class PlayerExplosionAttribute(
     }
 }
 
-// TODO Maybe get rid of registerable listener
 class JackOLanternAttribute(
     key: String,
     radius: Double,
