@@ -1,6 +1,7 @@
 package org.bigcraft.customitems.activator
 
 import org.bigcraft.customitems.item.CustomItem
+import org.bigcraft.effective.config.Effects
 import org.bukkit.Material
 import org.bukkit.entity.Player
 import org.bukkit.inventory.EquipmentSlot
@@ -29,8 +30,17 @@ object HoldItemIdentifier : ItemIdentifier {
     }
 }
 
+object EffectOrPlayerItemIdentifier : ItemIdentifier {
+    override fun getItem(player: Player, customItem: CustomItem): ItemStack? {
+        val effect = Effects.instance.byKey[customItem.key] ?: return PlayerItemIdentifier.getItem(player, customItem)
+        if (effect.isAffected(player)) return EmptyItemIdentifier.getItem(player, customItem)
+        return PlayerItemIdentifier.getItem(player, customItem)
+    }
+}
+
 enum class ItemIdentifiers(val identifier: ItemIdentifier) {
     EMPTY(EmptyItemIdentifier),
     PLAYER(PlayerItemIdentifier),
     HOLD(HoldItemIdentifier),
+    EFFECT_OR_PLAYER(EffectOrPlayerItemIdentifier),
 }
