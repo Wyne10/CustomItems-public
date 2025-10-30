@@ -41,7 +41,7 @@ activators:
       break-blocks: false
   player-block-place:
     identifier: EMPTY
-    is-within-aoe:
+    block-is-within-aoe:
       - 'holytrap'
       - 'trap'
       - 'air'
@@ -53,7 +53,7 @@ activators:
     cancel-event: true
   player-block-break:
     identifier: EMPTY
-    is-within-aoe:
+    block-is-within-aoe:
       - 'holytrap'
       - 'trap'
       - 'air'

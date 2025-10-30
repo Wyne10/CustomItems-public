@@ -48,6 +48,8 @@ val ACTIVATOR_CONDITION_MAP = AttributeMap(
         "not-is-in-world" to AttributeFactory { key, config -> NotInWorldCondition(key, config.getStringList(key).mapNotNull { Bukkit.getWorld(it) }.toSet()) },
         "is-within-aoe" to AttributeFactory { key, config -> WithinAoeCondition(key, config.getStringList(key).toSet()) },
         "not-is-within-aoe" to AttributeFactory { key, config -> NotWithinAoeCondition(key, config.getStringList(key).toSet()) },
+        "block-is-within-aoe" to AttributeFactory { key, config -> BlockWithinAoeCondition(key, config.getStringList(key).toSet()) },
+        "block-not-is-within-aoe" to AttributeFactory { key, config -> BlockNotWithinAoeCondition(key, config.getStringList(key).toSet()) },
         "is-aoe-affected" to AttributeFactory { key, config -> AoeAffectedCondition(key, config.getStringList(key).toSet()) },
         "not-is-aoe-affected" to AttributeFactory { key, config -> NotAoeAffectedCondition(key, config.getStringList(key).toSet()) },
         "is-within-region" to AttributeFactory { key, config -> WithinRegionCondition(key, config.getStringList(key).toSet()) },
