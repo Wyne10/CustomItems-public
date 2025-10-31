@@ -152,7 +152,7 @@ class RepairAttribute(
 ) : ActivatorAttribute<Set<EquipmentSlot>>(key, slots) {
     override fun apply(event: Event, player: Player, customItem: CustomItem, item: ItemStack) {
         value.mapNotNull { player.inventory.getItem(it) }
-            .filter { it.containsEnchantment(Enchantment.MENDING) }
+            .filter { it.enchantments.any { enchantment -> enchantment.key.key.value().contains("mending", ignoreCase = true) } }
             .forEach { it.editMeta { meta -> (meta as? Damageable)?.damage = 0 } }
     }
 }
