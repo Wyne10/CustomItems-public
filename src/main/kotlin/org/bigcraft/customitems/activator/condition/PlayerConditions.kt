@@ -2,6 +2,7 @@ package org.bigcraft.customitems.activator.condition
 
 import com.sk89q.worldedit.bukkit.BukkitAdapter
 import com.sk89q.worldguard.WorldGuard
+import org.bigcraft.customitems.CustomItems
 import org.bigcraft.customitems.activator.currentExp
 import org.bigcraft.customitems.aoe.AoeManager
 import org.bigcraft.customitems.config.DoubleComparator
@@ -170,4 +171,9 @@ class NotWithinRegionCondition(key: String, regions: Set<String>) : ActivatorCon
         val regions = query.getApplicableRegions(BukkitAdapter.adapt(player.location))
         return regions?.none { it.id in value } ?: false
     }
+}
+
+class PvpCondition(key: String, isActive: Boolean) : ActivatorCondition<Boolean>(key, isActive) {
+    override fun isApplicable(event: Event, player: Player, customItem: CustomItem, item: ItemStack): Boolean =
+        CustomItems.instance.antirelog?.pvpManager?.isInPvP(player) == value
 }

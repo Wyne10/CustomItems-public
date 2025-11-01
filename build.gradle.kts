@@ -3,6 +3,7 @@ import org.codehaus.plexus.util.Os
 
 plugins {
     kotlin("jvm") version "2.2.20"
+    `maven-publish`
     alias(libs.plugins.shadow)
     alias(libs.plugins.runPaper)
     alias(libs.plugins.pluginYml)
@@ -21,6 +22,7 @@ dependencies {
     compileOnly(libs.worldGuard)
     compileOnly(libs.abstractMenus)
     compileOnly(libs.effective)
+    compileOnly(libs.antiRelog)
 
     implementation(libs.guice)
     implementation(libs.adventureMini)
@@ -89,7 +91,7 @@ bukkit {
     author = findProperty("author").toString()
     main = "org.bigcraft.customitems.CustomItems"
     apiVersion = "1.16"
-    softDepend = listOf("PlaceholderAPI", "CommandAPI", "NBTAPI", "CustomEnchants", "WorldEdit", "WorldGuard", "AbstractMenus", "Effective")
+    softDepend = listOf("PlaceholderAPI", "CommandAPI", "NBTAPI", "CustomEnchants", "WorldEdit", "WorldGuard", "AbstractMenus", "Effective", "AntiRelog")
     permissions {
         register("customitems.*") {
             children = listOf("customitems.reload")
@@ -97,6 +99,32 @@ bukkit {
         }
         register("customitems.reload") {
             description = "Allows to reload plugin"
+        }
+    }
+}
+
+publishing {
+    repositories {
+        val repoUrl = findProperty("myMavenRepoWriteUrl").toString()
+        if (repoUrl.isNotEmpty()) {
+            maven {
+                url = uri(repoUrl)
+
+                credentials {
+                    username = findProperty("myMavenRepoWriteUsername").toString()
+                    password = findProperty("myMavenRepoWritePassword").toString()
+                }
+            }
+        }
+    }
+
+    publications {
+        create<MavenPublication>("maven") {
+            groupId = findProperty("group").toString()
+            artifactId = "CustomItems-core"
+            version = findProperty("version").toString()
+
+            from(components["java"])
         }
     }
 }

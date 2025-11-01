@@ -25,7 +25,6 @@ import org.bukkit.inventory.ItemStack
 import org.bukkit.inventory.PlayerInventory
 import org.bukkit.persistence.PersistentDataType
 
-
 class CustomItem(
     val key: String,
     private val itemAttributes: ItemConfigurable,

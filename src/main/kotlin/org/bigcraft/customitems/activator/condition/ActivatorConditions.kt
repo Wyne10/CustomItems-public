@@ -54,6 +54,7 @@ val ACTIVATOR_CONDITION_MAP = AttributeMap(
         "not-is-aoe-affected" to AttributeFactory { key, config -> NotAoeAffectedCondition(key, config.getStringList(key).toSet()) },
         "is-within-region" to AttributeFactory { key, config -> WithinRegionCondition(key, config.getStringList(key).toSet()) },
         "not-is-within-region" to AttributeFactory { key, config -> NotWithinRegionCondition(key, config.getStringList(key).toSet()) },
+        "is-pvp" to AttributeFactory { key, config -> PvpCondition(key, config.getBoolean(key)) },
         "is-aoe-finished" to AttributeFactory { key, config -> AoeFinishConditions(key, config.getStringList(key).toSet()) },
         "is-weather" to AttributeFactory { key, config -> WeatherCondition(key, config.getEnumSet<Weather>(key)) },
         "is-day-time" to AttributeFactory { key, config -> DayTimeCondition(key, config.getIntComparator(key)) },
