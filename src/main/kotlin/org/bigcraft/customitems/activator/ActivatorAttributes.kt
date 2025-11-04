@@ -7,6 +7,7 @@ import me.wyne.wutils.animation.runnable.ParticleArray
 import me.wyne.wutils.common.Args
 import me.wyne.wutils.common.Ticks
 import me.wyne.wutils.common.range.LocationRange
+import me.wyne.wutils.config.configurables.InteractionListConfigurable
 import me.wyne.wutils.config.configurables.animation.attribute.AnimationParticleAttribute
 import me.wyne.wutils.config.configurables.attribute.Attribute
 import me.wyne.wutils.config.configurables.attribute.AttributeBase
@@ -76,6 +77,8 @@ val ACTIVATOR_ATTRIBUTE_MAP = AttributeMap(
         "force-field" to ForceFieldAttribute.Factory,
         "force" to ForceAttribute.Factory,
         "action-bar" to AttributeFactory { key, config -> ActionBarAttribute(key, config.getString(key)!!) },
+        "player-message" to AttributeFactory { key, config -> PlayerMessageAttribute(key, config.getString(key)!!) },
+        "player-interaction" to AttributeFactory { key, config -> InteractionAttribute(key, InteractionListConfigurable().also { it.fromConfig(config.get(key)) }) },
         "player-sound" to AttributeFactory { key, config -> PlayerSoundAttribute(key, SoundAttribute.Factory().create(key, config).value as Sound) },
         "local-sound" to AttributeFactory { key, config -> LocalSoundAttribute(key, SoundAttribute.Factory().create(key, config).value as Sound) },
         "set-player-exp" to AttributeFactory { key, config -> PlayerExpAttribute(key, config.getIntOperation(key)) },
@@ -308,6 +311,15 @@ class ActionBarAttribute(
     }
 }
 
+class PlayerMessageAttribute(
+    key: String,
+    message: String
+) : ActivatorAttribute<String>(key, message) {
+    override fun apply(event: Event, player: Player, customItem: CustomItem, item: ItemStack) {
+        player.placeholderComponent(value, "key" replace customItem.key).sendMessage(player)
+    }
+}
+
 class PlayerSoundAttribute(
     key: String,
     sound: Sound
@@ -323,6 +335,15 @@ class LocalSoundAttribute(
 ) : ActivatorAttribute<Sound>(key, sound) {
     override fun apply(event: Event, player: Player, customItem: CustomItem, item: ItemStack) {
         LocalSound(player.location, value).run()
+    }
+}
+
+class InteractionAttribute(
+    key: String,
+    interaction: InteractionListConfigurable
+) : ActivatorAttribute<InteractionListConfigurable>(key, interaction) {
+    override fun apply(event: Event, player: Player, customItem: CustomItem, item: ItemStack) {
+        value.send(player, player, "key" replace customItem.key)
     }
 }
 

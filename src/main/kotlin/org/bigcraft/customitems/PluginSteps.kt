@@ -21,8 +21,6 @@ import net.kyori.adventure.platform.bukkit.BukkitAudiences
 import org.bigcraft.customitems.CustomItems.Companion.EMPTY_CONFIGURATION
 import org.bigcraft.customitems.CustomItems.Companion.log
 import org.bigcraft.customitems.module.*
-import org.bukkit.Bukkit
-import ru.leymooo.antirelog.Antirelog
 import java.io.File
 import java.util.concurrent.Executors
 
@@ -31,13 +29,6 @@ object LoadDefaultConfig : PluginStep<CustomItems> {
     override fun run(plugin: CustomItems) {
         plugin.saveDefaultConfig()
         plugin.config.setDefaults(EMPTY_CONFIGURATION)
-    }
-}
-
-@Step(priority = 0, scope = StepScope.ENABLE)
-object GetAntiRelog : PluginStep<CustomItems> {
-    override fun run(plugin: CustomItems) {
-        plugin.antirelog = Bukkit.getPluginManager().getPlugin("AntiRelog") as? Antirelog
     }
 }
 

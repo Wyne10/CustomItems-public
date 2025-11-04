@@ -5,12 +5,10 @@ import com.google.inject.*
 import me.wyne.wutils.common.plugin.CompositeJavaPlugin
 import org.bukkit.configuration.MemoryConfiguration
 import org.slf4j.Logger
-import ru.leymooo.antirelog.Antirelog
 import java.io.File
 
 class CustomItems : CompositeJavaPlugin<CustomItems>() {
 
-    internal var antirelog: Antirelog? = null
     internal var injector: Injector by WriteOnce()
 
     private val logDirectory = File(dataFolder, "log")
@@ -19,7 +17,6 @@ class CustomItems : CompositeJavaPlugin<CustomItems>() {
         instance = this
         addSteps(
             LoadDefaultConfig,
-            GetAntiRelog,
             InitializeJson(GsonBuilder()
                     .enableComplexMapKeySerialization()
                     .setPrettyPrinting()

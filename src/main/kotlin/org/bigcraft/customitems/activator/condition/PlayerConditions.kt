@@ -8,6 +8,7 @@ import org.bigcraft.customitems.aoe.AoeManager
 import org.bigcraft.customitems.config.DoubleComparator
 import org.bigcraft.customitems.config.IntComparator
 import org.bigcraft.customitems.item.CustomItem
+import org.bigcraft.talisman.AntiRelogWrapper
 import org.bukkit.Material
 import org.bukkit.World
 import org.bukkit.block.Biome
@@ -175,5 +176,5 @@ class NotWithinRegionCondition(key: String, regions: Set<String>) : ActivatorCon
 
 class PvpCondition(key: String, isActive: Boolean) : ActivatorCondition<Boolean>(key, isActive) {
     override fun isApplicable(event: Event, player: Player, customItem: CustomItem, item: ItemStack): Boolean =
-        CustomItems.instance.antirelog?.pvpManager?.isInPvP(player) == value
+        AntiRelogWrapper.isInPvp(player) == value
 }
