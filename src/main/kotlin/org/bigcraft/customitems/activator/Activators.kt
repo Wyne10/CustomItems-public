@@ -1,10 +1,14 @@
 package org.bigcraft.customitems.activator
 
 import com.destroystokyo.paper.event.player.PlayerLaunchProjectileEvent
+import dev.jorel.commandapi.CommandAPICommand
+import dev.jorel.commandapi.arguments.EntitySelectorArgument
+import dev.jorel.commandapi.executors.CommandExecutor
 import me.wyne.wutils.config.configurables.AttributeConfigurable
 import me.wyne.wutils.config.configurables.attribute.AttributeFactory
 import me.wyne.wutils.config.configurables.attribute.AttributeMap
 import me.wyne.wutils.config.configurables.attribute.ImmutableAttributeContainer
+import org.bigcraft.customitems.CustomItems
 import org.bigcraft.customitems.activator.condition.ACTIVATOR_CONDITION_MAP
 import org.bigcraft.customitems.activator.condition.ActivatorCondition
 import org.bigcraft.customitems.aoe.event.AoeFinishEvent
@@ -17,6 +21,7 @@ import org.bukkit.entity.Projectile
 import org.bukkit.event.Event
 import org.bukkit.event.EventHandler
 import org.bukkit.event.EventPriority
+import org.bukkit.event.HandlerList
 import org.bukkit.event.block.Action
 import org.bukkit.event.block.BlockBreakEvent
 import org.bukkit.event.block.BlockPlaceEvent
@@ -25,6 +30,7 @@ import org.bukkit.event.entity.EntityDamageEvent
 import org.bukkit.event.entity.EntityPotionEffectEvent
 import org.bukkit.event.entity.EntityResurrectEvent
 import org.bukkit.event.entity.PlayerDeathEvent
+import org.bukkit.event.player.PlayerEvent
 import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.event.player.PlayerItemConsumeEvent
 import org.bukkit.event.player.PlayerMoveEvent
@@ -49,6 +55,7 @@ val ACTIVATOR_MAP = AttributeMap(
         "player-move" to AttributeFactory { key, config -> PlayerMoveActivator(key, createItemIdentifier(key, config), createActivatorAttributes(key, config), createActivatorConditions(key, config)) },
         "player-create-trap" to AttributeFactory { key, config -> CreateTrapActivator(key, createItemIdentifier(key, config), createActivatorAttributes(key, config), createActivatorConditions(key, config)) },
         "aoe-finish" to AttributeFactory { key, config -> AoeFinishActivator(key, createItemIdentifier(key, config), createActivatorAttributes(key, config), createActivatorConditions(key, config)) },
+        "op-command" to AttributeFactory { key, config -> OpCommandActivator(key, createItemIdentifier(key, config), createActivatorAttributes(key, config), createActivatorConditions(key, config)) },
     )
 )
 
@@ -315,6 +322,40 @@ class AoeFinishActivator(
         event.areaOfEffect.getWithin().forEach {
             val itemStack = getItemStack(it) ?: return
             activate(event, it, itemStack)
+        }
+    }
+}
+
+class OpCommandActivator(
+    key: String,
+    itemIdentifier: ItemIdentifier,
+    attributes: Set<ActivatorAttribute<*>>,
+    conditions: Set<ActivatorCondition<*>>
+) : Activator(key, itemIdentifier, attributes, conditions) {
+    init {
+        CommandAPICommand(key)
+            .withRequirement { sender -> sender.isOp }
+            .withArguments(EntitySelectorArgument.OnePlayer("target"))
+            .executes(CommandExecutor { sender, args ->
+                val target = args.getByClass("target", Player::class.java) as Player
+                val itemStack = getItemStack(target) ?: return@CommandExecutor
+                activate(DummyPlayerEvent(target), target, itemStack)
+            })
+            .register(CustomItems.instance)
+    }
+}
+
+class DummyPlayerEvent(player: Player) : PlayerEvent(player) {
+    override fun getHandlers(): HandlerList {
+        return HANDLER_LIST
+    }
+
+    companion object {
+        val HANDLER_LIST = HandlerList()
+
+        @JvmStatic
+        fun getHandlerList(): HandlerList {
+            return HANDLER_LIST
         }
     }
 }
