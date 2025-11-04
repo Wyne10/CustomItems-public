@@ -94,11 +94,14 @@ bukkit {
     softDepend = listOf("PlaceholderAPI", "CommandAPI", "NBTAPI", "CustomEnchants", "WorldEdit", "WorldGuard", "AbstractMenus", "Effective", "AntiRelog")
     permissions {
         register("customitems.*") {
-            children = listOf("customitems.reload")
+            children = listOf("customitems.reload", "customitems.give")
             default = BukkitPluginDescription.Permission.Default.OP
         }
         register("customitems.reload") {
             description = "Allows to reload plugin"
+        }
+        register("customitems.give") {
+            description = "Allows to give custom items"
         }
     }
 }
