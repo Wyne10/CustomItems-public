@@ -5,5 +5,5 @@ restrictions:
 activators:
   right-click:
     identifier: HOLD
-    open-storage: 1
+    open-storage: 2
     player-sound: 'block.shulker_box.open'
