@@ -77,10 +77,11 @@ class ExchangeCommand(private val itemManager: CustomItemManager) : SubCommand("
             val target = args.getByClass("target", Player::class.java)!!
             val stacks = item.getItems(target.inventory)
             val have = stacks.sumOf { it.amount }
-            if (have < amount)
-                throw CommandAPIBukkit.failWithBaseComponents(
-                    *sender.placeholderComponent("error-insufficient-funds", "price" replace amount, "key" replace args.key).bungee()
-                )
+            if (have < amount) {
+                target.placeholderComponent("error-insufficient-funds", "price" replace amount, "key" replace args.key)
+                    .sendMessage(target)
+                return@CommandExecutor
+            }
             var remain = amount
             stacks.forEach { stack ->
                 if (remain <= 0) return@forEach
