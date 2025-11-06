@@ -73,6 +73,9 @@ class CustomItem(
             .firstOrNull { isCustomItem(it) }
     }
 
+    infix fun getItems(inventory: Inventory): List<ItemStack> =
+        inventory.filterNotNull().filter { isCustomItem(it) }
+
     object Factory : ConfigurableFactory<CustomItem> {
         override fun fromConfig(config: ConfigurationSection): CustomItem =
             fromConfig(config.name, config)

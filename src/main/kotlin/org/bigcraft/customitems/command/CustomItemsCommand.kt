@@ -21,6 +21,7 @@ class CustomItemsCommand @Inject constructor(
             .withAliases("ci")
             .withSubcommand(ReloadCommand(plugin)())
             .withSubcommand(GiveCommand(itemManager)())
+            .withSubcommand(ExchangeCommand(itemManager)())
             .register(plugin)
     }
 

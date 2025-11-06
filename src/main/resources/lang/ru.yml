@@ -8,6 +8,7 @@ info-activation: "<gray>Только что сработал эффект: %ci_<
 
 ## Error
 error-item-not-found: "<red>Предмет '<key>' не существует!"
+error-insufficient-funds: "<red>Недостаточно средств, нужно <price> %ci_<key>_name%"
 
 ## Success
 success-plugin-reload: "<green>Плагин перезагружен!"

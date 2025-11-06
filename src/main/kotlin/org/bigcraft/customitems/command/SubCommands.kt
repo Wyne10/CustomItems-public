@@ -5,16 +5,17 @@ import dev.jorel.commandapi.CommandAPICommand
 import dev.jorel.commandapi.arguments.Argument
 import dev.jorel.commandapi.arguments.ArgumentSuggestions
 import dev.jorel.commandapi.arguments.EntitySelectorArgument
+import dev.jorel.commandapi.arguments.GreedyStringArgument
 import dev.jorel.commandapi.arguments.IntegerArgument
 import dev.jorel.commandapi.arguments.StringArgument
 import dev.jorel.commandapi.executors.CommandArguments
 import dev.jorel.commandapi.executors.CommandExecutor
-import me.wyne.wutils.i18n.I18n
 import me.wyne.wutils.i18n.kotlin.placeholderComponent
 import me.wyne.wutils.i18n.kotlin.replace
 import me.wyne.wutils.i18n.kotlin.replaceComponent
 import org.bigcraft.customitems.CustomItems
 import org.bigcraft.customitems.item.CustomItemManager
+import org.bigcraft.effective.shadow.wutils.common.command.CUtils
 import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
 import java.util.ArrayList
@@ -57,6 +58,33 @@ class GiveCommand(private val itemManager: CustomItemManager) : SubCommand("give
                     .reduce { s1, s2 -> "$s1, $s2" }
             ).replace("item-name" replaceComponent item.getName(sender).get())
                 .sendMessage(sender)
+        })
+}
+
+class ExchangeCommand(private val itemManager: CustomItemManager) : SubCommand("exchange") {
+    override val command: CommandAPICommand = super.command
+        .withPermission("customitems.exchange")
+        .withArguments(CUtils.onlinePlayer("target"))
+        .withArguments(itemKeyArgument(itemManager))
+        .withArguments(IntegerArgument("amount", 1))
+        .withArguments(GreedyStringArgument("execute"))
+        .executes(CommandExecutor { sender, args ->
+            assertItemExists(itemManager, args.key, sender)
+            val item = itemManager.getItem(args.key)!!
+            val amount = args.amount
+            val target = args.getByClass("target", Player::class.java)!!
+            val stacks = item.getItems(target.inventory)
+            val have = stacks.sumOf { it.amount }
+            if (have < amount)
+                throw CommandAPIBukkit.failWithBaseComponents(
+                    *sender.placeholderComponent("error-insufficient-funds", "price" replace amount, "key" replace args.key).bungee()
+                )
+            var remain = amount
+            stacks.forEach { stack ->
+                if (remain <= 0) return@CommandExecutor
+                remain -= stack.amount
+                stack.amount = 0
+            }
         })
 }
 
