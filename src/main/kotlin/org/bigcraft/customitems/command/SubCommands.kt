@@ -10,12 +10,14 @@ import dev.jorel.commandapi.arguments.IntegerArgument
 import dev.jorel.commandapi.arguments.StringArgument
 import dev.jorel.commandapi.executors.CommandArguments
 import dev.jorel.commandapi.executors.CommandExecutor
+import me.wyne.wutils.common.command.CUtils
 import me.wyne.wutils.i18n.kotlin.placeholderComponent
+import me.wyne.wutils.i18n.kotlin.placeholderString
 import me.wyne.wutils.i18n.kotlin.replace
 import me.wyne.wutils.i18n.kotlin.replaceComponent
 import org.bigcraft.customitems.CustomItems
 import org.bigcraft.customitems.item.CustomItemManager
-import org.bigcraft.effective.shadow.wutils.common.command.CUtils
+import org.bukkit.Bukkit
 import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
 import java.util.ArrayList
@@ -81,10 +83,12 @@ class ExchangeCommand(private val itemManager: CustomItemManager) : SubCommand("
                 )
             var remain = amount
             stacks.forEach { stack ->
-                if (remain <= 0) return@CommandExecutor
-                remain -= stack.amount
-                stack.amount = 0
+                if (remain <= 0) return@forEach
+                val stackAmount = stack.amount
+                stack.amount -= remain
+                remain -= stackAmount
             }
+            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), target.placeholderString(args.getOrDefaultRaw("execute", "")).get())
         })
 }
 
