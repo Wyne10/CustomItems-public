@@ -10,7 +10,7 @@ import dev.jorel.commandapi.arguments.IntegerArgument
 import dev.jorel.commandapi.arguments.StringArgument
 import dev.jorel.commandapi.executors.CommandArguments
 import dev.jorel.commandapi.executors.CommandExecutor
-import me.wyne.wutils.common.command.CUtils
+import me.wyne.wutils.common.command.CommandUtils
 import me.wyne.wutils.i18n.kotlin.placeholderComponent
 import me.wyne.wutils.i18n.kotlin.placeholderString
 import me.wyne.wutils.i18n.kotlin.replace
@@ -66,7 +66,7 @@ class GiveCommand(private val itemManager: CustomItemManager) : SubCommand("give
 class ExchangeCommand(private val itemManager: CustomItemManager) : SubCommand("exchange") {
     override val command: CommandAPICommand = super.command
         .withPermission("customitems.exchange")
-        .withArguments(CUtils.onlinePlayer("target"))
+        .withArguments(CommandUtils.onlinePlayer("target"))
         .withArguments(itemKeyArgument(itemManager))
         .withArguments(IntegerArgument("amount", 1))
         .withArguments(GreedyStringArgument("execute"))

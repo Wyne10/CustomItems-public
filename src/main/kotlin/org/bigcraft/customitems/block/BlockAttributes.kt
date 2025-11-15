@@ -2,7 +2,7 @@ package org.bigcraft.customitems.block
 
 import com.destroystokyo.paper.event.block.AnvilDamagedEvent
 import me.wyne.wutils.common.Args
-import me.wyne.wutils.common.inventory.IUtils
+import me.wyne.wutils.common.inventory.InventoryUtils
 import me.wyne.wutils.config.configurables.attribute.Attribute
 import me.wyne.wutils.config.configurables.attribute.AttributeFactory
 import me.wyne.wutils.config.configurables.attribute.AttributeMap
@@ -88,8 +88,8 @@ class BreakMagnetAttribute(
         if (state is Container)
             state.inventory
                 .filterNotNull()
-                .forEach { IUtils.addOrDrop(event.player, it) }
-        IUtils.addOrDrop(event.player, item.createItemStack(event.player))
+                .forEach { InventoryUtils.addOrDrop(event.player, it) }
+        InventoryUtils.addOrDrop(event.player, item.createItemStack(event.player))
     }
 
 }

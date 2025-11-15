@@ -13,7 +13,7 @@ import com.sk89q.worldedit.util.Location
 import com.sk89q.worldedit.world.World
 import me.wyne.wutils.common.Ticks
 import me.wyne.wutils.common.range.LocationRange
-import me.wyne.wutils.common.scheduler.ExtendedScheduler
+import me.wyne.wutils.common.scheduler.EventPromisedTask
 import me.wyne.wutils.config.configurables.attribute.Attribute
 import me.wyne.wutils.config.configurables.attribute.AttributeFactory
 import me.wyne.wutils.config.configurables.attribute.AttributeUtils
@@ -30,7 +30,6 @@ import org.bukkit.event.Event
 import org.bukkit.event.server.PluginDisableEvent
 import org.bukkit.inventory.ItemStack
 import org.bukkit.util.Vector
-import java.util.function.Predicate
 
 class TrapAttribute(
     key: String,
@@ -53,9 +52,17 @@ class TrapAttribute(
         Bukkit.getScheduler().runTaskLater(CustomItems.instance, Runnable {
             pasteClipboard(clipboard, editLocation.toVector().toBlockPoint(), editWorld)
         }, 1)
-        ExtendedScheduler.global.runTaskLaterPromised(CustomItems.instance, Runnable {
-            pasteClipboard(snapshot, snapshot.origin, editWorld)
-        }, Predicate { event -> event.plugin == CustomItems.instance }, durationTicks, PluginDisableEvent::class.java)
+        EventPromisedTask(
+            CustomItems.instance,
+            {
+                pasteClipboard(snapshot, snapshot.origin, editWorld)
+            },
+            { event ->
+                if (event == null || event.plugin == CustomItems.instance)
+                    pasteClipboard(snapshot, snapshot.origin, editWorld)
+            },
+            PluginDisableEvent::class.java
+        ).runTaskLater(durationTicks)
     }
 
     private fun snapshotRegion(clipboard: Clipboard, location: Location): Clipboard {
