@@ -12,6 +12,7 @@ import org.bukkit.NamespacedKey
 import org.bukkit.entity.Player
 import org.bukkit.event.Event
 import org.bukkit.event.EventHandler
+import org.bukkit.event.entity.PlayerDeathEvent
 import org.bukkit.event.inventory.ClickType
 import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.event.inventory.InventoryCloseEvent
@@ -66,6 +67,14 @@ class StorageAttribute(
         val item = inventories.remove(event.inventory)!!
         inventory?.close()
         writeInventory(event.inventory, item)
+    }
+
+    @EventHandler
+    private fun onPlayerDeath(event: PlayerDeathEvent) {
+        val inventory = players.remove(event.entity) ?: return
+        val item = inventories.remove(inventory) ?: return
+        inventory.close()
+        writeInventory(inventory, item)
     }
 
     @EventHandler
