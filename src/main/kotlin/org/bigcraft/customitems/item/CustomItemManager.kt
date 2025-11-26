@@ -47,9 +47,9 @@ class CustomItemManager @Inject constructor(plugin: CustomItems, private val blo
         loadedMap[item?.itemMeta?.persistentDataContainer?.get(ITEM_TAG_KEY, PersistentDataType.STRING)]
 
     override fun load(config: ConfigurationSection) {
-        restrictionRegistry.close()
-        activatorRegistry.close()
-        blockManager.blockAttributesRegistry.close()
+        restrictionRegistry.clear()
+        activatorRegistry.clear()
+        blockManager.blockAttributesRegistry.clear()
         super.load(config)
         loadFiles()
     }
@@ -58,7 +58,7 @@ class CustomItemManager @Inject constructor(plugin: CustomItems, private val blo
         if (!itemDirectory.exists())
             itemDirectory.mkdirs()
         itemDirectory.listFiles()
-            .forEach { file ->
+            ?.forEach { file ->
                 val key = file.nameWithoutExtension
                 loadedMap[key] = CustomItem.Factory.fromConfig(key, YamlConfiguration.loadConfiguration(file))
             }

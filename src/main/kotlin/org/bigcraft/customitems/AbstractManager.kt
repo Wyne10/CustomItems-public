@@ -10,7 +10,7 @@ abstract class AbstractManager<V> : Loadable {
     protected abstract val sectionKey: String
 
     protected abstract val valueLoader: ConfigurableFactory<V>
-    protected val loadedMap: MutableMap<String, V> = HashMap()
+    protected val loadedMap: MutableMap<String, V> = LinkedHashMap()
 
     val mapKeys
         get() = loadedMap.keys
@@ -21,7 +21,7 @@ abstract class AbstractManager<V> : Loadable {
 
     override fun load(config: ConfigurationSection) {
         loadedMap.clear()
-        val section = config.getConfigurationSection(sectionKey)!!
+        val section = config.getConfigurationSection(sectionKey) ?: return
         section.getKeys(false).forEach { key ->
             CustomItems.log.debug("Loading key '{}' from '{}'", key, section.name)
             loadedMap[key] = valueLoader.fromConfig(section.getConfigurationSection(key)!!)

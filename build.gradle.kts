@@ -21,7 +21,9 @@ dependencies {
     compileOnly(libs.worldEdit)
     compileOnly(libs.worldGuard)
     compileOnly(libs.abstractMenus)
-    compileOnly(libs.effective)
+    compileOnly(libs.effective) {
+        exclude(group = "org.jetbrains.kotlin", module = "kotlin-stdlib")
+    }
     compileOnly(libs.antiRelog)
 
     implementation(libs.guice)

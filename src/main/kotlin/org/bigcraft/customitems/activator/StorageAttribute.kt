@@ -12,9 +12,14 @@ import org.bukkit.NamespacedKey
 import org.bukkit.entity.Player
 import org.bukkit.event.Event
 import org.bukkit.event.EventHandler
+import org.bukkit.event.inventory.ClickType
 import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.event.inventory.InventoryCloseEvent
 import org.bukkit.event.inventory.InventoryOpenEvent
+import org.bukkit.event.player.PlayerCommandPreprocessEvent
+import org.bukkit.event.player.PlayerDropItemEvent
+import org.bukkit.event.player.PlayerSwapHandItemsEvent
+import org.bukkit.inventory.EquipmentSlot
 import org.bukkit.inventory.Inventory
 import org.bukkit.inventory.ItemStack
 import org.bukkit.persistence.PersistentDataType
@@ -24,6 +29,7 @@ class StorageAttribute(
     columns: Int,
 ) : ActivatorAttribute<Int>(key, columns.coerceIn(0, 5)), RegisterableListener {
 
+    private val players = mutableMapOf<Player, Inventory>()
     private val inventories = mutableMapOf<Inventory, ItemStack>()
 
     init {
@@ -32,6 +38,7 @@ class StorageAttribute(
 
     override fun apply(event: Event, player: Player, customItem: CustomItem, item: ItemStack) {
         val inventory = Bukkit.createInventory(player, 27, item.itemMeta.displayName)
+        players[player] = inventory
         inventories[inventory] = item
         readInventory(inventory, item)
         player.openInventory(inventory)
@@ -39,6 +46,11 @@ class StorageAttribute(
 
     @EventHandler
     private fun onInventoryOpen(event: InventoryOpenEvent) {
+        if (players.containsKey(event.player) && players[event.player] != event.inventory) {
+            event.isCancelled = true
+            return
+        }
+
         if (!inventories.contains(event.inventory)) return
         val size = (value * 3) + ((value - 1).coerceAtLeast(0) * 3)
         for (i in SLOT_INDICES.size - 1 downTo size) {
@@ -50,14 +62,48 @@ class StorageAttribute(
     @EventHandler
     private fun onInventoryClose(event: InventoryCloseEvent) {
         if (!inventories.contains(event.inventory)) return
+        val inventory = players.remove(event.player)
         val item = inventories.remove(event.inventory)!!
+        inventory?.close()
         writeInventory(event.inventory, item)
     }
 
     @EventHandler
     private fun onInventoryClick(event: InventoryClickEvent) {
         if (event.currentItem == FILLER) event.isCancelled = true
-        if (!inventories.containsValue(event.currentItem)) return
+        if (inventories.containsValue(event.currentItem)) {
+            event.isCancelled = true
+            return
+        }
+        if (event.click == ClickType.NUMBER_KEY) {
+            val hotbarItem = event.whoClicked.inventory.getItem(event.hotbarButton)
+            if (inventories.containsValue(hotbarItem)) {
+                event.isCancelled = true
+                return
+            }
+        }
+        if (event.click == ClickType.SWAP_OFFHAND) {
+            val offHand = event.whoClicked.inventory.getItem(EquipmentSlot.OFF_HAND)
+            if (inventories.containsValue(offHand))
+                event.isCancelled = true
+        }
+    }
+
+    @EventHandler
+    private fun onCommandPreprocess(event: PlayerCommandPreprocessEvent) {
+        if (!players.containsKey(event.player)) return
+        event.isCancelled = true
+    }
+
+    @EventHandler
+    private fun onHandSwap(event: PlayerSwapHandItemsEvent) {
+        if (!players.containsKey(event.player)) return
+        event.isCancelled = true
+    }
+
+    @EventHandler
+    private fun onItemDrop(event: PlayerDropItemEvent) {
+        if (!players.containsKey(event.player)) return
         event.isCancelled = true
     }
 

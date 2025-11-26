@@ -1,13 +1,12 @@
 package org.bigcraft.customitems.activator
 
 import me.wyne.wutils.animation.data.AnimationParticle
-import me.wyne.wutils.animation.runnable.ParticleArray
 import me.wyne.wutils.animation.runnable.ParticleMap
 import me.wyne.wutils.common.Args
 import me.wyne.wutils.common.Ticks
 import me.wyne.wutils.common.config.ConfigUtils
 import me.wyne.wutils.common.event.RegisterableListener
-import me.wyne.wutils.common.range.CircleEdgeIterator
+import me.wyne.wutils.common.range.iterator.CircleEdgeIterator
 import me.wyne.wutils.common.vector.VectorUtils
 import me.wyne.wutils.config.configurables.ItemConfigurable
 import me.wyne.wutils.config.configurables.attribute.Attribute
@@ -93,8 +92,7 @@ class JackOLanternAttribute(
             .build().asSequence().toSet()
         val particles =
             points.associateWith { AnimationParticle(Particle.SPIT, 0, 0.5, it.clone().subtract(player.location.toVector())) }
-        ParticleMap(player.world, particles)
-            .run()
+        ParticleMap(player.world, particles).run()
 
         Bukkit.getScheduler().runTaskLater(CustomItems.instance, Runnable {
             players.forEach { it.inventory.setItem(EquipmentSlot.HEAD, null) }
