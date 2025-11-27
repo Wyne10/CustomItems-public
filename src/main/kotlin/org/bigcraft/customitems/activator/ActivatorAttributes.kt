@@ -7,6 +7,7 @@ import me.wyne.wutils.animation.runnable.ParticleArray
 import me.wyne.wutils.common.Args
 import me.wyne.wutils.common.Ticks
 import me.wyne.wutils.common.range.LocationRange
+import me.wyne.wutils.common.range.iterator.VectorRangeEdgeIterator
 import me.wyne.wutils.config.configurables.InteractionListConfigurable
 import me.wyne.wutils.config.configurables.animation.attribute.AnimationParticleAttribute
 import me.wyne.wutils.config.configurables.attribute.Attribute
@@ -464,7 +465,8 @@ class CreateAoeAttribute(
 ) : ActivatorAttribute<String>(key, aoeKey) {
     override fun apply(event: Event, player: Player, customItem: CustomItem, item: ItemStack) {
         val bounds = LocationRange(player.location, radius)
-        val renderer = if (particle != null) ParticleArray(player.world, bounds.iterator().asSequence().toSet(), particle) else null
+        val renderer = if (particle != null) ParticleArray(player.world,
+            VectorRangeEdgeIterator(bounds, 1.0).asSequence().toSet(), particle) else null
         AoeManager.instance.startAoe(
             AreaOfEffect(
                 value,

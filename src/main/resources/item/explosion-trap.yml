@@ -94,6 +94,7 @@ activators:
       - 'default'
     cancel-event: true
   aoe-finish:
+    identifier: EMPTY
     is-aoe-finished:
       - 'trap-pre'
       - 'end-pre'

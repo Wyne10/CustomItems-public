@@ -169,6 +169,7 @@ class RandomSpawner(
 
     @EventHandler(ignoreCancelled = true)
     private fun onCreatureSpawn(event: SpawnerSpawnEvent) {
+        if (!item.isCustomItem((event.spawner.block))) return
         event.spawner.spawnedType = value.weightedRandom() ?: return
         event.spawner.update()
     }
