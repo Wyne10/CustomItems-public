@@ -39,6 +39,9 @@ abstract class Cooldown(
     open fun apply(player: Player, customItem: CustomItem) {
         attributes.forEach { it.onApply(player, customItem, this) }
     }
+
+    abstract fun getRemainingMillis(player: Player): Long
+    abstract fun getRemainingFormat(player: Player, format: String): String
 }
 
 class PlayerCooldown(
@@ -59,6 +62,12 @@ class PlayerCooldown(
         super.apply(player, customItem)
         cooldownMap.put(player.uniqueId, value)
     }
+
+    override fun getRemainingMillis(player: Player): Long =
+        cooldownMap.getRemaining(player.uniqueId)
+
+    override fun getRemainingFormat(player: Player, format: String): String =
+        cooldownMap.getRemainingStringFormat(player.uniqueId, format)
 
 }
 
@@ -81,6 +90,12 @@ class GlobalCooldown(
         cooldown.put(value)
     }
 
+    override fun getRemainingMillis(player: Player): Long =
+        cooldown.getRemaining()
+
+    override fun getRemainingFormat(player: Player, format: String): String =
+        cooldown.getRemainingStringFormat(format)
+
 }
 
 class OtherCooldown(
@@ -99,5 +114,8 @@ class OtherCooldown(
             cooldown.apply(player, it)
         }
     }
+
+    override fun getRemainingMillis(player: Player): Long = 0
+    override fun getRemainingFormat(player: Player, format: String) = format
 
 }

@@ -5,6 +5,7 @@ import me.wyne.wutils.config.configurables.attribute.AttributeBase
 import me.wyne.wutils.config.configurables.attribute.AttributeFactory
 import me.wyne.wutils.config.configurables.attribute.AttributeMap
 import me.wyne.wutils.i18n.kotlin.placeholderComponent
+import me.wyne.wutils.i18n.kotlin.replace
 import org.bigcraft.customitems.item.CustomItem
 import org.bukkit.entity.Player
 
@@ -22,7 +23,7 @@ abstract class CooldownAttribute<V>(key: String, value: V) : AttributeBase<V>(ke
 
 class MessageAttribute(key: String, message: String) : CooldownAttribute<String>(key, message) {
     override fun onTest(player: Player, customItem: CustomItem, cooldown: Cooldown) {
-        player.placeholderComponent(value).sendMessage(player)
+        player.placeholderComponent(value, "remaining" replace cooldown.getRemainingFormat(player, "s")).sendMessage(player)
     }
 }
 
