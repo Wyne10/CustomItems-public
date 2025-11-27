@@ -86,12 +86,11 @@ class JackOLanternAttribute(
             .filter { it.inventory.getItem(EquipmentSlot.HEAD) == null }
         players.forEach { it.inventory.setItem(EquipmentSlot.HEAD, JACK_O_LANTERN_ITEM) }
 
-        /// TODO Make it better
-        val points = CircleEdgeIterator.Builder(player.location.toVector(), 1.0, 32)
+        val points = CircleEdgeIterator.Builder(player.location.toVector().add(Vector(0.0, 0.1, 0.0)), 1.0, 32)
             .setPitch(90.0)
             .build().asSequence().toSet()
         val particles =
-            points.associateWith { AnimationParticle(Particle.SPIT, 0, 0.5, it.clone().subtract(player.location.toVector())) }
+            points.associateWith { AnimationParticle(Particle.CLOUD, 0, 1.0, it.clone().subtract(player.location.toVector())) }
         ParticleMap(player.world, particles).run()
 
         Bukkit.getScheduler().runTaskLater(CustomItems.instance, Runnable {
@@ -110,15 +109,6 @@ class JackOLanternAttribute(
         val JACK_O_LANTERN_ITEM: ItemStack = ItemConfigurable(
             ImmutableAttributeContainer.builder()
                 .with(MaterialAttribute(Material.JACK_O_LANTERN))
-                .with(
-                    PdcTagAttribute(
-                        "ci-key",
-                        PdcTagAttribute.PdcTag(
-                            PersistentDataType.STRING as PersistentDataType<Any, Any>,
-                            "jack-o-lantern"
-                        )
-                    )
-                )
                 .with(EnchantmentAttribute(EnchantmentAttribute.EnchantmentData(Enchantment.BINDING_CURSE, 1)))
                 .buildImmutable()
         ).build()
@@ -143,7 +133,6 @@ class JackOLanternAttribute(
     }
 }
 
-// TODO Test with custom mending
 class RepairAttribute(
     key: String,
     slots: Set<EquipmentSlot>
