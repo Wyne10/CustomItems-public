@@ -37,12 +37,12 @@ class AreaOfEffect(
 
     fun getWithin(): Set<Player> =
         Location(bounds.world, bounds.center.x, bounds.center.y, bounds.center.z)
-            .getNearbyPlayers(bounds.span.x, bounds.span.y, bounds.span.z)
+            .getNearbyPlayers(bounds.span.x / 2, bounds.span.y / 2, bounds.span.z / 2)
             .toSet()
 
     fun getAffected(): Set<Player> =
         Location(bounds.world, bounds.center.x, bounds.center.y, bounds.center.z)
-            .getNearbyPlayers(bounds.span.x, bounds.span.y, bounds.span.z)
+            .getNearbyPlayers(bounds.span.x / 2, bounds.span.y / 2, bounds.span.z / 2)
             .filterNot { it == owner }
             .toSet()
 
