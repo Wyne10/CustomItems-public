@@ -19,6 +19,7 @@ import org.bukkit.event.block.BlockBurnEvent
 import org.bukkit.event.block.BlockDropItemEvent
 import org.bukkit.event.block.BlockExplodeEvent
 import org.bukkit.event.block.BlockPlaceEvent
+import org.bukkit.event.entity.EntityChangeBlockEvent
 import org.bukkit.event.entity.EntityExplodeEvent
 import org.bukkit.event.entity.SpawnerSpawnEvent
 import kotlin.collections.iterator
@@ -33,7 +34,8 @@ val BLOCK_ATTRIBUTE_MAP = AttributeMap(
         "explode-drop" to AttributeFactory { key, config -> ExplodeDropAttribute(key, config.getBoolean(key)) },
         "furnace-speed" to AttributeFactory { key, config -> FurnaceSpeedAttribute(key, config.getDouble(key)) },
         "unbreakable-anvil" to AttributeFactory { key, config -> UnbreakableAnvilAttribute(key, config.getBoolean(key)) },
-        "random-spawner" to RandomSpawner.Factory
+        "random-spawner" to RandomSpawnerAttribute.Factory,
+        "disable-physics" to AttributeFactory { key, config -> DisablePhysicsAttribute(key, config.getBoolean(key)) }
     )
 )
 
@@ -162,7 +164,7 @@ class UnbreakableAnvilAttribute(
 
 }
 
-class RandomSpawner(
+class RandomSpawnerAttribute(
     key: String,
     types: Map<EntityType, Int>
 ) : BlockAttribute<Map<EntityType, Int>>(key, types) {
@@ -179,10 +181,21 @@ class RandomSpawner(
             val types = config.getStringList(key)
                 .map { Args(it, ":") }
                 .associate { EntityType.valueOf(it[0]) to it[1].toInt() }
-            return RandomSpawner(key, types)
+            return RandomSpawnerAttribute(key, types)
         }
     }
 
+}
+
+class DisablePhysicsAttribute(
+    key: String,
+    disable: Boolean
+) : BlockAttribute<Boolean>(key, disable) {
+    @EventHandler(ignoreCancelled = true)
+    private fun onChange(event: EntityChangeBlockEvent) {
+        if (!item.isCustomItem(event.block)) return
+        event.isCancelled = value
+    }
 }
 
 fun <K> Map<K, Int>.weightedRandom(): K? {

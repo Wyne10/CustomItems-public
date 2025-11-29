@@ -17,6 +17,7 @@ import org.bukkit.event.Listener
 import org.bukkit.event.block.BlockBreakEvent
 import org.bukkit.event.block.BlockExplodeEvent
 import org.bukkit.event.block.BlockPlaceEvent
+import org.bukkit.event.entity.EntityChangeBlockEvent
 import org.bukkit.event.entity.EntityExplodeEvent
 import org.bukkit.inventory.ItemStack
 import org.bukkit.persistence.PersistentDataType
@@ -73,6 +74,12 @@ class CustomItemManager @Inject constructor(plugin: CustomItems, private val blo
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
     private fun onBreak(event: BlockBreakEvent) {
+        val customBlock = blockManager.getCustomBlock(event.block) ?: return
+        blockManager.breakBlock(customBlock)
+    }
+
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
+    private fun onChange(event: EntityChangeBlockEvent) {
         val customBlock = blockManager.getCustomBlock(event.block) ?: return
         blockManager.breakBlock(customBlock)
     }
