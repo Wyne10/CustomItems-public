@@ -1,4 +1,4 @@
-package org.bigcraft.talisman
+package org.bigcraft.customitems
 
 import org.bukkit.Bukkit
 import org.bukkit.entity.Player
