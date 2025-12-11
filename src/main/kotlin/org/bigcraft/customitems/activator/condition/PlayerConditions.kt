@@ -2,10 +2,10 @@ package org.bigcraft.customitems.activator.condition
 
 import com.sk89q.worldedit.bukkit.BukkitAdapter
 import com.sk89q.worldguard.WorldGuard
+import me.wyne.wutils.common.comparator.DoubleComparator
+import me.wyne.wutils.common.comparator.IntComparator
 import org.bigcraft.customitems.activator.currentExp
 import org.bigcraft.customitems.aoe.AoeManager
-import org.bigcraft.customitems.config.DoubleComparator
-import org.bigcraft.customitems.config.IntComparator
 import org.bigcraft.customitems.item.CustomItem
 import org.bigcraft.customitems.AntiRelogWrapper
 import org.bukkit.Material

@@ -2,12 +2,12 @@ package org.bigcraft.customitems.cooldown
 
 import me.wyne.wutils.common.cooldown.CooldownMap
 import me.wyne.wutils.common.cooldown.Period
+import me.wyne.wutils.common.kotlin.config.getMillis
 import me.wyne.wutils.config.configurables.AttributeConfigurable
 import me.wyne.wutils.config.configurables.attribute.AttributeBase
 import me.wyne.wutils.config.configurables.attribute.AttributeFactory
 import me.wyne.wutils.config.configurables.attribute.AttributeMap
 import me.wyne.wutils.config.configurables.attribute.ImmutableAttributeContainer
-import org.bigcraft.customitems.config.getMillis
 import org.bigcraft.customitems.item.CustomItem
 import org.bigcraft.customitems.item.CustomItemManager
 import org.bukkit.configuration.ConfigurationSection

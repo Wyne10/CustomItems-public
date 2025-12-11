@@ -1,6 +1,6 @@
 name: '<light_purple><lang:effect.minecraft.saturation>'
 material: POTION
-potionColor: 16262179
+potionColor: F82423
 potionEffect:
   type: SATURATION
   duration: 1728000

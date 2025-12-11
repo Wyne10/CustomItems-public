@@ -81,35 +81,40 @@ class CustomItem(
             fromConfig(config.name, config)
 
         fun fromConfig(key: String, config: ConfigurationSection): CustomItem =
-            CustomItem(
-                key,
-                ItemConfigurable(
-                    AttributeContainerBuilder()
-                        .with(ItemConfigurable.ITEM_ATTRIBUTE_MAP)
-                        .with(ITEM_ATTRIBUTE_MAP)
-                        .build(),
-                    config
-                ),
-                AttributeConfigurable(
-                    ImmutableAttributeContainer(RESTRICTION_MAP),
-                    config.getConfigurationSection(RESTRICTION_SECTION_KEY)
-                ).getSet(Restriction::class.java),
-                AttributeConfigurable(
-                    ImmutableAttributeContainer(ACTIVATOR_MAP),
-                    config.getConfigurationSection(ACTIVATOR_SECTION_KEY)
-                ).getSet(Activator::class.java),
-                AttributeConfigurable(
-                    ImmutableAttributeContainer(BLOCK_ATTRIBUTE_MAP),
-                    config.getConfigurationSection(BLOCK_SECTION_KEY)
-                ).getSet(BlockAttribute::class.java),
-                AttributeConfigurable(
-                    ImmutableAttributeContainer(COOLDOWN_MAP),
-                    config.getConfigurationSection(COOLDOWN_SECTION_KEY)
-                ).getSet(Cooldown::class.java),
-            ).apply {
-                restrictions.forEach { it.apply(this) }
-                activators.forEach { it.apply(this) }
-                blockAttributes.forEach { it.apply(this) }
+            runCatching {
+                CustomItem(
+                    key,
+                    ItemConfigurable(
+                        AttributeContainerBuilder()
+                            .with(ItemConfigurable.ITEM_ATTRIBUTE_MAP)
+                            .with(ITEM_ATTRIBUTE_MAP)
+                            .build(),
+                        config
+                    ),
+                    AttributeConfigurable(
+                        ImmutableAttributeContainer(RESTRICTION_MAP),
+                        config.getConfigurationSection(RESTRICTION_SECTION_KEY)
+                    ).getSet(Restriction::class.java),
+                    AttributeConfigurable(
+                        ImmutableAttributeContainer(ACTIVATOR_MAP),
+                        config.getConfigurationSection(ACTIVATOR_SECTION_KEY)
+                    ).getSet(Activator::class.java),
+                    AttributeConfigurable(
+                        ImmutableAttributeContainer(BLOCK_ATTRIBUTE_MAP),
+                        config.getConfigurationSection(BLOCK_SECTION_KEY)
+                    ).getSet(BlockAttribute::class.java),
+                    AttributeConfigurable(
+                        ImmutableAttributeContainer(COOLDOWN_MAP),
+                        config.getConfigurationSection(COOLDOWN_SECTION_KEY)
+                    ).getSet(Cooldown::class.java),
+                ).apply {
+                    restrictions.forEach { it.apply(this) }
+                    activators.forEach { it.apply(this) }
+                    blockAttributes.forEach { it.apply(this) }
+                }
+            }.getOrElse {
+                CustomItems.log.error("Failed to load custom item {}", key, it)
+                return CustomItem(config.name, ItemConfigurable(), emptySet(), emptySet(), emptySet(), mutableSetOf())
             }
     }
 

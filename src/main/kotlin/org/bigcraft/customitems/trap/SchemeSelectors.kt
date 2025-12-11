@@ -1,9 +1,9 @@
 package org.bigcraft.customitems.trap
 
+import me.wyne.wutils.common.kotlin.config.getEnumSet
 import me.wyne.wutils.config.configurables.attribute.AttributeBase
 import me.wyne.wutils.config.configurables.attribute.AttributeFactory
 import me.wyne.wutils.config.configurables.attribute.AttributeMap
-import org.bigcraft.customitems.config.getEnumSet
 import org.bukkit.Bukkit
 import org.bukkit.Material
 import org.bukkit.World

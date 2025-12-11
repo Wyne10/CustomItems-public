@@ -12,7 +12,7 @@ activators:
       duration: 15s
       particle:
         particle: REDSTONE
-        data: '16711684:1.0'
+        data: 'FF0000:1.0'
   player-launch-projectile:
     identifier: EMPTY
     is-aoe-affected: ['stun']

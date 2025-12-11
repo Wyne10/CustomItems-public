@@ -3,7 +3,6 @@ package org.bigcraft.customitems.trap
 import com.sk89q.worldedit.extent.clipboard.Clipboard
 import com.sk89q.worldedit.extent.clipboard.io.ClipboardFormats
 import me.wyne.wutils.config.configurables.AttributeConfigurable
-import me.wyne.wutils.config.configurables.attribute.Attribute
 import me.wyne.wutils.config.configurables.attribute.AttributeBase
 import me.wyne.wutils.config.configurables.attribute.AttributeFactory
 import me.wyne.wutils.config.configurables.attribute.ImmutableAttributeContainer
@@ -30,8 +29,8 @@ class Scheme(
     override fun isApplicable(player: Player): Boolean =
         selectors.all { it.isApplicable(player) }
 
-    object Factory : AttributeFactory {
-        override fun create(key: String, config: ConfigurationSection): Attribute<*> {
+    object Factory : AttributeFactory<Scheme> {
+        override fun create(key: String, config: ConfigurationSection): Scheme {
             val section = config.getConfigurationSection(key)!!
             return Scheme(
                 key,

@@ -1,6 +1,6 @@
 package org.bigcraft.customitems.activator.condition
 
-import org.bigcraft.customitems.config.IntComparator
+import me.wyne.wutils.common.comparator.IntComparator
 import org.bigcraft.customitems.item.CustomItem
 import org.bukkit.Material
 import org.bukkit.entity.Player

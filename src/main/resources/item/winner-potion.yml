@@ -1,6 +1,6 @@
 name: '<blue>Зелье победиетля'
 material: POTION
-potionColor: 436715
+potionColor: 06A9EB
 potionEffects:
   strength:
     type: INCREASE_DAMAGE

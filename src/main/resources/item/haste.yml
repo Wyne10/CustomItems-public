@@ -1,6 +1,6 @@
 name: '<light_purple><lang:effect.minecraft.haste> I'
 material: POTION
-potionColor: 14270531
+potionColor: D9C043
 potionEffect:
   type: FAST_DIGGING
   duration: 1728000

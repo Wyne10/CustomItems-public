@@ -3,16 +3,15 @@ package org.bigcraft.customitems.item
 import de.tr7zw.nbtapi.NBT
 import de.tr7zw.nbtapi.iface.ReadableNBT
 import me.wyne.wutils.common.Args
+import me.wyne.wutils.common.kotlin.config.COMMA_DELIMITER
 import me.wyne.wutils.config.configurables.attribute.AttributeBase
 import me.wyne.wutils.config.configurables.attribute.AttributeFactory
 import me.wyne.wutils.config.configurables.attribute.CompositeAttribute
 import me.wyne.wutils.config.configurables.attribute.CompositeAttributeFactory
-import me.wyne.wutils.config.configurables.attribute.StringCollectionAttribute
+import me.wyne.wutils.config.configurables.attribute.common.StringCollectionAttribute
 import me.wyne.wutils.config.configurables.item.ItemStackAttribute
 import me.wyne.wutils.config.configurables.item.MetaAttribute
 import org.bigcraft.customitems.CustomItems
-import org.bigcraft.customitems.config.COLON_DELIMITER
-import org.bigcraft.customitems.config.COMMA_DELIMITER
 import org.bukkit.NamespacedKey
 import org.bukkit.configuration.ConfigurationSection
 import org.bukkit.inventory.ItemStack
@@ -49,7 +48,7 @@ class PdcTagAttribute(
     data class PdcTag(val type: PersistentDataType<Any, Any>, val value: Any)
 
     @Suppress("UNCHECKED_CAST")
-    object Factory : CompositeAttributeFactory {
+    object Factory : CompositeAttributeFactory<PdcTagAttribute> {
         override fun fromSection(key: String, section: ConfigurationSection): PdcTagAttribute {
             return PdcTagAttribute(
                 key,
@@ -60,8 +59,8 @@ class PdcTagAttribute(
             )
         }
 
-        override fun fromString(key: String, string: String): PdcTagAttribute {
-            val args = Args(string, COLON_DELIMITER)
+        override fun fromString(key: String, string: String, config: ConfigurationSection): PdcTagAttribute {
+            val args = Args(string)
             return PdcTagAttribute(
                 key,
                 PdcTag(

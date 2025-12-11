@@ -12,16 +12,15 @@ import com.sk89q.worldedit.session.ClipboardHolder
 import com.sk89q.worldedit.util.Location
 import com.sk89q.worldedit.world.World
 import me.wyne.wutils.common.Ticks
+import me.wyne.wutils.common.kotlin.config.getMillis
 import me.wyne.wutils.common.range.LocationRange
 import me.wyne.wutils.common.scheduler.EventPromisedTask
-import me.wyne.wutils.config.configurables.attribute.Attribute
 import me.wyne.wutils.config.configurables.attribute.AttributeFactory
 import me.wyne.wutils.config.configurables.attribute.AttributeUtils
 import org.bigcraft.customitems.CustomItems
 import org.bigcraft.customitems.activator.ActivatorAttribute
 import org.bigcraft.customitems.aoe.AoeManager
 import org.bigcraft.customitems.aoe.AreaOfEffect
-import org.bigcraft.customitems.config.getMillis
 import org.bigcraft.customitems.item.CustomItem
 import org.bukkit.Bukkit
 import org.bukkit.configuration.ConfigurationSection
@@ -114,8 +113,8 @@ class TrapAttribute(
         )
     }
 
-    object Factory : AttributeFactory {
-        override fun create(key: String, config: ConfigurationSection): Attribute<*> {
+    object Factory : AttributeFactory<TrapAttribute> {
+        override fun create(key: String, config: ConfigurationSection): TrapAttribute {
             val section = config.getConfigurationSection(key)!!
             val schemes = AttributeUtils.createAll<Scheme>(section.getConfigurationSection("schemes"), Scheme.Factory)
             return TrapAttribute(

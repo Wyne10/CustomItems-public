@@ -1,13 +1,13 @@
 package org.bigcraft.customitems.activator.condition
 
+import me.wyne.wutils.common.kotlin.config.getDoubleComparator
+import me.wyne.wutils.common.kotlin.config.getEnumSet
+import me.wyne.wutils.common.kotlin.config.getIntComparator
+import me.wyne.wutils.common.kotlin.config.getPotionTypeEnumSet
 import me.wyne.wutils.config.configurables.attribute.AttributeBase
 import me.wyne.wutils.config.configurables.attribute.AttributeFactory
 import me.wyne.wutils.config.configurables.attribute.AttributeMap
 import org.bigcraft.customitems.activator.test
-import org.bigcraft.customitems.config.getDoubleComparator
-import org.bigcraft.customitems.config.getIntComparator
-import org.bigcraft.customitems.config.getEnumSet
-import org.bigcraft.customitems.config.getPotionTypeEnumSet
 import org.bigcraft.customitems.item.CustomItem
 import org.bukkit.Bukkit
 import org.bukkit.Material

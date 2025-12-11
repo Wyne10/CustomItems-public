@@ -1,6 +1,6 @@
 name: '<light_purple><lang:effect.minecraft.fire_resistance>'
 material: POTION
-potionColor: 14981690
+potionColor: E49A3A
 potionEffect:
   type: FIRE_RESISTANCE
   duration: 1728000

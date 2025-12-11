@@ -5,18 +5,17 @@ import me.wyne.wutils.animation.runnable.ParticleMap
 import me.wyne.wutils.common.Args
 import me.wyne.wutils.common.Ticks
 import me.wyne.wutils.common.config.ConfigUtils
+import me.wyne.wutils.common.duration.Durations.getMillis
 import me.wyne.wutils.common.event.RegisterableListener
+import me.wyne.wutils.common.kotlin.config.getMillis
 import me.wyne.wutils.common.range.iterator.CircleEdgeIterator
 import me.wyne.wutils.common.vector.VectorUtils
 import me.wyne.wutils.config.configurables.ItemConfigurable
-import me.wyne.wutils.config.configurables.attribute.Attribute
 import me.wyne.wutils.config.configurables.attribute.CompositeAttributeFactory
 import me.wyne.wutils.config.configurables.attribute.ImmutableAttributeContainer
 import me.wyne.wutils.config.configurables.item.attribute.EnchantmentAttribute
 import me.wyne.wutils.config.configurables.item.attribute.MaterialAttribute
 import org.bigcraft.customitems.CustomItems
-import org.bigcraft.customitems.item.PdcTagAttribute
-import org.bigcraft.customitems.config.getMillis
 import org.bigcraft.customitems.item.CustomItem
 import org.bigcraft.customitems.item.CustomItemManager
 import org.bukkit.Bukkit
@@ -33,7 +32,6 @@ import org.bukkit.event.player.PlayerQuitEvent
 import org.bukkit.inventory.EquipmentSlot
 import org.bukkit.inventory.ItemStack
 import org.bukkit.inventory.meta.Damageable
-import org.bukkit.persistence.PersistentDataType
 import org.bukkit.util.Vector
 
 class PlayerExplosionAttribute(
@@ -47,8 +45,8 @@ class PlayerExplosionAttribute(
         player.location.world.createExplosion(player.eyeLocation.getRelative(value.first), value.second, setFire, breakBlocks)
     }
 
-    object Factory : CompositeAttributeFactory {
-        override fun fromSection(key: String, section: ConfigurationSection): Attribute<*> =
+    object Factory : CompositeAttributeFactory<PlayerExplosionAttribute> {
+        override fun fromSection(key: String, section: ConfigurationSection): PlayerExplosionAttribute =
             PlayerExplosionAttribute(
                 key,
                 ConfigUtils.getVectorOrZero(section, "offset"),
@@ -57,8 +55,8 @@ class PlayerExplosionAttribute(
                 section.getBoolean("break-blocks")
             )
 
-        override fun fromString(key: String, string: String): Attribute<*> {
-            val args = Args(string, " ")
+        override fun fromString(key: String, string: String, config: ConfigurationSection): PlayerExplosionAttribute {
+            val args = Args(string)
             return PlayerExplosionAttribute(
                 key,
                 VectorUtils.getVectorOrZero(args.get(0)),
@@ -114,16 +112,16 @@ class JackOLanternAttribute(
         ).build()
     }
 
-    object Factory : CompositeAttributeFactory {
-        override fun fromSection(key: String, section: ConfigurationSection): Attribute<*> =
+    object Factory : CompositeAttributeFactory<JackOLanternAttribute> {
+        override fun fromSection(key: String, section: ConfigurationSection): JackOLanternAttribute =
             JackOLanternAttribute(
                 key,
                 section.getDouble("radius"),
                 section.getMillis("duration")
             )
 
-        override fun fromString(key: String, string: String): Attribute<*> {
-            val args = Args(string, " ")
+        override fun fromString(key: String, string: String, config: ConfigurationSection): JackOLanternAttribute {
+            val args = Args(string)
             return JackOLanternAttribute(
                 key,
                 args.get(0, "0.0").toDouble(),
@@ -155,8 +153,8 @@ class ForceFieldAttribute(
             .forEach { it.velocity = it.location.toVector().subtract(location.toVector()).multiply(value.velocity) }
     }
 
-    object Factory : CompositeAttributeFactory {
-        override fun fromSection(key: String, section: ConfigurationSection): Attribute<*> =
+    object Factory : CompositeAttributeFactory<ForceFieldAttribute> {
+        override fun fromSection(key: String, section: ConfigurationSection): ForceFieldAttribute =
             ForceFieldAttribute(
                 key,
                 me.wyne.wutils.config.configurables.animation.attribute.ForceFieldAttribute.ForceFieldData(
@@ -166,8 +164,8 @@ class ForceFieldAttribute(
                 )
             )
 
-        override fun fromString(key: String, string: String): Attribute<*> {
-            val args = Args(string, " ")
+        override fun fromString(key: String, string: String, config: ConfigurationSection): ForceFieldAttribute {
+            val args = Args(string)
             return ForceFieldAttribute(
                 key,
                 me.wyne.wutils.config.configurables.animation.attribute.ForceFieldAttribute.ForceFieldData(
@@ -189,8 +187,8 @@ class ForceAttribute(
         player.velocity = player.location.toVector().subtract(location.toVector()).multiply(value.velocity)
     }
 
-    object Factory : CompositeAttributeFactory {
-        override fun fromSection(key: String, section: ConfigurationSection): Attribute<*> =
+    object Factory : CompositeAttributeFactory<ForceAttribute> {
+        override fun fromSection(key: String, section: ConfigurationSection): ForceAttribute =
             ForceAttribute(
                 key,
                 me.wyne.wutils.config.configurables.animation.attribute.ForceFieldAttribute.ForceFieldData(
@@ -200,8 +198,8 @@ class ForceAttribute(
                 )
             )
 
-        override fun fromString(key: String, string: String): Attribute<*> {
-            val args = Args(string, " ")
+        override fun fromString(key: String, string: String, config: ConfigurationSection): ForceAttribute {
+            val args = Args(string)
             return ForceAttribute(
                 key,
                 me.wyne.wutils.config.configurables.animation.attribute.ForceFieldAttribute.ForceFieldData(

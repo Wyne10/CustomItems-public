@@ -6,11 +6,17 @@ import me.wyne.wutils.animation.runnable.LocalSound
 import me.wyne.wutils.animation.runnable.ParticleArray
 import me.wyne.wutils.common.Args
 import me.wyne.wutils.common.Ticks
+import me.wyne.wutils.common.kotlin.config.getDoubleOperation
+import me.wyne.wutils.common.kotlin.config.getEnumSet
+import me.wyne.wutils.common.kotlin.config.getIntOperation
+import me.wyne.wutils.common.kotlin.config.getMillis
+import me.wyne.wutils.common.kotlin.config.getPotionTypeEnumSet
+import me.wyne.wutils.common.operation.DoubleOperation
+import me.wyne.wutils.common.operation.IntOperation
 import me.wyne.wutils.common.range.LocationRange
 import me.wyne.wutils.common.range.iterator.VectorRangeEdgeIterator
 import me.wyne.wutils.config.configurables.InteractionListConfigurable
 import me.wyne.wutils.config.configurables.animation.attribute.AnimationParticleAttribute
-import me.wyne.wutils.config.configurables.attribute.Attribute
 import me.wyne.wutils.config.configurables.attribute.AttributeBase
 import me.wyne.wutils.config.configurables.attribute.AttributeFactory
 import me.wyne.wutils.config.configurables.attribute.AttributeMap
@@ -26,13 +32,6 @@ import org.bigcraft.customitems.CustomItems
 import org.bigcraft.customitems.aoe.AoeManager
 import org.bigcraft.customitems.aoe.AreaOfEffect
 import org.bigcraft.customitems.block.CustomBlockManager
-import org.bigcraft.customitems.config.DoubleOperation
-import org.bigcraft.customitems.config.IntOperation
-import org.bigcraft.customitems.config.getDoubleOperation
-import org.bigcraft.customitems.config.getEnumSet
-import org.bigcraft.customitems.config.getIntOperation
-import org.bigcraft.customitems.config.getMillis
-import org.bigcraft.customitems.config.getPotionTypeEnumSet
 import org.bigcraft.customitems.item.CustomItem
 import org.bigcraft.customitems.item.CustomItemManager
 import org.bigcraft.customitems.trap.TrapAttribute
@@ -174,8 +173,8 @@ class EntityPotionEffectsAttribute(
         }
     }
 
-    object Factory : AttributeFactory {
-        override fun create(key: String, config: ConfigurationSection): Attribute<*> {
+    object Factory : AttributeFactory<EntityPotionEffectsAttribute> {
+        override fun create(key: String, config: ConfigurationSection): EntityPotionEffectsAttribute {
             return EntityPotionEffectsAttribute(
                 key,
                 PotionEffectsAttribute(key, config).value.map { it.value }.toSet()
@@ -212,8 +211,8 @@ class PlayerPotionEffectsAttribute(
         }, 1L)
     }
 
-    object Factory : AttributeFactory {
-        override fun create(key: String, config: ConfigurationSection): Attribute<*> {
+    object Factory : AttributeFactory<PlayerPotionEffectsAttribute> {
+        override fun create(key: String, config: ConfigurationSection): PlayerPotionEffectsAttribute {
             return PlayerPotionEffectsAttribute(
                 key,
                 PotionEffectsAttribute(key, config).value.map { it.value }.toSet()
@@ -400,16 +399,16 @@ open class CallEntityDamageAttribute(
         EntityDamageByEntityEvent(player, event.entity, value.first, value.second).callEvent()
     }
 
-    object Factory : CompositeAttributeFactory {
-        override fun fromSection(key: String, section: ConfigurationSection): Attribute<*> =
+    object Factory : CompositeAttributeFactory<CallEntityDamageAttribute> {
+        override fun fromSection(key: String, section: ConfigurationSection): CallEntityDamageAttribute =
             CallEntityDamageAttribute(
                 key,
                 runCatching { EntityDamageEvent.DamageCause.valueOf(section.getString("cause")!!) }.getOrDefault(EntityDamageEvent.DamageCause.ENTITY_ATTACK),
                 section.getDouble("damage")
             )
 
-        override fun fromString(key: String, string: String): Attribute<*> {
-            val args = Args(string, ":")
+        override fun fromString(key: String, string: String, config: ConfigurationSection): CallEntityDamageAttribute {
+            val args = Args(string)
             return CallEntityDamageAttribute(
                 key,
                 runCatching { EntityDamageEvent.DamageCause.valueOf(args.get(0, "ENTITY_ATTACK")) }.getOrDefault(EntityDamageEvent.DamageCause.ENTITY_ATTACK),
@@ -433,8 +432,8 @@ class CauseEntityDamageAttribute(
         entity.damage(damage)
     }
 
-    object Factory : CompositeAttributeFactory {
-        override fun fromSection(key: String, section: ConfigurationSection): Attribute<*> =
+    object Factory : CompositeAttributeFactory<CauseEntityDamageAttribute> {
+        override fun fromSection(key: String, section: ConfigurationSection): CauseEntityDamageAttribute =
             CauseEntityDamageAttribute(
                 key,
                 runCatching { EntityDamageEvent.DamageCause.valueOf(section.getString("cause")!!) }.getOrDefault(
@@ -443,8 +442,8 @@ class CauseEntityDamageAttribute(
                 section.getDouble("damage")
             )
 
-        override fun fromString(key: String, string: String): Attribute<*> {
-            val args = Args(string, ":")
+        override fun fromString(key: String, string: String, config: ConfigurationSection): CauseEntityDamageAttribute {
+            val args = Args(string)
             return CauseEntityDamageAttribute(
                 key,
                 runCatching { EntityDamageEvent.DamageCause.valueOf(args.get(0, "ENTITY_ATTACK")) }.getOrDefault(
@@ -478,8 +477,8 @@ class CreateAoeAttribute(
         )
     }
 
-    object Factory : AttributeFactory {
-        override fun create(key: String, config: ConfigurationSection): Attribute<*> {
+    object Factory : AttributeFactory<CreateAoeAttribute> {
+        override fun create(key: String, config: ConfigurationSection): CreateAoeAttribute {
             val section = config.getConfigurationSection(key)!!
             return CreateAoeAttribute(
                 key,

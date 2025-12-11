@@ -176,10 +176,10 @@ class RandomSpawnerAttribute(
         event.spawner.update()
     }
 
-    object Factory : AttributeFactory {
-        override fun create(key: String, config: ConfigurationSection): Attribute<*> {
+    object Factory : AttributeFactory<RandomSpawnerAttribute> {
+        override fun create(key: String, config: ConfigurationSection): RandomSpawnerAttribute {
             val types = config.getStringList(key)
-                .map { Args(it, ":") }
+                .map { Args(it) }
                 .associate { EntityType.valueOf(it[0]) to it[1].toInt() }
             return RandomSpawnerAttribute(key, types)
         }

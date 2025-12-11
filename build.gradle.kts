@@ -35,7 +35,7 @@ dependencies {
     implementation(libs.wutilsConfigurables)
     implementation(libs.wutilsLog)
     implementation(libs.wutilsI18nKotlin)
-    implementation(libs.wutilsCommon)
+    implementation(libs.wutilsCommonKotlin)
     implementation(libs.wutilsAnimation)
     implementation(libs.wutilsJson)
 }

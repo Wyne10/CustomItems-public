@@ -1,6 +1,6 @@
 name: '<light_purple><lang:effect.minecraft.speed> III'
 material: POTION
-potionColor: 8171462
+potionColor: 7CAFC6
 potionEffect:
   type: SPEED
   amplifier: 2

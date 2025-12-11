@@ -58,7 +58,6 @@ class InitializeLogger(private val logDirectory: File) : PluginStep<CustomItems>
 class InitializeJson(private val gson: Gson, private val directory: File) : PluginStep<CustomItems> {
     override fun run(plugin: CustomItems) {
         JsonRegistry.global.apply {
-            log = CustomItems.log
             gson = this@InitializeJson.gson
             directory = this@InitializeJson.directory
         }
@@ -69,7 +68,7 @@ class InitializeJson(private val gson: Gson, private val directory: File) : Plug
 object InitializeI18n : PluginStep<CustomItems> {
     override fun run(plugin: CustomItems) {
         I18n.global = PluginI18nBuilder(plugin)
-            .setLog(CustomItems.log)
+            .setLogger(CustomItems.log)
             .setComponentAudience(BukkitComponentAudiences(BukkitAudiences.create(plugin)))
             .setComponentInterpreter(ComponentInterpreters.valueOf(
                     plugin.config.getString("serializer", "MINI_MESSAGE")!!
@@ -104,7 +103,7 @@ object InitializeInjector : PluginStep<CustomItems> {
 object InitializeConfig : CompositeStep<CustomItems>(ReloadConfig) {
     override fun before(plugin: CustomItems) {
         Config.global.apply {
-            log = CustomItems.log
+            logger = CustomItems.log
             setConfigGenerator(plugin, "config.yml")
             generateConfig()
         }
