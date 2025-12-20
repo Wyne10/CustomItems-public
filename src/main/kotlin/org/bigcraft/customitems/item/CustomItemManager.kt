@@ -24,7 +24,7 @@ import org.bukkit.persistence.PersistentDataType
 import java.io.File
 
 @Singleton
-@LoadableMeta(priority = 0, late = true)
+@LoadableMeta(priority = 0)
 class CustomItemManager @Inject constructor(plugin: CustomItems, private val blockManager: CustomBlockManager) :
     AbstractManager<CustomItem>(), Listener {
 
