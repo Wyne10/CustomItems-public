@@ -4,6 +4,7 @@ import de.tr7zw.nbtapi.NBT
 import de.tr7zw.nbtapi.iface.ReadableNBT
 import me.wyne.wutils.common.Args
 import me.wyne.wutils.common.kotlin.config.COMMA_DELIMITER
+import me.wyne.wutils.common.range.ClosedIntRange
 import me.wyne.wutils.config.configurables.attribute.AttributeBase
 import me.wyne.wutils.config.configurables.attribute.AttributeFactory
 import me.wyne.wutils.config.configurables.attribute.CompositeAttribute
@@ -23,7 +24,8 @@ val ITEM_ATTRIBUTE_MAP = mapOf(
     "nbt" to AttributeFactory { key, config -> NbtTagAttribute(key, NBT.parseNBT(config.getString(key))) },
     "pdc-tag" to PdcTagAttribute.Factory,
     "pdc-tags" to AttributeFactory(::PdcTagsAttribute),
-    "compositor" to StringCollectionAttribute.SetFactory()
+    "compositor" to StringCollectionAttribute.SetFactory(),
+    "random-amount" to AttributeFactory { key, config -> RandomAmountAttribute(key, ClosedIntRange.getIntRange(config.getString(key))) },
 )
 
 class NbtTagAttribute(
@@ -96,4 +98,13 @@ class PdcTagsAttribute : CompositeAttribute<PdcTagAttribute>, MetaAttribute {
     constructor(key: String, config: ConfigurationSection) : super(key, config, PdcTagAttribute.Factory)
 
     override fun apply(meta: ItemMeta) = value.forEach { it.apply(meta) }
+}
+
+class RandomAmountAttribute(
+    key: String,
+    amount: ClosedIntRange
+) : AttributeBase<ClosedIntRange>(key, amount), ItemStackAttribute {
+    override fun apply(item: ItemStack) {
+        item.amount = value.random
+    }
 }

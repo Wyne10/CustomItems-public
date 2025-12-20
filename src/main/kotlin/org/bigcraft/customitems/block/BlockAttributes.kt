@@ -2,16 +2,18 @@ package org.bigcraft.customitems.block
 
 import com.destroystokyo.paper.event.block.AnvilDamagedEvent
 import me.wyne.wutils.common.Args
+import me.wyne.wutils.common.config.ConfigUtils
 import me.wyne.wutils.common.inventory.InventoryUtils
-import me.wyne.wutils.config.configurables.attribute.Attribute
 import me.wyne.wutils.config.configurables.attribute.AttributeFactory
 import me.wyne.wutils.config.configurables.attribute.AttributeMap
+import org.bigcraft.customitems.item.CustomItemManager
 import org.bigcraft.customitems.item.RegisterableCustomItemAttribute
 import org.bukkit.Material
 import org.bukkit.block.Container
 import org.bukkit.block.Furnace
 import org.bukkit.configuration.ConfigurationSection
 import org.bukkit.entity.EntityType
+import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.EventPriority
 import org.bukkit.event.block.BlockBreakEvent
@@ -22,16 +24,17 @@ import org.bukkit.event.block.BlockPlaceEvent
 import org.bukkit.event.entity.EntityChangeBlockEvent
 import org.bukkit.event.entity.EntityExplodeEvent
 import org.bukkit.event.entity.SpawnerSpawnEvent
+import org.bukkit.inventory.ItemStack
 import kotlin.collections.iterator
 import kotlin.random.Random
 
 val BLOCK_ATTRIBUTE_MAP = AttributeMap(
     mapOf(
-        "break-drop" to AttributeFactory { key, config -> BreakDropAttribute(key, config.getBoolean(key)) },
-        "drop-drop" to AttributeFactory { key, config -> DropDropAttribute(key, config.getBoolean(key)) },
-        "break-magnet" to AttributeFactory { key, config -> BreakMagnetAttribute(key, config.getBoolean(key)) },
-        "burn-drop" to AttributeFactory { key, config -> BurnDropAttribute(key, config.getBoolean(key)) },
-        "explode-drop" to AttributeFactory { key, config -> ExplodeDropAttribute(key, config.getBoolean(key)) },
+        "break-drop" to AttributeFactory { key, config -> BreakDropAttribute(key, config.getString(key)!!) },
+        "drop-drop" to AttributeFactory { key, config -> DropDropAttribute(key, config.getString(key)!!) },
+        "break-magnet" to AttributeFactory { key, config -> BreakMagnetAttribute(key, config.getString(key)!!) },
+        "burn-drop" to AttributeFactory { key, config -> BurnDropAttribute(key, config.getString(key)!!) },
+        "explode-drop" to AttributeFactory { key, config -> ExplodeDropAttribute(key, config.getString(key)!!) },
         "furnace-speed" to AttributeFactory { key, config -> FurnaceSpeedAttribute(key, config.getDouble(key)) },
         "unbreakable-anvil" to AttributeFactory { key, config -> UnbreakableAnvilAttribute(key, config.getBoolean(key)) },
         "random-spawner" to RandomSpawnerAttribute.Factory,
@@ -44,10 +47,29 @@ abstract class BlockAttribute<V>(
     value: V
 ) : RegisterableCustomItemAttribute<V>(key, value, CustomBlockManager.instance.blockAttributesRegistry)
 
+abstract class DropAttribute(
+    key: String,
+    drop: String
+) : BlockAttribute<String>(key, drop) {
+    fun createDrop(player: Player?): ItemStack {
+        value.toBooleanStrictOrNull()?.let {
+            if (it)
+                return item.createItemStack(player)
+        }
+        ConfigUtils.getByName(value, Material::class.java)?.let {
+            return ItemStack(it)
+        }
+        CustomItemManager.instance.getItem(value)?.let {
+            return it.createItemStack(player)
+        }
+        return ItemStack(Material.AIR)
+    }
+}
+
 class BreakDropAttribute(
     key: String,
-    drop: Boolean,
-) : BlockAttribute<Boolean>(key, drop) {
+    drop: String,
+) : DropAttribute(key, drop) {
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGHEST)
     private fun onBreak(event: BlockBreakEvent) {
@@ -58,29 +80,29 @@ class BreakDropAttribute(
             state.inventory
                 .filterNotNull()
                 .forEach { event.block.world.dropItemNaturally(event.block.location, it) }
-        event.block.world.dropItemNaturally(event.block.location, item.createItemStack(event.player))
+        event.block.world.dropItemNaturally(event.block.location, createDrop(event.player))
     }
 
 }
 
 class DropDropAttribute(
     key: String,
-    drop: Boolean
-) : BlockAttribute<Boolean>(key, drop) {
+    drop: String
+) : DropAttribute(key, drop) {
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGHEST)
     private fun onDropItem(event: BlockDropItemEvent) {
         if (!item.isCustomItem(event.blockState.block)) return
         event.items.clear()
-        event.items.add(event.block.world.dropItemNaturally(event.block.location, item.createItemStack(event.player)))
+        event.items.add(event.block.world.dropItemNaturally(event.block.location, createDrop(event.player)))
     }
 
 }
 
 class BreakMagnetAttribute(
     key: String,
-    magnet: Boolean,
-) : BlockAttribute<Boolean>(key, magnet) {
+    drop: String,
+) : DropAttribute(key, drop) {
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGHEST)
     private fun onBreak(event: BlockBreakEvent) {
@@ -91,34 +113,34 @@ class BreakMagnetAttribute(
             state.inventory
                 .filterNotNull()
                 .forEach { InventoryUtils.addOrDrop(event.player, it) }
-        InventoryUtils.addOrDrop(event.player, item.createItemStack(event.player))
+        InventoryUtils.addOrDrop(event.player, createDrop(event.player))
     }
 
 }
 
 class BurnDropAttribute(
     key: String,
-    drop: Boolean
-) : BlockAttribute<Boolean>(key, drop) {
+    drop: String
+) : DropAttribute(key, drop) {
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGHEST)
     private fun onBurn(event: BlockBurnEvent) {
         if (!item.isCustomItem(event.block)) return
-        event.block.world.dropItemNaturally(event.block.location, item.createItemStack())
+        event.block.world.dropItemNaturally(event.block.location, createDrop(null))
     }
 
 }
 
 class ExplodeDropAttribute(
     key: String,
-    drop: Boolean
-) : BlockAttribute<Boolean>(key, drop) {
+    drop: String
+) : DropAttribute(key, drop) {
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGHEST)
     private fun onExplode(event: EntityExplodeEvent) {
         event.blockList().forEach { block ->
             if (!item.isCustomItem(block)) return@forEach
-            block.world.dropItemNaturally(block.location, item.createItemStack())
+            block.world.dropItemNaturally(block.location, createDrop(null))
             block.type = Material.AIR
         }
     }
@@ -127,7 +149,7 @@ class ExplodeDropAttribute(
     private fun onBlockExplode(event: BlockExplodeEvent) {
         event.blockList().forEach { block ->
             if (!item.isCustomItem(block)) return@forEach
-            block.world.dropItemNaturally(block.location, item.createItemStack())
+            block.world.dropItemNaturally(block.location, createDrop(null))
             block.type = Material.AIR
         }
     }

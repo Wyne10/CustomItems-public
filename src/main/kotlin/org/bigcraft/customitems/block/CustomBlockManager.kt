@@ -3,13 +3,11 @@ package org.bigcraft.customitems.block
 import com.google.inject.Inject
 import com.google.inject.Singleton
 import me.wyne.wutils.common.event.EventRegistry
-import me.wyne.wutils.common.loadable.Loadable
 import me.wyne.wutils.json.JSON
 import me.wyne.wutils.json.JsonRegistry
 import org.bigcraft.customitems.CustomItems
 import org.bigcraft.customitems.item.CustomItem
 import org.bukkit.block.Block
-import org.bukkit.configuration.ConfigurationSection
 
 @Singleton
 class CustomBlockManager @Inject constructor(plugin: CustomItems) {
