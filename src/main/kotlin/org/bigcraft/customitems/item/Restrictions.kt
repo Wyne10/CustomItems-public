@@ -21,6 +21,8 @@ import org.bukkit.event.entity.ItemDespawnEvent
 import org.bukkit.event.inventory.CraftItemEvent
 import org.bukkit.event.inventory.FurnaceSmeltEvent
 import org.bukkit.event.inventory.InventoryClickEvent
+import org.bukkit.event.inventory.InventoryMoveItemEvent
+import org.bukkit.event.inventory.InventoryPickupItemEvent
 import org.bukkit.event.inventory.InventoryType
 import org.bukkit.event.player.PlayerDropItemEvent
 import org.bukkit.event.player.PlayerInteractEvent
@@ -108,6 +110,18 @@ class StorageRestriction(
     private fun onEvent(event: InventoryClickEvent) {
         if (!types.contains(event.view.topInventory.type)) return
         cancelEvent(event, event.currentItem)
+    }
+
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.LOWEST)
+    private fun onPickupEvent(event: InventoryPickupItemEvent) {
+        if (!types.contains(event.inventory.type)) return
+        cancelEvent(event, event.item.itemStack)
+    }
+
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.LOWEST)
+    private fun onMoveEvent(event: InventoryMoveItemEvent) {
+        if (!types.contains(event.destination.type)) return
+        cancelEvent(event, event.item)
     }
 }
 
