@@ -2,6 +2,7 @@ package org.bigcraft.customitems.item
 
 import com.destroystokyo.paper.event.player.PlayerLaunchProjectileEvent
 import me.wyne.wutils.common.kotlin.config.getEnumSet
+import me.wyne.wutils.common.kotlin.inventory.getAffectedItems
 import me.wyne.wutils.config.configurables.attribute.AttributeFactory
 import me.wyne.wutils.config.configurables.attribute.AttributeMap
 import org.bukkit.Keyed
@@ -109,7 +110,9 @@ class StorageRestriction(
     @EventHandler(ignoreCancelled = true, priority = EventPriority.LOWEST)
     private fun onEvent(event: InventoryClickEvent) {
         if (!types.contains(event.view.topInventory.type)) return
-        cancelEvent(event, event.currentItem)
+        event.getAffectedItems().forEach { item ->
+            cancelEvent(event, item)
+        }
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.LOWEST)
