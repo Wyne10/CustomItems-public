@@ -21,9 +21,7 @@ dependencies {
     compileOnly(libs.worldEdit)
     compileOnly(libs.worldGuard)
     compileOnly(libs.abstractMenus)
-    compileOnly(libs.effective) {
-        exclude(group = "org.jetbrains.kotlin", module = "kotlin-stdlib")
-    }
+    compileOnly(libs.storm)
     compileOnly(libs.antiRelog)
 
     implementation(libs.guice)
@@ -93,7 +91,7 @@ bukkit {
     author = findProperty("author").toString()
     main = "org.bigcraft.customitems.CustomItems"
     apiVersion = "1.16"
-    softDepend = listOf("PlaceholderAPI", "CommandAPI", "NBTAPI", "CustomEnchants", "WorldEdit", "WorldGuard", "AbstractMenus", "Effective", "AntiRelog")
+    softDepend = listOf("PlaceholderAPI", "CommandAPI", "NBTAPI", "CustomEnchants", "WorldEdit", "WorldGuard", "AbstractMenus", "Storm", "AntiRelog")
     permissions {
         register("customitems.*") {
             children = listOf("customitems.reload", "customitems.give")
