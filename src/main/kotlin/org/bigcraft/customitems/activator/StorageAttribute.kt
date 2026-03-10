@@ -19,11 +19,15 @@ import org.bukkit.event.inventory.InventoryCloseEvent
 import org.bukkit.event.inventory.InventoryOpenEvent
 import org.bukkit.event.player.PlayerCommandPreprocessEvent
 import org.bukkit.event.player.PlayerDropItemEvent
+import org.bukkit.event.player.PlayerInteractAtEntityEvent
+import org.bukkit.event.player.PlayerInteractEntityEvent
+import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.event.player.PlayerSwapHandItemsEvent
 import org.bukkit.inventory.EquipmentSlot
 import org.bukkit.inventory.Inventory
 import org.bukkit.inventory.ItemStack
 import org.bukkit.persistence.PersistentDataType
+import kotlin.collections.remove
 
 class StorageAttribute(
     key: String,
@@ -38,6 +42,10 @@ class StorageAttribute(
     }
 
     override fun apply(event: Event, player: Player, customItem: CustomItem, item: ItemStack) {
+        if (players.containsKey(player)) {
+            player.closeInventory()
+            return
+        }
         val inventory = Bukkit.createInventory(player, 27, item.itemMeta.displayName)
         players[player] = inventory
         inventories[inventory] = item
@@ -47,11 +55,6 @@ class StorageAttribute(
 
     @EventHandler
     private fun onInventoryOpen(event: InventoryOpenEvent) {
-        if (players.containsKey(event.player) && players[event.player] != event.inventory) {
-            event.isCancelled = true
-            return
-        }
-
         if (!inventories.contains(event.inventory)) return
         val size = (value * 3) + ((value - 1).coerceAtLeast(0) * 3)
         for (i in SLOT_INDICES.size - 1 downTo size) {
@@ -65,7 +68,6 @@ class StorageAttribute(
         if (!inventories.contains(event.inventory)) return
         val inventory = players.remove(event.player)
         val item = inventories.remove(event.inventory)!!
-        inventory?.close()
         writeInventory(event.inventory, item)
     }
 
@@ -73,7 +75,6 @@ class StorageAttribute(
     private fun onPlayerDeath(event: PlayerDeathEvent) {
         val inventory = players.remove(event.entity) ?: return
         val item = inventories.remove(inventory) ?: return
-        inventory.close()
         writeInventory(inventory, item)
     }
 
@@ -112,6 +113,18 @@ class StorageAttribute(
 
     @EventHandler
     private fun onItemDrop(event: PlayerDropItemEvent) {
+        if (!players.containsKey(event.player)) return
+        event.isCancelled = true
+    }
+
+    @EventHandler
+    private fun onPlayerInteractAtEntity(event: PlayerInteractAtEntityEvent) {
+        if (!players.containsKey(event.player)) return
+        event.isCancelled = true
+    }
+
+    @EventHandler
+    private fun onPlayerInteractEntity(event: PlayerInteractEntityEvent) {
         if (!players.containsKey(event.player)) return
         event.isCancelled = true
     }
