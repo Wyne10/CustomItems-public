@@ -35,20 +35,27 @@ class StorageAttribute(
 ) : ActivatorAttribute<Int>(key, columns.coerceIn(0, 5)), RegisterableListener {
 
     private val players = mutableMapOf<Player, Inventory>()
-    private val inventories = mutableMapOf<Inventory, ItemStack>()
+    private val inventories = mutableMapOf<Inventory, Int>()
 
     init {
         CustomItemManager.instance.activatorRegistry.register(this)
     }
 
+    override fun isApplicable(event: Event, player: Player, customItem: CustomItem, item: ItemStack): Boolean =
+        event is PlayerInteractEvent
+
     override fun apply(event: Event, player: Player, customItem: CustomItem, item: ItemStack) {
+        event as PlayerInteractEvent
         if (players.containsKey(player)) {
             player.closeInventory()
             return
         }
         val inventory = Bukkit.createInventory(player, 27, item.itemMeta.displayName)
         players[player] = inventory
-        inventories[inventory] = item
+        if (player.inventory.getItem(EquipmentSlot.HAND) == item)
+            inventories[inventory] = player.inventory.heldItemSlot
+        else
+            inventories[inventory] = 40
         readInventory(inventory, item)
         player.openInventory(inventory)
     }
@@ -67,34 +74,35 @@ class StorageAttribute(
     private fun onInventoryClose(event: InventoryCloseEvent) {
         if (!inventories.contains(event.inventory)) return
         val inventory = players.remove(event.player)
-        val item = inventories.remove(event.inventory)!!
+        val itemSlot = inventories.remove(event.inventory)!!
+        val item = event.player.inventory.getItem(itemSlot) ?: return
         writeInventory(event.inventory, item)
     }
 
     @EventHandler
     private fun onPlayerDeath(event: PlayerDeathEvent) {
         val inventory = players.remove(event.entity) ?: return
-        val item = inventories.remove(inventory) ?: return
+        val itemSlot = inventories.remove(inventory) ?: return
+        val item = event.entity.inventory.getItem(itemSlot) ?: return
         writeInventory(inventory, item)
     }
 
     @EventHandler
     private fun onInventoryClick(event: InventoryClickEvent) {
         if (event.currentItem == FILLER) event.isCancelled = true
-        if (inventories.containsValue(event.currentItem)) {
+        if (inventories.containsValue(event.slot)) {
             event.isCancelled = true
             return
         }
         if (event.click == ClickType.NUMBER_KEY) {
-            val hotbarItem = event.whoClicked.inventory.getItem(event.hotbarButton)
-            if (inventories.containsValue(hotbarItem)) {
+            val hotbarSlot = event.hotbarButton
+            if (inventories.containsValue(hotbarSlot)) {
                 event.isCancelled = true
                 return
             }
         }
         if (event.click == ClickType.SWAP_OFFHAND) {
-            val offHand = event.whoClicked.inventory.getItem(EquipmentSlot.OFF_HAND)
-            if (inventories.containsValue(offHand))
+            if (inventories.containsValue(40))
                 event.isCancelled = true
         }
     }
