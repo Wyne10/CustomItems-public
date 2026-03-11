@@ -26,6 +26,8 @@ import org.bukkit.event.inventory.InventoryMoveItemEvent
 import org.bukkit.event.inventory.InventoryPickupItemEvent
 import org.bukkit.event.inventory.InventoryType
 import org.bukkit.event.player.PlayerDropItemEvent
+import org.bukkit.event.player.PlayerInteractAtEntityEvent
+import org.bukkit.event.player.PlayerInteractEntityEvent
 import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.event.player.PlayerItemConsumeEvent
 import org.bukkit.inventory.AnvilInventory
@@ -48,6 +50,7 @@ val RESTRICTION_MAP = AttributeMap(
         "cancel-anvil" to AttributeFactory { key, config -> AnvilRestriction(key, config.getBoolean(key)) },
         "cancel-projectile" to AttributeFactory { key, config -> ProjectileRestriction(key, config.getBoolean(key)) },
         "cancel-action" to AttributeFactory { key, config -> ActionRestriction(key, config.getEnumSet<Action>(key)) },
+        "cancel-entity-action" to AttributeFactory { key, config -> EntityActionRestriction(key, config.getBoolean(key)) },
     )
 )
 
@@ -202,5 +205,17 @@ class ActionRestriction(
     private fun onEvent(event: PlayerInteractEvent) {
         if (!actions.contains(event.action)) return
         cancelEvent(event, event.item)
+    }
+}
+
+class EntityActionRestriction(key: String, isActive: Boolean) : Restriction(key, isActive) {
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.LOWEST)
+    private fun onEvent(event: PlayerInteractEntityEvent) {
+        cancelEvent(event, event.player.inventory.getItem(event.hand))
+    }
+
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.LOWEST)
+    private fun onEvent(event: PlayerInteractAtEntityEvent) {
+        cancelEvent(event, event.player.inventory.getItem(event.hand))
     }
 }

@@ -17,6 +17,7 @@ import org.bukkit.event.inventory.ClickType
 import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.event.inventory.InventoryCloseEvent
 import org.bukkit.event.inventory.InventoryOpenEvent
+import org.bukkit.event.inventory.InventoryType
 import org.bukkit.event.player.PlayerCommandPreprocessEvent
 import org.bukkit.event.player.PlayerDropItemEvent
 import org.bukkit.event.player.PlayerInteractAtEntityEvent
@@ -50,7 +51,7 @@ class StorageAttribute(
             player.closeInventory()
             return
         }
-        val inventory = Bukkit.createInventory(player, 27, item.itemMeta.displayName)
+        val inventory = Bukkit.createInventory(player, InventoryType.SHULKER_BOX, item.itemMeta.displayName)
         players[player] = inventory
         if (player.inventory.getItem(EquipmentSlot.HAND) == item)
             inventories[inventory] = player.inventory.heldItemSlot
