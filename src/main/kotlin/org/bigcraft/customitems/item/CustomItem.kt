@@ -35,6 +35,8 @@ class CustomItem(
 ) : ItemAttributeAccessor by DefaultItemAttributeAccessor(itemAttributes, restrictions, activators, blockAttributes),
     ItemComposable by DefaultItemComposable(key) {
 
+    var path: String = ""
+
     fun createItemStack(player: Player? = null): ItemStack {
         val itemStack = itemAttributes.build(player)
         itemStack.editMeta { meta -> meta.persistentDataContainer.set(ITEM_TAG_KEY, PersistentDataType.STRING, key) }
@@ -114,7 +116,7 @@ class CustomItem(
                 }
             }.getOrElse {
                 CustomItems.log.error("Failed to load custom item {}", key, it)
-                return CustomItem(config.name, ItemConfigurable(), emptySet(), emptySet(), emptySet(), mutableSetOf())
+                return CustomItem(key, ItemConfigurable(), emptySet(), emptySet(), emptySet(), mutableSetOf())
             }
     }
 

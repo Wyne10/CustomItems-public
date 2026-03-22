@@ -34,7 +34,10 @@ class CustomItemManager @Inject constructor(plugin: CustomItems, private val blo
     val restrictionRegistry = EventRegistry(plugin)
     val activatorRegistry = EventRegistry(plugin)
 
-    val itemDirectory = File(plugin.dataFolder, "$sectionKey/")
+    private val itemDirectory = File(plugin.dataFolder, "$sectionKey/")
+
+    val itemPaths
+        get() = loadedMap.map { it.value.path + it.value.key }
 
     init {
         instance = this
@@ -52,17 +55,32 @@ class CustomItemManager @Inject constructor(plugin: CustomItems, private val blo
         activatorRegistry.clear()
         blockManager.blockAttributesRegistry.clear()
         super.load(config)
-        loadFiles()
+        loadFiles(itemDirectory)
     }
 
-    private fun loadFiles() {
-        if (!itemDirectory.exists())
-            itemDirectory.mkdirs()
-        itemDirectory.listFiles()
-            ?.forEach { file ->
-                val key = file.nameWithoutExtension
-                loadedMap[key] = CustomItem.Factory.fromConfig(key, YamlConfiguration.loadConfiguration(file))
-            }
+    private fun loadFiles(directory: File) {
+        loadFilesRecursive(directory, "")
+    }
+
+    private fun loadFilesRecursive(directory: File, relativePath: String) {
+        if (!directory.exists())
+            directory.mkdirs()
+        directory.listFiles()?.let { files ->
+            files.filter { it.isDirectory }
+                .forEach {
+                    val newPath = if (relativePath.isEmpty()) it.name else "$relativePath.${it.name}"
+                    loadFilesRecursive(it, newPath)
+                }
+            files.filter { it.isFile }
+                .forEach { file ->
+                    val key = file.nameWithoutExtension
+                    val customItem = CustomItem.Factory.fromConfig(key, YamlConfiguration.loadConfiguration(file))
+                    loadedMap[key] = customItem
+                    if (relativePath.isNotEmpty()) {
+                        customItem.path = "$relativePath."
+                    }
+                }
+        }
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
