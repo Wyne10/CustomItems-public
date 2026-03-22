@@ -96,7 +96,7 @@ class ExchangeCommand(private val itemManager: CustomItemManager) : SubCommand("
 
 fun itemKeyArgument(itemManager: CustomItemManager): Argument<String> =
     StringArgument("key")
-        .replaceSuggestions(ArgumentSuggestions.stringCollection { itemManager.mapKeys })
+        .replaceSuggestions(ArgumentSuggestions.stringCollection { itemManager.itemPaths })
 
 fun assertItemExists(itemManager: CustomItemManager, key: String, sender: CommandSender) {
     if (!itemManager.mapKeys.contains(key))
@@ -107,6 +107,7 @@ fun assertItemExists(itemManager: CustomItemManager, key: String, sender: Comman
 
 val CommandArguments.key: String
     get() = getOrDefaultRaw("key", "")
+        .substringAfterLast('.', "")
 
 val CommandArguments.amount: Int
     get() = getByClassOrDefault("amount", Int::class.java, 1)
