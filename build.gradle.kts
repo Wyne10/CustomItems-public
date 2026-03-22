@@ -2,7 +2,7 @@ import net.minecrell.pluginyml.bukkit.BukkitPluginDescription
 import org.codehaus.plexus.util.Os
 
 plugins {
-    kotlin("jvm") version "2.2.20"
+    kotlin("jvm") version "2.3.20"
     `maven-publish`
     alias(libs.plugins.shadow)
     alias(libs.plugins.runPaper)
@@ -25,6 +25,7 @@ dependencies {
     compileOnly(libs.antiRelog)
 
     implementation(libs.guice)
+    implementation(libs.enhancedLegacy)
     implementation(libs.adventureMini)
     implementation(libs.adventureBukkit)
     implementation(libs.adventurePlain)
@@ -49,19 +50,20 @@ tasks {
             relocate("com.google.inject", "org.bigcraft.customitems.shadow.google.guice")
             relocate("com.google.common", "org.bigcraft.customitems.shadow.google.common")
             relocate("net.kyori", "org.bigcraft.customitems.shadow.net.kyori")
+            relocate("dev.vankka", "org.bigcraft.customitems.shadow.dev.vankka")
             relocate("me.wyne.wutils", "org.bigcraft.customitems.shadow.wutils")
         }
     }
 
     runServer {
         val minecraftVersion: String = if (Os.isFamily(Os.FAMILY_WINDOWS) || isDebug) "1.19.4" else "1.16.5"
-        val viaVersion = "5.7.1"
+        val viaVersion = "5.7.2"
         val commandApiVersion = "9.4.2"
         downloadPlugins {
             // https://dev.bukkit.org/projects/worldedit/files/4793142/download
             // https://dev.bukkit.org/projects/worldguard/files/3342964/download
-            url("https://download.luckperms.net/1616/bukkit/loader/LuckPerms-Bukkit-5.5.28.jar")
-            github("PlaceholderAPI", "PlaceholderAPI", "2.12.1", "PlaceholderAPI-2.12.1.jar")
+            url("https://download.luckperms.net/1620/bukkit/loader/LuckPerms-Bukkit-5.5.32.jar")
+            github("PlaceholderAPI", "PlaceholderAPI", "2.12.2", "PlaceholderAPI-2.12.2.jar")
             github("dmulloy2", "ProtocolLib", "5.4.0", "ProtocolLib.jar")
             github("ViaVersion", "ViaVersion", viaVersion, "ViaVersion-$viaVersion.jar")
             github("ViaVersion", "ViaBackwards", viaVersion, "ViaBackwards-$viaVersion.jar")
