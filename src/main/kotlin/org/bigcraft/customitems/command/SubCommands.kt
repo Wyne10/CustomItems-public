@@ -11,6 +11,7 @@ import dev.jorel.commandapi.arguments.StringArgument
 import dev.jorel.commandapi.executors.CommandArguments
 import dev.jorel.commandapi.executors.CommandExecutor
 import me.wyne.wutils.common.command.CommandUtils
+import me.wyne.wutils.common.kotlin.inventory.addOrDrop
 import me.wyne.wutils.i18n.kotlin.placeholderComponent
 import me.wyne.wutils.i18n.kotlin.placeholderString
 import me.wyne.wutils.i18n.kotlin.replace
@@ -50,7 +51,7 @@ class GiveCommand(private val itemManager: CustomItemManager) : SubCommand("give
             val targets = args.targets
             if (targets.isEmpty()) return@CommandExecutor
             targets.forEach { player ->
-                player.inventory.addItem(item.createItemStack(player).also { it.amount = amount }) }
+                player.addOrDrop(item.createItemStack(player).also { it.amount = amount }) }
             sender.placeholderComponent(
                 "success-item-give",
                 "item-key" replace args.key,
