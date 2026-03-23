@@ -107,7 +107,7 @@ fun assertItemExists(itemManager: CustomItemManager, key: String, sender: Comman
 
 val CommandArguments.key: String
     get() = getOrDefaultRaw("key", "")
-        .substringAfterLast('.', "")
+        .substringAfterLast('.')
 
 val CommandArguments.amount: Int
     get() = getByClassOrDefault("amount", Int::class.java, 1)
