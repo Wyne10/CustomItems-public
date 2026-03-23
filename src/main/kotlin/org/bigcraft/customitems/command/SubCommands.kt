@@ -51,7 +51,7 @@ class GiveCommand(private val itemManager: CustomItemManager) : SubCommand("give
             val targets = args.targets
             if (targets.isEmpty()) return@CommandExecutor
             targets.forEach { player ->
-                player.addOrDrop(item.createItemStack(player).also { it.amount = amount }) }
+                player.addOrDrop(true, item.createItemStack(player).also { it.amount = amount }) }
             sender.placeholderComponent(
                 "success-item-give",
                 "item-key" replace args.key,
