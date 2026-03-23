@@ -33,7 +33,7 @@ class ReloadCommand(plugin: CustomItems) : SubCommand("reload") {
         .withPermission("customitems.reload")
         .executes(CommandExecutor { sender, _ ->
             plugin.reload()
-            sender.placeholderComponent("success-plugin-reload").sendMessage(sender)
+            sender.placeholderComponent("success-plugin-reload").sendMessagePlayer(sender)
             CustomItems.log.info("Plugin reloaded")
         })
 }
@@ -60,7 +60,7 @@ class GiveCommand(private val itemManager: CustomItemManager) : SubCommand("give
                     .map { it.name }
                     .reduce { s1, s2 -> "$s1, $s2" }
             ).replace("item-name" replaceComponent item.getName(sender).get())
-                .sendMessage(sender)
+                .sendMessagePlayer(sender)
         })
 }
 
