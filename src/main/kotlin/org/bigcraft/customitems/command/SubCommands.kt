@@ -33,7 +33,7 @@ class ReloadCommand(plugin: CustomItems) : SubCommand("reload") {
         .withPermission("customitems.reload")
         .executes(CommandExecutor { sender, _ ->
             plugin.reload()
-            sender.placeholderComponent("success-plugin-reload").sendMessage(sender)
+            sender.placeholderComponent("success-plugin-reload").sendMessagePlayer(sender)
             CustomItems.log.info("Plugin reloaded")
         })
 }
@@ -51,7 +51,7 @@ class GiveCommand(private val itemManager: CustomItemManager) : SubCommand("give
             val targets = args.targets
             if (targets.isEmpty()) return@CommandExecutor
             targets.forEach { player ->
-                player.addOrDrop(item.createItemStack(player).also { it.amount = amount }) }
+                player.addOrDrop(true, item.createItemStack(player).also { it.amount = amount }) }
             sender.placeholderComponent(
                 "success-item-give",
                 "item-key" replace args.key,
@@ -60,7 +60,7 @@ class GiveCommand(private val itemManager: CustomItemManager) : SubCommand("give
                     .map { it.name }
                     .reduce { s1, s2 -> "$s1, $s2" }
             ).replace("item-name" replaceComponent item.getName(sender).get())
-                .sendMessage(sender)
+                .sendMessagePlayer(sender)
         })
 }
 
