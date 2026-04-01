@@ -1,6 +1,7 @@
 package org.bigcraft.customitems.block
 
 import com.destroystokyo.paper.event.block.AnvilDamagedEvent
+import de.tr7zw.nbtapi.NBT
 import me.wyne.wutils.common.Args
 import me.wyne.wutils.common.config.ConfigUtils
 import me.wyne.wutils.common.inventory.InventoryUtils
@@ -188,22 +189,37 @@ class UnbreakableAnvilAttribute(
 
 class RandomSpawnerAttribute(
     key: String,
-    types: Map<EntityType, Int>
+    types: Map<EntityType, Int>,
+    private val nbt: Map<EntityType, String>
 ) : BlockAttribute<Map<EntityType, Int>>(key, types) {
 
     @EventHandler(ignoreCancelled = true)
     private fun onCreatureSpawn(event: SpawnerSpawnEvent) {
         if (!item.isCustomItem((event.spawner.block))) return
         event.spawner.spawnedType = value.weightedRandom() ?: return
+        if (nbt.containsKey(event.entityType)) {
+            NBT.modify(event.entity) { it.mergeCompound(NBT.parseNBT(nbt[event.entityType]!!)) }
+        }
         event.spawner.update()
     }
 
     object Factory : AttributeFactory<RandomSpawnerAttribute> {
         override fun create(key: String, config: ConfigurationSection): RandomSpawnerAttribute {
-            val types = config.getStringList(key)
-                .map { Args(it) }
-                .associate { EntityType.valueOf(it[0]) to it[1].toInt() }
-            return RandomSpawnerAttribute(key, types)
+            if (config.isList(key)) {
+                val types = config.getStringList(key)
+                    .map { Args(it) }
+                    .associate { EntityType.valueOf(it[0]) to it[1].toInt() }
+                return RandomSpawnerAttribute(key, types, emptyMap())
+            } else {
+                val section = config.getConfigurationSection(key) ?: return RandomSpawnerAttribute(key, emptyMap(), emptyMap())
+                val types = section.getStringList("spawn")
+                    .map { Args(it) }
+                    .associate { EntityType.valueOf(it[0]) to it[1].toInt() }
+                val nbt = section.getStringList("nbt")
+                    .map { it.split(":", " ", limit = 2) }
+                    .associate { EntityType.valueOf(it[0]) to it[1] }
+                return RandomSpawnerAttribute(key, types, nbt)
+            }
         }
     }
 
