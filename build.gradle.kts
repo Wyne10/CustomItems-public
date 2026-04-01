@@ -24,6 +24,7 @@ dependencies {
     compileOnly(libs.storm)
     compileOnly(libs.antiRelog)
 
+    implementation(project(":api"))
     implementation(libs.guice)
     implementation(libs.enhancedLegacy)
     implementation(libs.adventureMini)

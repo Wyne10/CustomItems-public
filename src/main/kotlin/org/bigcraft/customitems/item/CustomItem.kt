@@ -11,6 +11,7 @@ import org.bigcraft.customitems.ConfigurableFactory
 import org.bigcraft.customitems.CustomItems
 import org.bigcraft.customitems.activator.ACTIVATOR_MAP
 import org.bigcraft.customitems.activator.Activator
+import org.bigcraft.customitems.api.CustomItemApi
 import org.bigcraft.customitems.block.BLOCK_ATTRIBUTE_MAP
 import org.bigcraft.customitems.block.BlockAttribute
 import org.bigcraft.customitems.block.CustomBlockManager
@@ -26,25 +27,27 @@ import org.bukkit.inventory.PlayerInventory
 import org.bukkit.persistence.PersistentDataType
 
 class CustomItem(
-    val key: String,
+    private val key: String,
     private val itemAttributes: ItemConfigurable,
     private val restrictions: Set<Restriction>,
     private val activators: Set<Activator>,
     private val blockAttributes: Set<BlockAttribute<*>>,
     val cooldowns: MutableSet<Cooldown>,
 ) : ItemAttributeAccessor by DefaultItemAttributeAccessor(itemAttributes, restrictions, activators, blockAttributes),
-    ItemComposable by DefaultItemComposable(key) {
+    ItemComposable by DefaultItemComposable(key), CustomItemApi {
 
     var path: String = ""
 
-    fun createItemStack(player: Player? = null): ItemStack {
+    override fun getKey(): String = key
+
+    override fun createItemStack(player: Player?): ItemStack {
         val itemStack = itemAttributes.build(player)
         itemStack.editMeta { meta -> meta.persistentDataContainer.set(ITEM_TAG_KEY, PersistentDataType.STRING, key) }
         updateView(itemStack)
         return itemStack
     }
 
-    fun applyItemStack(item: ItemStack, player: Player? = null) {
+    override fun applyItemStack(item: ItemStack, player: Player?) {
         val context = ItemAttributeContext(player)
         itemAttributes.getSet(ItemStackAttribute::class.java).forEach { attribute ->
             if (attribute is ContextItemStackAttribute) {
@@ -57,17 +60,17 @@ class CustomItem(
         updateView(item)
     }
 
-    infix fun isCustomItem(item: ItemStack?): Boolean =
+    override infix fun isCustomItem(item: ItemStack?): Boolean =
         item?.itemMeta?.persistentDataContainer?.get(ITEM_TAG_KEY, PersistentDataType.STRING) == key
                 || item?.let { isComposed(it) } ?: false
 
-    infix fun isCustomItem(block: Block): Boolean =
+    override infix fun isCustomItem(block: Block): Boolean =
         isBlock && CustomBlockManager.instance.getCustomBlock(block)?.itemKey == key
 
-    infix fun getItem(inventory: Inventory): ItemStack? =
+    override infix fun getItem(inventory: Inventory): ItemStack? =
         inventory.filterNotNull().firstOrNull { isCustomItem(it) }
 
-    infix fun getItem(inventory: PlayerInventory): ItemStack? {
+    override infix fun getItem(inventory: PlayerInventory): ItemStack? {
         val mainHandSlot = inventory.heldItemSlot
         val iterationOrder = mutableSetOf(mainHandSlot, 40, 36, 37, 38, 39)
         iterationOrder.addAll(INVENTORY_INDICES)
@@ -75,7 +78,7 @@ class CustomItem(
             .firstOrNull { isCustomItem(it) }
     }
 
-    infix fun getItems(inventory: Inventory): List<ItemStack> =
+    override infix fun getItems(inventory: Inventory): List<ItemStack> =
         inventory.filterNotNull().filter { isCustomItem(it) }
 
     object Factory : ConfigurableFactory<CustomItem> {
