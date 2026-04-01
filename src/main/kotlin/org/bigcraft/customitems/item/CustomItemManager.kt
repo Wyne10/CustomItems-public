@@ -6,6 +6,8 @@ import me.wyne.wutils.common.event.EventRegistry
 import me.wyne.wutils.common.loadable.LoadableMeta
 import org.bigcraft.customitems.AbstractManager
 import org.bigcraft.customitems.CustomItems
+import org.bigcraft.customitems.api.CustomItemApi
+import org.bigcraft.customitems.api.CustomItemProvider
 import org.bigcraft.customitems.block.CustomBlockManager
 import org.bigcraft.customitems.item.CustomItem.Companion.ITEM_TAG_KEY
 import org.bukkit.Bukkit
@@ -26,7 +28,7 @@ import java.io.File
 @Singleton
 @LoadableMeta(priority = 0)
 class CustomItemManager @Inject constructor(plugin: CustomItems, private val blockManager: CustomBlockManager) :
-    AbstractManager<CustomItem>(), Listener {
+    AbstractManager<CustomItem>(), Listener, CustomItemProvider {
 
     override val sectionKey = "item"
     override val valueLoader = CustomItem.Factory
@@ -37,17 +39,24 @@ class CustomItemManager @Inject constructor(plugin: CustomItems, private val blo
     private val itemDirectory = File(plugin.dataFolder, "$sectionKey/")
 
     val itemPaths
-        get() = loadedMap.map { it.value.path + it.value.key }
+        get() = loadedMap.map { it.value.path + it.value.key }.toSet()
 
     init {
         instance = this
         Bukkit.getPluginManager().registerEvents(this, plugin)
     }
 
-    fun getItem(key: String): CustomItem? =
+    override fun getKeys(): Set<String> = mapKeys
+
+    override fun getPaths(): Set<String> = itemPaths
+
+    override fun contains(key: String): Boolean =
+        mapKeys.contains(key)
+
+    override fun getItem(key: String): CustomItem? =
         loadedMap[key]
 
-    fun getItem(item: ItemStack?): CustomItem? =
+    override fun getItem(item: ItemStack?): CustomItem? =
         loadedMap[item?.itemMeta?.persistentDataContainer?.get(ITEM_TAG_KEY, PersistentDataType.STRING)]
 
     override fun load(config: ConfigurationSection) {

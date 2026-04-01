@@ -3,7 +3,6 @@ import org.codehaus.plexus.util.Os
 
 plugins {
     kotlin("jvm") version "2.3.20"
-    `maven-publish`
     alias(libs.plugins.shadow)
     alias(libs.plugins.runPaper)
     alias(libs.plugins.pluginYml)
@@ -24,6 +23,7 @@ dependencies {
     compileOnly(libs.storm)
     compileOnly(libs.antiRelog)
 
+    implementation(project(":api"))
     implementation(libs.guice)
     implementation(libs.enhancedLegacy)
     implementation(libs.adventureMini)
@@ -104,32 +104,6 @@ bukkit {
         }
         register("customitems.give") {
             description = "Allows to give custom items"
-        }
-    }
-}
-
-publishing {
-    repositories {
-        val repoUrl = findProperty("myMavenRepoWriteUrl").toString()
-        if (repoUrl.isNotEmpty()) {
-            maven {
-                url = uri(repoUrl)
-
-                credentials {
-                    username = findProperty("myMavenRepoWriteUsername").toString()
-                    password = findProperty("myMavenRepoWritePassword").toString()
-                }
-            }
-        }
-    }
-
-    publications {
-        create<MavenPublication>("maven") {
-            groupId = findProperty("group").toString()
-            artifactId = "CustomItems-core"
-            version = findProperty("version").toString()
-
-            from(components["java"])
         }
     }
 }

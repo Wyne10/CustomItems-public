@@ -89,6 +89,7 @@ object InitializeInjector : PluginStep<CustomItems> {
                 PluginModule(plugin),
                 CustomItemModule,
                 CompositorModule,
+                ApiModule,
                 PlaceholderModule,
                 CommandModule,
                 AbstractMenusModule
