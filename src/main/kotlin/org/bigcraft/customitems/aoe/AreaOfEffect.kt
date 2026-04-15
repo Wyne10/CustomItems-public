@@ -1,7 +1,6 @@
 package org.bigcraft.customitems.aoe
 
 import me.wyne.wutils.animation.Animation
-import me.wyne.wutils.animation.AnimationRunnable
 import me.wyne.wutils.animation.BlockingAnimationStep
 import me.wyne.wutils.animation.ParallelAnimationStep
 import me.wyne.wutils.animation.runnable.ParticleArray
@@ -27,7 +26,7 @@ class AreaOfEffect(
         val aoe = Animation(CustomItems.instance)
         if (renderer != null)
             aoe.addStep(ParallelAnimationStep(renderer, 0, 5, durationTicks))
-        aoe.addStep(BlockingAnimationStep(AnimationRunnable.runnable {
+        aoe.addStep(BlockingAnimationStep({
             manager.removeAoe(this)
             AoeFinishEvent(this).callEvent()
         }, durationTicks))

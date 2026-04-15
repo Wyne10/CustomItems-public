@@ -91,7 +91,7 @@ class TrapAttribute(
 
     private fun createTrapAoe(scheme: Scheme, player: Player, region: Region, world: World) {
         val min = Vector(region.minimumPoint.x, region.minimumPoint.y, region.minimumPoint.z)
-        val max = Vector(region.maximumPoint.x + 1, region.maximumPoint.y + 1, region.maximumPoint.z + 1)
+        val max = Vector(region.maximumPoint.x, region.maximumPoint.y, region.maximumPoint.z)
         val bounds = LocationRange(BukkitAdapter.adapt(world), min, max)
         AoeManager.instance.startAoe(
             AreaOfEffect(
