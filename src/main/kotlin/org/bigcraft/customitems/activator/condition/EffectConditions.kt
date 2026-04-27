@@ -20,3 +20,10 @@ class EffectTypeCondition(key: String, types: Set<PotionEffectType>) : Activator
         return event.newEffect?.type in value
     }
 }
+
+class EffectCauseCondition(key: String, causes: Set<EntityPotionEffectEvent.Cause>) : ActivatorCondition<Set<EntityPotionEffectEvent.Cause>>(key, causes) {
+    override fun isApplicable(event: Event, player: Player, customItem: CustomItem, item: ItemStack): Boolean {
+        if (event !is EntityPotionEffectEvent) return true
+        return event.cause in value
+    }
+}
