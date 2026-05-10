@@ -89,12 +89,23 @@ val ACTIVATOR_ATTRIBUTE_MAP = AttributeMap(
         "open-storage" to AttributeFactory { key, config -> StorageAttribute(key, config.getInt(key)) },
         "create-trap" to TrapAttribute.Factory,
         "set-item-amount" to AttributeFactory { key, config -> ItemAmountAttribute(key, config.getIntOperation(key)) },
+        "update-view" to AttributeFactory { key, config -> UpdateViewAttribute(key, config.getBoolean(key)) }
     )
 )
 
 abstract class ActivatorAttribute<V>(key: String, value: V) : AttributeBase<V>(key, value) {
     open fun isApplicable(event: Event, player: Player, customItem: CustomItem, item: ItemStack) = true
     abstract fun apply(event: Event, player: Player, customItem: CustomItem, item: ItemStack)
+}
+
+class UpdateViewAttribute(
+    key: String,
+    value: Boolean
+) : ActivatorAttribute<Boolean>(key, value) {
+    override fun apply(event: Event, player: Player, customItem: CustomItem, item: ItemStack) {
+        if (value)
+            customItem.updateView(item)
+    }
 }
 
 class CancelEventAttribute(
