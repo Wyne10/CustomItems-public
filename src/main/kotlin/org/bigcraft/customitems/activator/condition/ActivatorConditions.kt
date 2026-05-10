@@ -66,6 +66,7 @@ val ACTIVATOR_CONDITION_MAP = AttributeMap(
         "is-item-type" to AttributeFactory { key, config -> ItemTypeCondition(key, config.getEnumSet<Material>(key)) },
         "is-block-type" to AttributeFactory { key, config -> BlockTypeCondition(key, config.getEnumSet<Material>(key)) },
         "has-block-meta" to AttributeFactory { key, config -> BlockMetaCondition(key, config.getStringList(key).toSet()) },
+        "not-has-block-meta" to AttributeFactory { key, config -> NotBlockMetaCondition(key, config.getStringList(key).toSet()) },
         "is-consumed-item-type" to AttributeFactory { key, config -> ConsumedItemTypeCondition(key, config.getEnumSet<Material>(key)) },
         "is-potion-type" to AttributeFactory { key, config -> PotionTypeCondition(key, config.getPotionTypeEnumSet(key)) },
         "is-damager-type" to AttributeFactory { key, config -> DamagerTypeCondition(key, config.getEnumSet<EntityType>(key)) },

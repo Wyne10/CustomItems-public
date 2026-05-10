@@ -37,3 +37,10 @@ class BlockMetaCondition(key: String, meta: Set<String>) : ActivatorCondition<Se
         return value.any { event.block.hasMetadata(it) }
     }
 }
+
+class NotBlockMetaCondition(key: String, meta: Set<String>) : ActivatorCondition<Set<String>>(key, meta) {
+    override fun isApplicable(event: Event, player: Player, customItem: CustomItem, item: ItemStack): Boolean {
+        if (event !is BlockEvent) return true
+        return value.none { event.block.hasMetadata(it) }
+    }
+}
