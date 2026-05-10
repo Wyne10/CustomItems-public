@@ -23,11 +23,13 @@ import me.wyne.wutils.config.configurables.attribute.AttributeFactory
 import me.wyne.wutils.config.configurables.attribute.AttributeMap
 import me.wyne.wutils.config.configurables.attribute.CompositeAttributeFactory
 import me.wyne.wutils.config.configurables.gui.attribute.SoundAttribute
+import me.wyne.wutils.config.configurables.item.ItemAttributeContext
 import me.wyne.wutils.config.configurables.item.attribute.PotionEffectsAttribute
 import me.wyne.wutils.i18n.I18n
 import me.wyne.wutils.i18n.kotlin.placeholderComponent
 import me.wyne.wutils.i18n.kotlin.placeholderString
 import me.wyne.wutils.i18n.kotlin.replace
+import me.wyne.wutils.i18n.language.replacement.ComponentReplacement
 import net.kyori.adventure.sound.Sound
 import org.bigcraft.customitems.CustomItems
 import org.bigcraft.customitems.aoe.AoeManager
@@ -35,6 +37,7 @@ import org.bigcraft.customitems.aoe.AreaOfEffect
 import org.bigcraft.customitems.block.CustomBlockManager
 import org.bigcraft.customitems.item.CustomItem
 import org.bigcraft.customitems.item.CustomItemManager
+import org.bigcraft.customitems.item._durability
 import org.bigcraft.customitems.trap.TrapAttribute
 import org.bukkit.Bukkit
 import org.bukkit.configuration.ConfigurationSection
@@ -109,7 +112,14 @@ class UpdateViewAttribute(
 ) : ActivatorAttribute<Boolean>(key, value) {
     override fun apply(event: Event, player: Player, customItem: CustomItem, item: ItemStack) {
         if (value)
-            customItem.updateView(item)
+            customItem.updateView(
+                item,
+                ItemAttributeContext(
+                    player,
+                    arrayOf("durability" replace item._durability),
+                    emptyArray<ComponentReplacement>()
+                )
+            ) // TODO Might add context replacements as attributes
     }
 }
 
