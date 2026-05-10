@@ -16,6 +16,7 @@ import org.bigcraft.customitems.CustomItems
 import org.bukkit.NamespacedKey
 import org.bukkit.configuration.ConfigurationSection
 import org.bukkit.inventory.ItemStack
+import org.bukkit.inventory.meta.Damageable
 import org.bukkit.inventory.meta.ItemMeta
 import org.bukkit.persistence.PersistentDataType
 import kotlin.collections.get
@@ -26,6 +27,7 @@ val ITEM_ATTRIBUTE_MAP = mapOf(
     "pdc-tags" to AttributeFactory(::PdcTagsAttribute),
     "compositor" to StringCollectionAttribute.SetFactory(),
     "random-amount" to AttributeFactory { key, config -> RandomAmountAttribute(key, ClosedIntRange.getIntRange(config.getString(key))) },
+    "random-durability" to AttributeFactory { key, config -> RandomDurabilityAttribute(key, ClosedIntRange.getIntRange(config.getString(key))) }
 )
 
 class NbtTagAttribute(
@@ -106,5 +108,17 @@ class RandomAmountAttribute(
 ) : AttributeBase<ClosedIntRange>(key, amount), ItemStackAttribute {
     override fun apply(item: ItemStack) {
         item.amount = value.random
+    }
+}
+
+class RandomDurabilityAttribute(
+    key: String,
+    durability: ClosedIntRange
+) : AttributeBase<ClosedIntRange>(key, durability), ItemStackAttribute {
+    override fun apply(item: ItemStack) {
+        val damageable = item.itemMeta as? Damageable ?: return
+        val maxDurability = item.type.maxDurability
+        damageable.damage = (maxDurability - value.random).coerceIn(0, item.type.maxDurability.toInt())
+        item.itemMeta = damageable as ItemMeta
     }
 }

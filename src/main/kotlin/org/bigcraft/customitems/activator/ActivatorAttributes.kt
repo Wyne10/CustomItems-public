@@ -11,6 +11,7 @@ import me.wyne.wutils.common.kotlin.config.getEnumSet
 import me.wyne.wutils.common.kotlin.config.getIntOperation
 import me.wyne.wutils.common.kotlin.config.getMillis
 import me.wyne.wutils.common.kotlin.config.getPotionTypeEnumSet
+import me.wyne.wutils.common.kotlin.item.damageNaturally
 import me.wyne.wutils.common.operation.DoubleOperation
 import me.wyne.wutils.common.operation.IntOperation
 import me.wyne.wutils.common.range.LocationRange
@@ -49,6 +50,8 @@ import org.bukkit.event.entity.PlayerDeathEvent
 import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.inventory.EquipmentSlot
 import org.bukkit.inventory.ItemStack
+import org.bukkit.inventory.meta.Damageable
+import org.bukkit.inventory.meta.ItemMeta
 import org.bukkit.metadata.FixedMetadataValue
 import org.bukkit.potion.PotionEffect
 import org.bukkit.potion.PotionEffectType
@@ -89,6 +92,8 @@ val ACTIVATOR_ATTRIBUTE_MAP = AttributeMap(
         "open-storage" to AttributeFactory { key, config -> StorageAttribute(key, config.getInt(key)) },
         "create-trap" to TrapAttribute.Factory,
         "set-item-amount" to AttributeFactory { key, config -> ItemAmountAttribute(key, config.getIntOperation(key)) },
+        "set-item-durability" to AttributeFactory { key, config -> ItemDurabilityAttribute(key, config.getIntOperation(key)) },
+        "damage-item" to AttributeFactory { key, config -> DamageItemAttribute(key, config.getInt(key)) },
         "update-view" to AttributeFactory { key, config -> UpdateViewAttribute(key, config.getBoolean(key)) }
     )
 )
@@ -310,6 +315,32 @@ class ItemAmountAttribute(
 ) : ActivatorAttribute<IntOperation>(key, operation) {
     override fun apply(event: Event, player: Player, customItem: CustomItem, item: ItemStack) {
         item.amount = value.evaluate(item.amount)
+    }
+}
+
+class ItemDurabilityAttribute(
+    key: String,
+    operation: IntOperation
+) : ActivatorAttribute<IntOperation>(key, operation) {
+    override fun isApplicable(event: Event, player: Player, customItem: CustomItem, item: ItemStack): Boolean =
+        item.itemMeta is Damageable
+
+    override fun apply(event: Event, player: Player, customItem: CustomItem, item: ItemStack) {
+        val damageable = item.itemMeta as Damageable
+        damageable.damage = item.type.maxDurability - value.evaluate(item.type.maxDurability - damageable.damage)
+        item.itemMeta = damageable as ItemMeta
+    }
+}
+
+class DamageItemAttribute(
+    key: String,
+    damage: Int
+) : ActivatorAttribute<Int>(key, damage) {
+    override fun isApplicable(event: Event, player: Player, customItem: CustomItem, item: ItemStack): Boolean =
+        item.itemMeta is Damageable
+
+    override fun apply(event: Event, player: Player, customItem: CustomItem, item: ItemStack) {
+        item.damageNaturally(player, value)
     }
 }
 
