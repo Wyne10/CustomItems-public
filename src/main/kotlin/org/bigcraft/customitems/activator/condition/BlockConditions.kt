@@ -30,3 +30,10 @@ class BlockTypeCondition(key: String, types: Set<Material>) : ActivatorCondition
         return event.block.type in value
     }
 }
+
+class BlockMetaCondition(key: String, meta: Set<String>) : ActivatorCondition<Set<String>>(key, meta) {
+    override fun isApplicable(event: Event, player: Player, customItem: CustomItem, item: ItemStack): Boolean {
+        if (event !is BlockEvent) return true
+        return value.any { event.block.hasMetadata(it) }
+    }
+}
