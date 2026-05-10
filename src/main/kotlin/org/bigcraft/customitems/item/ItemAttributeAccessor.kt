@@ -2,6 +2,7 @@ package org.bigcraft.customitems.item
 
 import me.wyne.wutils.config.configurables.ItemConfigurable
 import me.wyne.wutils.config.configurables.item.ItemAttribute
+import me.wyne.wutils.config.configurables.item.ItemAttributeContext
 import me.wyne.wutils.config.configurables.item.attribute.LoreAttribute
 import me.wyne.wutils.config.configurables.item.attribute.NameAttribute
 import me.wyne.wutils.i18n.I18n
@@ -18,7 +19,7 @@ interface ItemAttributeAccessor {
     val isCompositor: Boolean
     val compositorSet: Set<String>
     fun getName(localeContainer: Any?): PlaceholderLocalizedComponent
-    fun updateView(item: ItemStack)
+    fun updateView(item: ItemStack, context: ItemAttributeContext = ItemAttributeContext())
 }
 
 class DefaultItemAttributeAccessor(
@@ -48,10 +49,10 @@ class DefaultItemAttributeAccessor(
             .getPlaceholderComponent(I18n.toPlayer(localeContainer))
     }
 
-    override fun updateView(item: ItemStack) {
+    override fun updateView(item: ItemStack, context: ItemAttributeContext) {
         val customItem = CustomItemManager.instance.getItem(item) ?: return
-        itemAttributes.get<NameAttribute>(ItemAttribute.NAME.key)?.apply(item)
-        itemAttributes.get<LoreAttribute>(ItemAttribute.LORE.key)?.apply(item)
+        itemAttributes.get<NameAttribute>(ItemAttribute.NAME.key)?.apply(item, context)
+        itemAttributes.get<LoreAttribute>(ItemAttribute.LORE.key)?.apply(item, context)
         item.editMeta {
             if (!it.hasLore()) return@editMeta
             var index = it.lore?.indexOfFirst { line -> line.contains("<composed-list>") } ?: return@editMeta

@@ -2,6 +2,7 @@ package org.bigcraft.customitems.activator.condition
 
 import org.bigcraft.customitems.aoe.AoeManager
 import org.bigcraft.customitems.item.CustomItem
+import org.bukkit.Material
 import org.bukkit.entity.Player
 import org.bukkit.event.Event
 import org.bukkit.event.block.BlockEvent
@@ -20,5 +21,26 @@ class BlockNotWithinAoeCondition(key: String, aoeKeys: Set<String>) : ActivatorC
         if (event !is BlockEvent) return true
         return value.flatMap { AoeManager.instance.getAoe(it) }
             .none { it.bounds.contains(event.block.location) }
+    }
+}
+
+class BlockTypeCondition(key: String, types: Set<Material>) : ActivatorCondition<Set<Material>>(key, types) {
+    override fun isApplicable(event: Event, player: Player, customItem: CustomItem, item: ItemStack): Boolean {
+        if (event !is BlockEvent) return true
+        return event.block.type in value
+    }
+}
+
+class BlockMetaCondition(key: String, meta: Set<String>) : ActivatorCondition<Set<String>>(key, meta) {
+    override fun isApplicable(event: Event, player: Player, customItem: CustomItem, item: ItemStack): Boolean {
+        if (event !is BlockEvent) return true
+        return value.any { event.block.hasMetadata(it) }
+    }
+}
+
+class NotBlockMetaCondition(key: String, meta: Set<String>) : ActivatorCondition<Set<String>>(key, meta) {
+    override fun isApplicable(event: Event, player: Player, customItem: CustomItem, item: ItemStack): Boolean {
+        if (event !is BlockEvent) return true
+        return value.none { event.block.hasMetadata(it) }
     }
 }

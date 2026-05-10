@@ -7,6 +7,8 @@ import me.wyne.wutils.config.configurables.attribute.ImmutableAttributeContainer
 import me.wyne.wutils.config.configurables.item.ContextItemStackAttribute
 import me.wyne.wutils.config.configurables.item.ItemAttributeContext
 import me.wyne.wutils.config.configurables.item.ItemStackAttribute
+import me.wyne.wutils.i18n.kotlin.replace
+import me.wyne.wutils.i18n.language.replacement.ComponentReplacement
 import org.bigcraft.customitems.ConfigurableFactory
 import org.bigcraft.customitems.CustomItems
 import org.bigcraft.customitems.activator.ACTIVATOR_MAP
@@ -24,6 +26,7 @@ import org.bukkit.entity.Player
 import org.bukkit.inventory.Inventory
 import org.bukkit.inventory.ItemStack
 import org.bukkit.inventory.PlayerInventory
+import org.bukkit.inventory.meta.Damageable
 import org.bukkit.persistence.PersistentDataType
 
 class CustomItem(
@@ -43,7 +46,14 @@ class CustomItem(
     override fun createItemStack(player: Player?): ItemStack {
         val itemStack = itemAttributes.build(player)
         itemStack.editMeta { meta -> meta.persistentDataContainer.set(ITEM_TAG_KEY, PersistentDataType.STRING, key) }
-        updateView(itemStack)
+        updateView(
+            itemStack,
+            ItemAttributeContext(
+                player,
+                arrayOf("durability" replace itemStack._durability),
+                emptyArray<ComponentReplacement>()
+            )
+        ) // TODO Might add context replacements as attributes
         return itemStack
     }
 
@@ -57,7 +67,14 @@ class CustomItem(
             }
         }
         item.editMeta { meta -> meta.persistentDataContainer.set(ITEM_TAG_KEY, PersistentDataType.STRING, key) }
-        updateView(item)
+        updateView(
+            item,
+            ItemAttributeContext(
+                player,
+                arrayOf("durability" replace item._durability),
+                emptyArray<ComponentReplacement>()
+            )
+        ) // TODO Might add context replacements as attributes
     }
 
     override infix fun isCustomItem(item: ItemStack?): Boolean =
@@ -135,3 +152,6 @@ class CustomItem(
     }
 
 }
+
+val ItemStack._durability: Int
+    get() = type.maxDurability - ((this.itemMeta as? Damageable)?.damage ?: 0)
