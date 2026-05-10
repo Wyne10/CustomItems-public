@@ -22,6 +22,7 @@ dependencies {
     compileOnly(libs.abstractMenus)
     compileOnly(libs.storm)
     compileOnly(libs.antiRelog)
+    compileOnly(libs.lootPool)
 
     implementation(project(":api"))
     implementation(libs.guice)
@@ -57,8 +58,8 @@ tasks {
 
     runServer {
         val minecraftVersion: String = if (Os.isFamily(Os.FAMILY_WINDOWS) || isDebug) "1.19.4" else "1.16.5"
-        val viaVersion = "5.8.1"
-        val commandApiVersion = "9.4.2"
+        val viaVersion = "5.9.1"
+        val commandApiVersion = "9.4.3"
         downloadPlugins {
             // https://dev.bukkit.org/projects/worldedit/files/4793142/download
             // https://dev.bukkit.org/projects/worldguard/files/3342964/download
@@ -67,7 +68,7 @@ tasks {
             github("dmulloy2", "ProtocolLib", "5.4.0", "ProtocolLib.jar")
             github("ViaVersion", "ViaVersion", viaVersion, "ViaVersion-$viaVersion.jar")
             github("ViaVersion", "ViaBackwards", viaVersion, "ViaBackwards-$viaVersion.jar")
-            github("CommandAPI", "CommandAPI", commandApiVersion, "CommandAPI-$commandApiVersion.jar")
+            github("NeverMined-Entertainment", "CommandAPI", commandApiVersion, "CommandAPI-$commandApiVersion.jar")
             modrinth("nbtapi", "2.15.0")
         }
         minecraftVersion(minecraftVersion)
@@ -93,6 +94,7 @@ bukkit {
     author = findProperty("author").toString()
     main = "org.bigcraft.customitems.CustomItems"
     apiVersion = "1.16"
+    loadBefore = listOf("LootPool")
     softDepend = listOf("PlaceholderAPI", "CommandAPI", "NBTAPI", "CustomEnchants", "WorldEdit", "WorldGuard", "AbstractMenus", "Storm", "AntiRelog")
     permissions {
         register("customitems.*") {
