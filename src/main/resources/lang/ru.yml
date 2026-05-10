@@ -9,7 +9,9 @@ info-activation: "<gray>Только что сработал эффект: %ci_<
 ## Error
 error-item-not-found: "<red>Предмет '<key>' не существует!"
 error-insufficient-funds: "<red>Недостаточно средств, нужно <price> %ci_<key>_name%"
+error-lootpool-already-exists: "<red>Лут пул '<key>' уже существует!"
 
 ## Success
 success-plugin-reload: "<green>Плагин перезагружен!"
 success-item-give: "<item-name> [<item-amount>] <green>выдан <targets>!"
+success-lootpool-create: "<green>Лут пул '<key>' создан"

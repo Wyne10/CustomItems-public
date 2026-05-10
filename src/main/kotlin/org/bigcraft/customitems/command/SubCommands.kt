@@ -17,7 +17,10 @@ import me.wyne.wutils.i18n.kotlin.placeholderString
 import me.wyne.wutils.i18n.kotlin.replace
 import me.wyne.wutils.i18n.kotlin.replaceComponent
 import org.bigcraft.customitems.CustomItems
+import org.bigcraft.customitems.CustomKeyedLoot
 import org.bigcraft.customitems.item.CustomItemManager
+import org.bigcraft.lootpool.api.Loot
+import org.bigcraft.lootpool.api.LootPoolApi
 import org.bukkit.Bukkit
 import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
@@ -91,6 +94,31 @@ class ExchangeCommand(private val itemManager: CustomItemManager) : SubCommand("
                 remain -= stackAmount
             }
             Bukkit.dispatchCommand(Bukkit.getConsoleSender(), target.placeholderString(args.getOrDefaultRaw("execute", "")).get())
+        })
+}
+
+class LootCommand(private val itemManager: CustomItemManager) : SubCommand("loot") {
+    override val command: CommandAPICommand = super.command
+        .withPermission("lootpool.create")
+        .withArguments(itemKeyArgument(itemManager))
+        .withOptionalArguments(IntegerArgument("minAmount", 1, 64))
+        .withOptionalArguments(IntegerArgument("maxAmount", 1, 64))
+        .withOptionalArguments(IntegerArgument("weight", 0))
+        .executes(CommandExecutor { sender, args ->
+            assertItemExists(itemManager, args.key, sender)
+            val key = args.key
+            val item = itemManager.getItem(args.key)!!
+            val minAmount = args.getByClassOrDefault("minAmount", Int::class.java, Loot.EMPTY.minAmount)
+            val maxAmount = args.getByClassOrDefault("maxAmount", Int::class.java, Loot.EMPTY.maxAmount)
+            val weight = args.getByClassOrDefault("weight", Int::class.java, Loot.EMPTY.weight)
+            if (LootPoolApi.getProvider().getLootPool(key) != null)
+                throw CommandAPIBukkit.failWithBaseComponents(
+                    *sender.placeholderComponent("error-lootpool-already-exists", "key" replace key).bungee()
+                )
+            LootPoolApi.getProvider()
+                .writeLootPool(CustomKeyedLoot(key, Loot(item.createItemStack(null), weight,
+                            minAmount.coerceAtMost(maxAmount), maxAmount.coerceAtLeast(minAmount))))
+            sender.placeholderComponent("success-lootpool-create", "key" replace key).sendMessage(sender)
         })
 }
 

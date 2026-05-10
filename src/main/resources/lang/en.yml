@@ -9,7 +9,9 @@ info-activation: "<gray>Effect invoked: %ci_<key>_name%"
 ## Error
 error-item-not-found: "<red>Item '<key>' doesn't exist!"
 error-insufficient-funds: "<red>Insufficient funds, required <price> %ci_<key>_name%"
+error-lootpool-already-exists: "<red>Loot pool '<key>' already exists!"
 
 ## Success
 success-plugin-reload: "<green>Plugin reloaded!"
 success-item-give: "<item-name> [<item-amount>] <green>given to <targets>!"
+success-lootpool-create: "<green>Loot pool '<key>' created"

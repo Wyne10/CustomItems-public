@@ -6,6 +6,7 @@ import me.wyne.wutils.common.event.EventRegistry
 import me.wyne.wutils.common.loadable.LoadableMeta
 import org.bigcraft.customitems.AbstractManager
 import org.bigcraft.customitems.CustomItems
+import org.bigcraft.customitems.CustomKeyedLoot
 import org.bigcraft.customitems.api.CustomItemApi
 import org.bigcraft.customitems.api.CustomItemProvider
 import org.bigcraft.customitems.block.CustomBlockManager
@@ -13,6 +14,7 @@ import org.bigcraft.customitems.item.CustomItem.Companion.ITEM_TAG_KEY
 import org.bukkit.Bukkit
 import org.bukkit.configuration.ConfigurationSection
 import org.bukkit.configuration.file.YamlConfiguration
+import org.bukkit.configuration.serialization.ConfigurationSerialization
 import org.bukkit.event.EventHandler
 import org.bukkit.event.EventPriority
 import org.bukkit.event.Listener
@@ -43,6 +45,7 @@ class CustomItemManager @Inject constructor(plugin: CustomItems, private val blo
 
     init {
         instance = this
+        ConfigurationSerialization.registerClass(CustomKeyedLoot::class.java)
         Bukkit.getPluginManager().registerEvents(this, plugin)
     }
 
