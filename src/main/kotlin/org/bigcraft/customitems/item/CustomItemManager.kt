@@ -45,7 +45,6 @@ class CustomItemManager @Inject constructor(plugin: CustomItems, private val blo
 
     init {
         instance = this
-        ConfigurationSerialization.registerClass(CustomKeyedLoot::class.java)
         Bukkit.getPluginManager().registerEvents(this, plugin)
     }
 
