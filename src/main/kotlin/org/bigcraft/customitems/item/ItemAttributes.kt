@@ -46,7 +46,7 @@ class PdcTagAttribute(
 ) : AttributeBase<PdcTagAttribute.PdcTag>(key, tag), MetaAttribute {
 
     override fun apply(meta: ItemMeta) {
-        meta.persistentDataContainer.set(NamespacedKey(CustomItems.instance, key), value.type, value.value)
+        meta.persistentDataContainer.set(NamespacedKey.fromString(key, CustomItems.instance)!!, value.type, value.value)
     }
 
     data class PdcTag(val type: PersistentDataType<Any, Any>, val value: Any)
