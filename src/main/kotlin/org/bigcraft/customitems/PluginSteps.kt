@@ -21,16 +21,8 @@ import net.kyori.adventure.platform.bukkit.BukkitAudiences
 import org.bigcraft.customitems.CustomItems.Companion.EMPTY_CONFIGURATION
 import org.bigcraft.customitems.CustomItems.Companion.log
 import org.bigcraft.customitems.module.*
-import org.bukkit.configuration.serialization.ConfigurationSerialization
 import java.io.File
 import java.util.concurrent.Executors
-
-@Step(priority = 0, scope = StepScope.LOAD)
-object RegisterLootPool : PluginStep<CustomItems> {
-    override fun run(plugin: CustomItems) {
-        ConfigurationSerialization.registerClass(CustomKeyedLoot::class.java)
-    }
-}
 
 @Step(priority = 0, scope = StepScope.ENABLE)
 object LoadDefaultConfig : PluginStep<CustomItems> {

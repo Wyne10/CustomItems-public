@@ -16,7 +16,6 @@ class CustomItems : CompositeJavaPlugin<CustomItems>() {
     override fun init() {
         instance = this
         addSteps(
-            RegisterLootPool,
             LoadDefaultConfig,
             InitializeJson(GsonBuilder()
                     .enableComplexMapKeySerialization()
