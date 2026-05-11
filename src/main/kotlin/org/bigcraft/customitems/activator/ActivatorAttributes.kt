@@ -112,14 +112,16 @@ class UpdateViewAttribute(
 ) : ActivatorAttribute<Boolean>(key, value) {
     override fun apply(event: Event, player: Player, customItem: CustomItem, item: ItemStack) {
         if (value)
-            customItem.updateView(
-                item,
-                ItemAttributeContext(
-                    player,
-                    arrayOf("durability" replace item._durability),
-                    emptyArray<ComponentReplacement>()
-                )
-            ) // TODO Might add context replacements as attributes
+            Bukkit.getScheduler().runTask(CustomItems.instance, Runnable {
+                customItem.updateView(
+                    item,
+                    ItemAttributeContext(
+                        player,
+                        arrayOf("durability" replace item._durability),
+                        emptyArray<ComponentReplacement>()
+                    )
+                ) // TODO Might add context replacements as attributes
+            })
     }
 }
 
