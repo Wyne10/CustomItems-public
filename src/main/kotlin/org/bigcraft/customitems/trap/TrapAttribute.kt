@@ -7,10 +7,13 @@ import com.sk89q.worldedit.extent.clipboard.Clipboard
 import com.sk89q.worldedit.function.operation.ForwardExtentCopy
 import com.sk89q.worldedit.function.operation.Operations
 import com.sk89q.worldedit.math.BlockVector3
+import com.sk89q.worldedit.math.Vector3
 import com.sk89q.worldedit.regions.Region
 import com.sk89q.worldedit.session.ClipboardHolder
 import com.sk89q.worldedit.util.Location
 import com.sk89q.worldedit.world.World
+import com.sk89q.worldguard.WorldGuard
+import com.sk89q.worldguard.protection.regions.ProtectedCuboidRegion
 import me.wyne.wutils.common.Ticks
 import me.wyne.wutils.common.kotlin.config.getMillis
 import me.wyne.wutils.common.range.LocationRange
@@ -47,6 +50,7 @@ class TrapAttribute(
         val snapshot = snapshotRegion(clipboard, editLocation)
         if (!CreateTrapEvent(player, scheme, clipboard, snapshot, location, durationTicks).callEvent())
             return
+        val region = createTrapRegion(editWorld, editLocation, snapshot)
         createTrapAoe(scheme, player, snapshot.region, editWorld)
         Bukkit.getScheduler().runTaskLater(CustomItems.instance, Runnable {
             pasteClipboard(clipboard, editLocation.toVector().toBlockPoint(), editWorld)
@@ -55,10 +59,17 @@ class TrapAttribute(
             CustomItems.instance,
             {
                 pasteClipboard(snapshot, snapshot.origin, editWorld)
+                val container = WorldGuard.getInstance().platform.regionContainer
+                val regions = container.get(editWorld)
+                regions?.removeRegion(region.id)
             },
             { event ->
-                if (event == null || event.plugin == CustomItems.instance)
+                if (event == null || event.plugin == CustomItems.instance) {
                     pasteClipboard(snapshot, snapshot.origin, editWorld)
+                    val container = WorldGuard.getInstance().platform.regionContainer
+                    val regions = container.get(editWorld)
+                    regions?.removeRegion(region.id)
+                }
             },
             PluginDisableEvent::class.java
         ).runTaskLater(durationTicks)
@@ -87,6 +98,19 @@ class TrapAttribute(
                     .build()
                 Operations.complete(operation)
             }
+    }
+
+    private fun createTrapRegion(editWorld: World, editLocation: Location, snapshot: Clipboard): ProtectedCuboidRegion {
+        val region = ProtectedCuboidRegion(
+            "trap-${editLocation.toVector().validString}",
+            true,
+            snapshot.minimumPoint,
+            snapshot.maximumPoint
+        )
+        val container = WorldGuard.getInstance().platform.regionContainer
+        val regions = container.get(editWorld)
+        regions?.addRegion(region)
+        return region
     }
 
     private fun createTrapAoe(scheme: Scheme, player: Player, region: Region, world: World) {
@@ -126,3 +150,9 @@ class TrapAttribute(
     }
 
 }
+
+val Vector.validString: String
+    get() = this.toString().replace(".0", "").replace(",", "-")
+
+val Vector3.validString: String
+    get() = with(this.toBlockPoint()) { "$blockX-$blockY-$blockZ" }
