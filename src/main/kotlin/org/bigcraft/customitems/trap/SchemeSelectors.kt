@@ -1,5 +1,8 @@
 package org.bigcraft.customitems.trap
 
+import com.sk89q.worldedit.bukkit.BukkitAdapter
+import com.sk89q.worldedit.math.BlockVector3
+import com.sk89q.worldguard.WorldGuard
 import me.wyne.wutils.common.kotlin.config.getEnumSet
 import me.wyne.wutils.config.configurables.attribute.AttributeBase
 import me.wyne.wutils.config.configurables.attribute.AttributeFactory
@@ -16,7 +19,8 @@ val SCHEME_SELECTOR_MAP = AttributeMap(
         "biomes" to AttributeFactory { key, config -> BiomeSchemeSelector(key, config.getEnumSet<Biome>(key)) },
         "worlds" to AttributeFactory { key, config -> WorldSchemeSelector(key, config.getStringList(key).mapNotNull { Bukkit.getWorld(it) }.toSet()) },
         "dimensions" to AttributeFactory { key, config -> DimensionSchemeSelector(key, config.getEnumSet<World.Environment>(key)) },
-        "blocks" to AttributeFactory { key, config -> BlockSchemeSelector(key, config.getEnumSet<Material>(key)) }
+        "blocks" to AttributeFactory { key, config -> BlockSchemeSelector(key, config.getEnumSet<Material>(key)) },
+        "regions" to AttributeFactory { key, config -> RegionSchemeSelector(key, config.getStringList(key).toSet()) }
     )
 )
 
@@ -38,4 +42,12 @@ class DimensionSchemeSelector(key: String, dimensions: Set<World.Environment>) :
 
 class BlockSchemeSelector(key: String, blocks: Set<Material>) : AttributeBase<Set<Material>>(key, blocks), SchemeSelector {
     override fun isApplicable(player: Player) = player.location.block.getRelative(BlockFace.DOWN).type in value
+}
+
+class RegionSchemeSelector(key: String, regions: Set<String>) : AttributeBase<Set<String>>(key, regions), SchemeSelector {
+    override fun isApplicable(player: Player): Boolean {
+        val regions = WorldGuard.getInstance().platform.regionContainer.get(BukkitAdapter.adapt(player.location.world))
+            ?.getApplicableRegions(BlockVector3.at(player.location.blockX, player.location.blockY, player.location.blockZ))
+        return regions?.any { it.id in value } ?: false
+    }
 }
