@@ -30,6 +30,22 @@ object HoldItemIdentifier : ItemIdentifier {
     }
 }
 
+object MainHandItemIdentifier : ItemIdentifier {
+    override fun getItem(player: Player, customItem: CustomItem): ItemStack? {
+        return if (customItem.isCustomItem(player.inventory.getItem(EquipmentSlot.HAND)))
+            player.inventory.getItem(EquipmentSlot.HAND)
+        else null
+    }
+}
+
+object OffHandItemIdentifier : ItemIdentifier {
+    override fun getItem(player: Player, customItem: CustomItem): ItemStack? {
+        return if (customItem.isCustomItem(player.inventory.getItem(EquipmentSlot.OFF_HAND)))
+            player.inventory.getItem(EquipmentSlot.OFF_HAND)
+        else null
+    }
+}
+
 object EffectOrPlayerItemIdentifier : ItemIdentifier {
     override fun getItem(player: Player, customItem: CustomItem): ItemStack? {
         val effect = StormApi.getEffectRegistry().getEffectInstance(customItem.key) ?: return PlayerItemIdentifier.getItem(player, customItem)
@@ -42,5 +58,7 @@ enum class ItemIdentifiers(val identifier: ItemIdentifier) {
     EMPTY(EmptyItemIdentifier),
     PLAYER(PlayerItemIdentifier),
     HOLD(HoldItemIdentifier),
+    MAIN(MainHandItemIdentifier),
+    OFF(OffHandItemIdentifier),
     EFFECT_OR_PLAYER(EffectOrPlayerItemIdentifier),
 }
