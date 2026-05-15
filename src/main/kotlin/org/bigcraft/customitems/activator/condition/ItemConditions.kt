@@ -58,3 +58,10 @@ class CustomItemCooldownCondition(key: String, isActive: Boolean) : ActivatorCon
     override fun isApplicable(event: Event, player: Player, customItem: CustomItem, item: ItemStack) =
         customItem.cooldowns.any { it.isCooldowned(player, customItem) } == value
 }
+
+class ConsumedItemCustomCondition(key: String, isActive: Boolean) : ActivatorCondition<Boolean>(key, isActive) {
+    override fun isApplicable(event: Event, player: Player, customItem: CustomItem, item: ItemStack): Boolean {
+        if (event !is PlayerItemConsumeEvent) return true
+        return customItem.isCustomItem(event.item) == value
+    }
+}
