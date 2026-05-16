@@ -80,7 +80,8 @@ val ACTIVATOR_CONDITION_MAP = AttributeMap(
         "is-effect-type" to AttributeFactory { key, config -> EffectTypeCondition(key, config.getPotionTypeEnumSet(key)) },
         "is-effect-cause" to AttributeFactory { key, config -> EffectCauseCondition(key, config.getEnumSet<EntityPotionEffectEvent.Cause>(key)) },
         "block-blacklist" to AttributeFactory { key, config -> TrapBlockCondition(key, config.getEnumSet<Material>(key)) },
-        "region-whitelist" to AttributeFactory { key, config -> TrapRegionCondition(key, config.getStringList(key).toSet()) }
+        "region-whitelist" to AttributeFactory { key, config -> TrapRegionCondition(key, config.getStringList(key).toSet()) },
+        "command-whitelist" to AttributeFactory { key, config -> CommandWhitelistCondition(key, config.getStringList(key).toSet()) }
     )
 )
 

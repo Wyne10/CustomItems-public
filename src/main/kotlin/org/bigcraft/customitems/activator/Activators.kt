@@ -25,6 +25,7 @@ import org.bukkit.event.entity.EntityDamageEvent
 import org.bukkit.event.entity.EntityPotionEffectEvent
 import org.bukkit.event.entity.EntityResurrectEvent
 import org.bukkit.event.entity.PlayerDeathEvent
+import org.bukkit.event.player.PlayerCommandPreprocessEvent
 import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.event.player.PlayerItemConsumeEvent
 import org.bukkit.event.player.PlayerMoveEvent
@@ -47,6 +48,7 @@ val ACTIVATOR_MAP = AttributeMap(
         "player-block-place" to AttributeFactory { key, config -> BlockPlaceActivator(key, createItemIdentifier(key, config), createActivatorAttributes(key, config), createActivatorConditions(key, config)) },
         "player-resurrect" to AttributeFactory { key, config -> PlayerResurrectActivator(key, createItemIdentifier(key, config), createActivatorAttributes(key, config), createActivatorConditions(key, config)) },
         "player-move" to AttributeFactory { key, config -> PlayerMoveActivator(key, createItemIdentifier(key, config), createActivatorAttributes(key, config), createActivatorConditions(key, config)) },
+        "player-command" to AttributeFactory { key, config -> PlayerCommandActivator(key, createItemIdentifier(key, config), createActivatorAttributes(key, config), createActivatorConditions(key, config)) },
         "player-create-trap" to AttributeFactory { key, config -> CreateTrapActivator(key, createItemIdentifier(key, config), createActivatorAttributes(key, config), createActivatorConditions(key, config)) },
         "aoe-finish" to AttributeFactory { key, config -> AoeFinishActivator(key, createItemIdentifier(key, config), createActivatorAttributes(key, config), createActivatorConditions(key, config)) },
     )
@@ -286,6 +288,19 @@ class PlayerMoveActivator(
     @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGH)
     private fun onMove(event: PlayerMoveEvent) {
         if (!event.hasChangedPosition()) return
+        val itemStack = getItemStack(event.player) ?: return
+        activate(event, event.player, itemStack)
+    }
+}
+
+class PlayerCommandActivator(
+    key: String,
+    itemIdentifier: ItemIdentifier,
+    attributes: Set<ActivatorAttribute<*>>,
+    conditions: Set<ActivatorCondition<*>>
+) : Activator(key, itemIdentifier, attributes, conditions) {
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGH)
+    private fun onCommand(event: PlayerCommandPreprocessEvent) {
         val itemStack = getItemStack(event.player) ?: return
         activate(event, event.player, itemStack)
     }
