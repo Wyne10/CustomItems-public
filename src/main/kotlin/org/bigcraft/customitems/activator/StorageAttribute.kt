@@ -6,6 +6,7 @@ import me.wyne.wutils.common.serialization.Base64InventorySerializer
 import org.bigcraft.customitems.CustomItems
 import org.bigcraft.customitems.item.CustomItem
 import org.bigcraft.customitems.item.CustomItemManager
+import org.bigcraft.customitems.listener.isNullOrAir
 import org.bukkit.Bukkit
 import org.bukkit.Material
 import org.bukkit.NamespacedKey
@@ -14,7 +15,6 @@ import org.bukkit.event.Event
 import org.bukkit.event.EventHandler
 import org.bukkit.event.entity.PlayerDeathEvent
 import org.bukkit.event.inventory.ClickType
-import org.bukkit.event.inventory.InventoryAction
 import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.event.inventory.InventoryCloseEvent
 import org.bukkit.event.inventory.InventoryOpenEvent
@@ -52,7 +52,7 @@ class StorageAttribute(
             player.closeInventory()
             return
         }
-        val inventory = Bukkit.createInventory(null, InventoryType.SHULKER_BOX, item.itemMeta.displayName)
+        val inventory = Bukkit.createInventory(player, InventoryType.SHULKER_BOX, item.itemMeta.displayName)
         players[player] = inventory
         if (player.inventory.getItem(EquipmentSlot.HAND) == item)
             inventories[inventory] = player.inventory.heldItemSlot
@@ -109,13 +109,6 @@ class StorageAttribute(
             if (slot == 40)
                 event.isCancelled = true
         }
-/*        if (event.action == InventoryAction.DROP_ALL_SLOT ||
-            event.action == InventoryAction.DROP_ONE_SLOT ||
-            event.action == InventoryAction.DROP_ALL_CURSOR ||
-            event.action == InventoryAction.DROP_ONE_CURSOR) {
-            if (inventories.containsKey(event.view.topInventory))
-                event.isCancelled = true
-        }*/
     }
 
     @EventHandler
@@ -132,8 +125,10 @@ class StorageAttribute(
 
     @EventHandler
     private fun onItemDrop(event: PlayerDropItemEvent) {
-        if (!players.containsKey(event.player)) return
-        event.isCancelled = true
+        val inventory = players[event.player] ?: return
+        val item = event.player.inventory.getItem(inventories[inventory]!!)
+        if (item.isNullOrAir())
+            event.isCancelled = true
     }
 
     @EventHandler
