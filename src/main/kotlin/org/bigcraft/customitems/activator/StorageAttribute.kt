@@ -52,7 +52,7 @@ class StorageAttribute(
             player.closeInventory()
             return
         }
-        val inventory = Bukkit.createInventory(player, InventoryType.SHULKER_BOX, item.itemMeta.displayName)
+        val inventory = Bukkit.createInventory(null, InventoryType.SHULKER_BOX, item.itemMeta.displayName)
         players[player] = inventory
         if (player.inventory.getItem(EquipmentSlot.HAND) == item)
             inventories[inventory] = player.inventory.heldItemSlot
@@ -91,29 +91,31 @@ class StorageAttribute(
 
     @EventHandler
     private fun onInventoryClick(event: InventoryClickEvent) {
+        val inventory = players[event.whoClicked as Player] ?: return
+        val slot = inventories[inventory]
         if (event.currentItem == FILLER) event.isCancelled = true
-        if (inventories.containsValue(event.slot)) {
+        if (event.clickedInventory == event.view.bottomInventory && slot == event.slot) {
             event.isCancelled = true
             return
         }
         if (event.click == ClickType.NUMBER_KEY) {
             val hotbarSlot = event.hotbarButton
-            if (inventories.containsValue(hotbarSlot)) {
+            if (slot == hotbarSlot) {
                 event.isCancelled = true
                 return
             }
         }
         if (event.click == ClickType.SWAP_OFFHAND) {
-            if (inventories.containsValue(40))
+            if (slot == 40)
                 event.isCancelled = true
         }
-        if (event.action == InventoryAction.DROP_ALL_SLOT ||
+/*        if (event.action == InventoryAction.DROP_ALL_SLOT ||
             event.action == InventoryAction.DROP_ONE_SLOT ||
             event.action == InventoryAction.DROP_ALL_CURSOR ||
             event.action == InventoryAction.DROP_ONE_CURSOR) {
             if (inventories.containsKey(event.view.topInventory))
                 event.isCancelled = true
-        }
+        }*/
     }
 
     @EventHandler

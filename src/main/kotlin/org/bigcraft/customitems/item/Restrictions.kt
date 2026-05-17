@@ -5,6 +5,10 @@ import me.wyne.wutils.common.kotlin.config.getEnumSet
 import me.wyne.wutils.common.kotlin.inventory.getAffectedItems
 import me.wyne.wutils.config.configurables.attribute.AttributeFactory
 import me.wyne.wutils.config.configurables.attribute.AttributeMap
+import me.wyne.wutils.i18n.kotlin.legacy
+import me.wyne.wutils.i18n.kotlin.plainText
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer
+import org.bigcraft.customitems.CustomItems
 import org.bukkit.Keyed
 import org.bukkit.NamespacedKey
 import org.bukkit.entity.EntityType
@@ -41,6 +45,7 @@ val RESTRICTION_MAP = AttributeMap(
         "cancel-craft-vanilla" to AttributeFactory { key, config -> VanillaCraftRestriction(key, config.getBoolean(key)) },
         "cancel-smelt" to AttributeFactory { key, config -> SmeltingRestriction(key, config.getBoolean(key)) },
         "cancel-storage" to AttributeFactory { key, config -> StorageRestriction(key, config.getEnumSet<InventoryType>(key)) },
+        "cancel-storage-title" to AttributeFactory { key, config -> StorageTitleRestriction(key, config.getString(key)!!) },
         "cancel-damage" to AttributeFactory { key, config -> DamageRestriction(key, config.getEnumSet<DamageCause>(key)) },
         "cancel-despawn" to AttributeFactory { key, config -> DespawnRestriction(key, config.getBoolean(key)) },
         "cancel-enchant" to AttributeFactory { key, config -> EnchantRestriction(key, config.getBoolean(key)) },
@@ -128,6 +133,22 @@ class StorageRestriction(
     private fun onMoveEvent(event: InventoryMoveItemEvent) {
         if (!types.contains(event.destination.type)) return
         cancelEvent(event, event.item)
+    }
+}
+
+class StorageTitleRestriction(
+    key: String,
+    title: String
+) : Restriction(key, title.isNotBlank()) {
+    private val regex = Regex(title)
+
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.LOWEST)
+    private fun onEvent(event: InventoryClickEvent) {
+        val title = event.view.title.legacy.plainText
+        if (!regex.matches(title)) return
+        event.getAffectedItems().forEach { item ->
+            cancelEvent(event, item)
+        }
     }
 }
 
