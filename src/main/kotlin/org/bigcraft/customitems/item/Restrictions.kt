@@ -45,6 +45,7 @@ val RESTRICTION_MAP = AttributeMap(
         "cancel-craft-vanilla" to AttributeFactory { key, config -> VanillaCraftRestriction(key, config.getBoolean(key)) },
         "cancel-smelt" to AttributeFactory { key, config -> SmeltingRestriction(key, config.getBoolean(key)) },
         "cancel-storage" to AttributeFactory { key, config -> StorageRestriction(key, config.getEnumSet<InventoryType>(key)) },
+        "allow-storage" to AttributeFactory { key, config -> AllowStorageRestriction(key, config.getEnumSet<InventoryType>(key)) },
         "cancel-storage-title" to AttributeFactory { key, config -> StorageTitleRestriction(key, config.getString(key)!!) },
         "cancel-damage" to AttributeFactory { key, config -> DamageRestriction(key, config.getEnumSet<DamageCause>(key)) },
         "cancel-despawn" to AttributeFactory { key, config -> DespawnRestriction(key, config.getBoolean(key)) },
@@ -132,6 +133,31 @@ class StorageRestriction(
     @EventHandler(ignoreCancelled = true, priority = EventPriority.LOWEST)
     private fun onMoveEvent(event: InventoryMoveItemEvent) {
         if (!types.contains(event.destination.type)) return
+        cancelEvent(event, event.item)
+    }
+}
+
+class AllowStorageRestriction(
+    key: String,
+    private val types: Set<InventoryType>
+) : Restriction(key, types.isNotEmpty()) {
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.LOWEST)
+    private fun onEvent(event: InventoryClickEvent) {
+        if (types.contains(event.view.topInventory.type)) return
+        event.getAffectedItems().forEach { item ->
+            cancelEvent(event, item)
+        }
+    }
+
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.LOWEST)
+    private fun onPickupEvent(event: InventoryPickupItemEvent) {
+        if (types.contains(event.inventory.type)) return
+        cancelEvent(event, event.item.itemStack)
+    }
+
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.LOWEST)
+    private fun onMoveEvent(event: InventoryMoveItemEvent) {
+        if (types.contains(event.destination.type)) return
         cancelEvent(event, event.item)
     }
 }
