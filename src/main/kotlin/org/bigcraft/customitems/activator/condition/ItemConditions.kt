@@ -5,6 +5,7 @@ import org.bigcraft.customitems.item.CustomItem
 import org.bukkit.Material
 import org.bukkit.entity.Player
 import org.bukkit.event.Event
+import org.bukkit.event.player.PlayerDropItemEvent
 import org.bukkit.event.player.PlayerItemConsumeEvent
 import org.bukkit.inventory.EquipmentSlot
 import org.bukkit.inventory.ItemStack
@@ -63,5 +64,12 @@ class ConsumedItemCustomCondition(key: String, isActive: Boolean) : ActivatorCon
     override fun isApplicable(event: Event, player: Player, customItem: CustomItem, item: ItemStack): Boolean {
         if (event !is PlayerItemConsumeEvent) return true
         return customItem.isCustomItem(event.item) == value
+    }
+}
+
+class DroppedItemCustomCondition(key: String, isActive: Boolean) : ActivatorCondition<Boolean>(key, isActive) {
+    override fun isApplicable(event: Event, player: Player, customItem: CustomItem, item: ItemStack): Boolean {
+        if (event !is PlayerDropItemEvent) return true
+        return customItem.isCustomItem(event.itemDrop.itemStack) == value
     }
 }

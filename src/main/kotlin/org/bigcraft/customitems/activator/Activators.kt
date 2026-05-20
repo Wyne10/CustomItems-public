@@ -26,6 +26,7 @@ import org.bukkit.event.entity.EntityPotionEffectEvent
 import org.bukkit.event.entity.EntityResurrectEvent
 import org.bukkit.event.entity.PlayerDeathEvent
 import org.bukkit.event.player.PlayerCommandPreprocessEvent
+import org.bukkit.event.player.PlayerDropItemEvent
 import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.event.player.PlayerItemConsumeEvent
 import org.bukkit.event.player.PlayerMoveEvent
@@ -51,6 +52,7 @@ val ACTIVATOR_MAP = AttributeMap(
         "player-command" to AttributeFactory { key, config -> PlayerCommandActivator(key, createItemIdentifier(key, config), createActivatorAttributes(key, config), createActivatorConditions(key, config)) },
         "player-create-trap" to AttributeFactory { key, config -> CreateTrapActivator(key, createItemIdentifier(key, config), createActivatorAttributes(key, config), createActivatorConditions(key, config)) },
         "aoe-finish" to AttributeFactory { key, config -> AoeFinishActivator(key, createItemIdentifier(key, config), createActivatorAttributes(key, config), createActivatorConditions(key, config)) },
+        "player-drop-item" to AttributeFactory { key, config -> PlayerDropItemActivator(key, createItemIdentifier(key, config), createActivatorAttributes(key, config), createActivatorConditions(key, config)) },
     )
 )
 
@@ -331,5 +333,19 @@ class AoeFinishActivator(
             val itemStack = getItemStack(it) ?: return
             activate(event, it, itemStack)
         }
+    }
+}
+
+class PlayerDropItemActivator(
+    key: String,
+    itemIdentifier: ItemIdentifier,
+    attributes: Set<ActivatorAttribute<*>>,
+    conditions: Set<ActivatorCondition<*>>
+) : Activator(key, itemIdentifier, attributes, conditions) {
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGH)
+    private fun onItemDrop(event: PlayerDropItemEvent) {
+        val itemStack = getItemStack(event.player) ?: event.itemDrop.itemStack
+        if (item.isCustomItem(itemStack))
+            activate(event, event.player, itemStack)
     }
 }
