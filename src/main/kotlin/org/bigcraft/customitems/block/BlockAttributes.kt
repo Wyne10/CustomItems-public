@@ -5,6 +5,7 @@ import de.tr7zw.nbtapi.NBT
 import me.wyne.wutils.common.Args
 import me.wyne.wutils.common.config.ConfigUtils
 import me.wyne.wutils.common.inventory.InventoryUtils
+import me.wyne.wutils.common.kotlin.item.dropActuallyNaturally
 import me.wyne.wutils.config.configurables.attribute.AttributeFactory
 import me.wyne.wutils.config.configurables.attribute.AttributeMap
 import org.bigcraft.customitems.item.CustomItemManager
@@ -81,7 +82,7 @@ class BreakDropAttribute(
             state.inventory
                 .filterNotNull()
                 .forEach { event.block.world.dropItemNaturally(event.block.location, it) }
-        event.block.world.dropItemNaturally(event.block.location, createDrop(event.player))
+        listOf(createDrop(event.player)).dropActuallyNaturally(event)
     }
 
 }

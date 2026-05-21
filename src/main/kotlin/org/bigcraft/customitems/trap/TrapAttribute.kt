@@ -13,6 +13,8 @@ import com.sk89q.worldedit.session.ClipboardHolder
 import com.sk89q.worldedit.util.Location
 import com.sk89q.worldedit.world.World
 import com.sk89q.worldguard.WorldGuard
+import com.sk89q.worldguard.protection.flags.Flags
+import com.sk89q.worldguard.protection.flags.StateFlag
 import com.sk89q.worldguard.protection.regions.ProtectedCuboidRegion
 import me.wyne.wutils.common.Ticks
 import me.wyne.wutils.common.kotlin.config.getMillis
@@ -107,6 +109,8 @@ class TrapAttribute(
             snapshot.minimumPoint,
             snapshot.maximumPoint
         )
+        region.setFlag(Flags.PVP, StateFlag.State.ALLOW)
+        region.setFlag(Flags.OTHER_EXPLOSION, StateFlag.State.ALLOW)
         val container = WorldGuard.getInstance().platform.regionContainer
         val regions = container.get(editWorld)
         regions?.addRegion(region)
