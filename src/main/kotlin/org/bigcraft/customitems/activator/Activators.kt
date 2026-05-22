@@ -53,6 +53,7 @@ val ACTIVATOR_MAP = AttributeMap(
         "player-create-trap" to AttributeFactory { key, config -> CreateTrapActivator(key, createItemIdentifier(key, config), createActivatorAttributes(key, config), createActivatorConditions(key, config)) },
         "aoe-finish" to AttributeFactory { key, config -> AoeFinishActivator(key, createItemIdentifier(key, config), createActivatorAttributes(key, config), createActivatorConditions(key, config)) },
         "player-drop-item" to AttributeFactory { key, config -> PlayerDropItemActivator(key, createItemIdentifier(key, config), createActivatorAttributes(key, config), createActivatorConditions(key, config)) },
+        "player-death" to AttributeFactory { key, config -> PlayerDeathActivator(key, createItemIdentifier(key, config), createActivatorAttributes(key, config), createActivatorConditions(key, config)) },
     )
 )
 
@@ -347,5 +348,18 @@ class PlayerDropItemActivator(
         val itemStack = getItemStack(event.player) ?: event.itemDrop.itemStack
         if (item.isCustomItem(itemStack))
             activate(event, event.player, itemStack)
+    }
+}
+
+class PlayerDeathActivator(
+    key: String,
+    itemIdentifier: ItemIdentifier,
+    attributes: Set<ActivatorAttribute<*>>,
+    conditions: Set<ActivatorCondition<*>>
+) : Activator(key, itemIdentifier, attributes, conditions) {
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGH)
+    private fun onDeath(event: PlayerDeathEvent) {
+        val itemStack = getItemStack(event.entity) ?: return
+        activate(event, event.entity, itemStack)
     }
 }
