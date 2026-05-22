@@ -82,6 +82,7 @@ val ACTIVATOR_ATTRIBUTE_MAP = AttributeMap(
         "repair" to AttributeFactory { key, config -> RepairAttribute(key, config.getEnumSet<EquipmentSlot>(key)) },
         "force-field" to ForceFieldAttribute.Factory,
         "force" to ForceAttribute.Factory,
+        "relative-force" to RelativeForceAttribute.Factory,
         "action-bar" to AttributeFactory { key, config -> ActionBarAttribute(key, config.getString(key)!!) },
         "player-message" to AttributeFactory { key, config -> PlayerMessageAttribute(key, config.getString(key)!!) },
         "player-interaction" to AttributeFactory { key, config -> InteractionAttribute(key, InteractionListConfigurable().also { it.fromConfig(config.get(key)) }) },

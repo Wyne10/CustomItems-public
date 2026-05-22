@@ -54,6 +54,8 @@ val ACTIVATOR_CONDITION_MAP = AttributeMap(
         "not-is-aoe-affected" to AttributeFactory { key, config -> NotAoeAffectedCondition(key, config.getStringList(key).toSet()) },
         "is-within-region" to AttributeFactory { key, config -> WithinRegionCondition(key, config.getStringList(key).toSet()) },
         "not-is-within-region" to AttributeFactory { key, config -> NotWithinRegionCondition(key, config.getStringList(key).toSet()) },
+        "is-within-top-region" to AttributeFactory { key, config -> WithinTopRegionCondition(key, config.getStringList(key).toSet()) },
+        "not-is-within-top-region" to AttributeFactory { key, config -> NotWithinTopRegionCondition(key, config.getStringList(key).toSet()) },
         "is-pvp" to AttributeFactory { key, config -> PvpCondition(key, config.getBoolean(key)) },
         "is-aoe-finished" to AttributeFactory { key, config -> AoeFinishConditions(key, config.getStringList(key).toSet()) },
         "is-weather" to AttributeFactory { key, config -> WeatherCondition(key, config.getEnumSet<Weather>(key)) },
@@ -82,6 +84,7 @@ val ACTIVATOR_CONDITION_MAP = AttributeMap(
         "is-effect-cause" to AttributeFactory { key, config -> EffectCauseCondition(key, config.getEnumSet<EntityPotionEffectEvent.Cause>(key)) },
         "block-blacklist" to AttributeFactory { key, config -> TrapBlockCondition(key, config.getEnumSet<Material>(key)) },
         "region-whitelist" to AttributeFactory { key, config -> TrapRegionCondition(key, config.getStringList(key).toSet()) },
+        "top-region-whitelist" to AttributeFactory { key, config -> TrapTopRegionCondition(key, config.getStringList(key).toSet()) },
         "command-whitelist" to AttributeFactory { key, config -> CommandWhitelistCondition(key, config.getStringList(key).toSet()) }
     )
 )

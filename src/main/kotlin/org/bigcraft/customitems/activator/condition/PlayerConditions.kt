@@ -173,6 +173,24 @@ class NotWithinRegionCondition(key: String, regions: Set<String>) : ActivatorCon
     }
 }
 
+class WithinTopRegionCondition(key: String, regions: Set<String>) : ActivatorCondition<Set<String>>(key, regions) {
+    override fun isApplicable(event: Event, player: Player, customItem: CustomItem, item: ItemStack): Boolean {
+        val query = WorldGuard.getInstance().platform.regionContainer.createQuery();
+        val region = query.getApplicableRegions(BukkitAdapter.adapt(player.location))
+            .maxBy { it.priority }
+        return value.contains(region.id)
+    }
+}
+
+class NotWithinTopRegionCondition(key: String, regions: Set<String>) : ActivatorCondition<Set<String>>(key, regions) {
+    override fun isApplicable(event: Event, player: Player, customItem: CustomItem, item: ItemStack): Boolean {
+        val query = WorldGuard.getInstance().platform.regionContainer.createQuery();
+        val region = query.getApplicableRegions(BukkitAdapter.adapt(player.location))
+            .maxBy { it.priority }
+        return !value.contains(region.id)
+    }
+}
+
 class PvpCondition(key: String, isActive: Boolean) : ActivatorCondition<Boolean>(key, isActive) {
     override fun isApplicable(event: Event, player: Player, customItem: CustomItem, item: ItemStack): Boolean =
         AntiRelogWrapper.isInPvp(player) == value
