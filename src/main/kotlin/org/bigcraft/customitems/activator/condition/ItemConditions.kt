@@ -15,7 +15,7 @@ import org.bukkit.potion.PotionEffectType
 
 class ItemDurabilityCondition(key: String, comparator: IntComparator) : ActivatorCondition<IntComparator>(key, comparator) {
     override fun isApplicable(event: Event, player: Player, customItem: CustomItem, item: ItemStack): Boolean {
-        if (item.itemMeta !is Damageable) return false
+        if (item.itemMeta !is Damageable) return true
         val durability = item.type.maxDurability - (item.itemMeta as Damageable).damage
         return value.compare(durability)
     }

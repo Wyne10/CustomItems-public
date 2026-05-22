@@ -39,7 +39,7 @@ class TrapTopRegionCondition(key: String, regions: Set<String>) : ActivatorCondi
         if (event !is CreateTrapEvent) return true
         val region = WorldGuard.getInstance().platform.regionContainer.get(BukkitAdapter.adapt(event.location.world))
             ?.getApplicableRegions(ProtectedCuboidRegion(event.scheme.key, event.snapshot.region.minimumPoint, event.snapshot.region.maximumPoint))
-            ?.maxBy { it.priority }
+            ?.maxByOrNull { it.priority }
         return region?.let { value.contains(it.id) } ?: false
     }
 

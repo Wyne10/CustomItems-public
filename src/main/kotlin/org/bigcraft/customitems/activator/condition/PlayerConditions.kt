@@ -169,7 +169,7 @@ class NotWithinRegionCondition(key: String, regions: Set<String>) : ActivatorCon
     override fun isApplicable(event: Event, player: Player, customItem: CustomItem, item: ItemStack): Boolean {
         val query = WorldGuard.getInstance().platform.regionContainer.createQuery();
         val regions = query.getApplicableRegions(BukkitAdapter.adapt(player.location))
-        return regions?.none { it.id in value } ?: false
+        return regions?.none { it.id in value } ?: true
     }
 }
 
@@ -177,8 +177,8 @@ class WithinTopRegionCondition(key: String, regions: Set<String>) : ActivatorCon
     override fun isApplicable(event: Event, player: Player, customItem: CustomItem, item: ItemStack): Boolean {
         val query = WorldGuard.getInstance().platform.regionContainer.createQuery();
         val region = query.getApplicableRegions(BukkitAdapter.adapt(player.location))
-            .maxBy { it.priority }
-        return value.contains(region.id)
+            .maxByOrNull { it.priority }
+        return region?.let { value.contains(region.id) } ?: false
     }
 }
 
@@ -186,8 +186,8 @@ class NotWithinTopRegionCondition(key: String, regions: Set<String>) : Activator
     override fun isApplicable(event: Event, player: Player, customItem: CustomItem, item: ItemStack): Boolean {
         val query = WorldGuard.getInstance().platform.regionContainer.createQuery();
         val region = query.getApplicableRegions(BukkitAdapter.adapt(player.location))
-            .maxBy { it.priority }
-        return !value.contains(region.id)
+            .maxByOrNull { it.priority }
+        return region?.let { !value.contains(region.id) } ?: true
     }
 }
 
