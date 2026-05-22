@@ -144,6 +144,12 @@ class StorageAttribute(
     }
 
     private fun writeInventory(inventory: Inventory, item: ItemStack) {
+        if (inventory.all { it == FILLER || it.isNullOrAir() }) {
+            item.editMeta { meta ->
+                meta.persistentDataContainer.remove(STORAGE_KEY)
+            }
+            return
+        }
         val serialized = SERIALIZER.serialize(inventory, null, null)
         val string = serialized.asString
         item.editMeta { meta ->
