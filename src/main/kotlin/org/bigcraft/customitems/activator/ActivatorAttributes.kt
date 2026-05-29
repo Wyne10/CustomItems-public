@@ -50,6 +50,7 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent
 import org.bukkit.event.entity.EntityDamageEvent
 import org.bukkit.event.entity.EntityEvent
 import org.bukkit.event.entity.PlayerDeathEvent
+import org.bukkit.event.player.PlayerDropItemEvent
 import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.inventory.EquipmentSlot
 import org.bukkit.inventory.ItemStack
@@ -97,6 +98,7 @@ val ACTIVATOR_ATTRIBUTE_MAP = AttributeMap(
         "create-trap" to TrapAttribute.Factory,
         "set-item-amount" to AttributeFactory { key, config -> ItemAmountAttribute(key, config.getIntOperation(key)) },
         "set-item-durability" to AttributeFactory { key, config -> ItemDurabilityAttribute(key, config.getIntOperation(key)) },
+        "set-item-owner" to AttributeFactory { key, config -> ItemOwnerAttribute(key, config.getBoolean(key)) },
         "damage-item" to AttributeFactory { key, config -> DamageItemAttribute(key, config.getInt(key)) },
         "update-view" to AttributeFactory { key, config -> UpdateViewAttribute(key, config.getBoolean(key)) }
     )
@@ -342,6 +344,20 @@ class ItemDurabilityAttribute(
         val damageable = item.itemMeta as Damageable
         damageable.damage = item.type.maxDurability - value.evaluate(item.type.maxDurability - damageable.damage)
         item.itemMeta = damageable as ItemMeta
+    }
+}
+
+class ItemOwnerAttribute(
+    key: String,
+    isActive: Boolean
+) : ActivatorAttribute<Boolean>(key, isActive) {
+    override fun isApplicable(event: Event, player: Player, customItem: CustomItem, item: ItemStack): Boolean =
+        event is PlayerDropItemEvent
+
+    override fun apply(event: Event, player: Player, customItem: CustomItem, item: ItemStack) {
+        val dropEvent = event as? PlayerDropItemEvent ?: return
+        if (value)
+            dropEvent.itemDrop.owner = player.uniqueId
     }
 }
 
