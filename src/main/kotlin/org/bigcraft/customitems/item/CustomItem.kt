@@ -77,9 +77,16 @@ class CustomItem(
         ) // TODO Might add context replacements as attributes
     }
 
-    override infix fun isCustomItem(item: ItemStack?): Boolean =
-        item?.itemMeta?.persistentDataContainer?.get(ITEM_TAG_KEY, PersistentDataType.STRING) == key
-                || item?.let { isComposed(it) } ?: false
+    override infix fun isCustomItem(item: ItemStack?): Boolean {
+        if (item == null || !item.hasItemMeta()) return false
+        val pdc = item.itemMeta.persistentDataContainer
+        if (pdc.get(ITEM_TAG_KEY, PersistentDataType.STRING) == key) return true
+        val composed = pdc.get(COMPOSE_TAG_KEY, PersistentDataType.STRING) ?: return false
+        return composed == key
+                || composed.startsWith("$key,")
+                || composed.endsWith(",$key")
+                || composed.contains(",$key,")
+    }
 
     override infix fun isCustomItem(block: Block): Boolean =
         isBlock && CustomBlockManager.instance.getCustomBlock(block)?.itemKey == key

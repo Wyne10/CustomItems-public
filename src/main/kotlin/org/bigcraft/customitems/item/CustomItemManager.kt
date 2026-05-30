@@ -58,8 +58,10 @@ class CustomItemManager @Inject constructor(plugin: CustomItems, private val blo
     override fun getItem(key: String): CustomItem? =
         loadedMap[key]
 
-    override fun getItem(item: ItemStack?): CustomItem? =
-        loadedMap[item?.itemMeta?.persistentDataContainer?.get(ITEM_TAG_KEY, PersistentDataType.STRING)]
+    override fun getItem(item: ItemStack?): CustomItem? {
+        if (item == null || !item.hasItemMeta()) return null
+        return loadedMap[item.itemMeta.persistentDataContainer.get(ITEM_TAG_KEY, PersistentDataType.STRING)]
+    }
 
     override fun load(config: ConfigurationSection) {
         restrictionRegistry.clear()

@@ -24,8 +24,13 @@ class DefaultItemComposable(
     }
 
     override fun isComposed(compositor: ItemStack): Boolean {
-        val composed = getComposed(compositor)
-        return composed.contains(key)
+        if (!compositor.hasItemMeta()) return false
+        val composed = compositor.itemMeta.persistentDataContainer
+            .get(CustomItem.COMPOSE_TAG_KEY, PersistentDataType.STRING) ?: return false
+        return composed == key
+                || composed.startsWith("$key,")
+                || composed.endsWith(",$key")
+                || composed.contains(",$key,")
     }
 
     override fun compose(compositor: ItemStack): ItemStack {
@@ -49,7 +54,9 @@ class DefaultItemComposable(
     }
 
     override fun getComposed(compositor: ItemStack): Set<String> {
-        val composedString = compositor.itemMeta?.persistentDataContainer?.get(CustomItem.COMPOSE_TAG_KEY, PersistentDataType.STRING) ?: return emptySet()
+        if (!compositor.hasItemMeta()) return emptySet()
+        val composedString = compositor.itemMeta.persistentDataContainer
+            .get(CustomItem.COMPOSE_TAG_KEY, PersistentDataType.STRING) ?: return emptySet()
         return composedString.split(",").toSet()
     }
 
