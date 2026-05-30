@@ -7,8 +7,6 @@ import me.wyne.wutils.config.configurables.attribute.AttributeFactory
 import me.wyne.wutils.config.configurables.attribute.AttributeMap
 import me.wyne.wutils.i18n.kotlin.legacy
 import me.wyne.wutils.i18n.kotlin.plainText
-import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer
-import org.bigcraft.customitems.CustomItems
 import org.bukkit.Keyed
 import org.bukkit.NamespacedKey
 import org.bukkit.entity.EntityType

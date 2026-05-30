@@ -1,6 +1,6 @@
 package org.bigcraft.customitems.item
 
-import me.wyne.wutils.common.event.EventRegistry
+import me.wyne.wutils.common.event.ListenerRegistry
 import me.wyne.wutils.common.event.RegisterableListener
 import me.wyne.wutils.config.configurables.attribute.AttributeBase
 
@@ -11,7 +11,7 @@ interface CustomItemAttribute {
 abstract class RegisterableCustomItemAttribute<V>(
     key: String,
     value: V,
-    private val eventRegistry: EventRegistry,
+    private val eventRegistry: ListenerRegistry,
 ) : AttributeBase<V>(key, value), CustomItemAttribute, RegisterableListener {
 
     protected lateinit var item: CustomItem

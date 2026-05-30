@@ -3,6 +3,7 @@ package org.bigcraft.customitems.item
 import com.google.inject.Inject
 import com.google.inject.Singleton
 import me.wyne.wutils.common.event.EventRegistry
+import me.wyne.wutils.common.event.ListenerRegistry
 import me.wyne.wutils.common.loadable.LoadableMeta
 import org.bigcraft.customitems.AbstractManager
 import org.bigcraft.customitems.CustomItems
@@ -35,8 +36,8 @@ class CustomItemManager @Inject constructor(plugin: CustomItems, private val blo
     override val sectionKey = "item"
     override val valueLoader = CustomItem.Factory
 
-    val restrictionRegistry = EventRegistry(plugin)
-    val activatorRegistry = EventRegistry(plugin)
+    val restrictionRegistry = ListenerRegistry(plugin)
+    val activatorRegistry = ListenerRegistry(plugin)
 
     private val itemDirectory = File(plugin.dataFolder, "$sectionKey/")
 
@@ -62,9 +63,9 @@ class CustomItemManager @Inject constructor(plugin: CustomItems, private val blo
         loadedMap[item?.itemMeta?.persistentDataContainer?.get(ITEM_TAG_KEY, PersistentDataType.STRING)]
 
     override fun load(config: ConfigurationSection) {
-        restrictionRegistry.clear()
-        activatorRegistry.clear()
-        blockManager.blockAttributesRegistry.clear()
+        restrictionRegistry.closeAndReportException()
+        activatorRegistry.closeAndReportException()
+        blockManager.blockAttributesRegistry.closeAndReportException()
         super.load(config)
         loadFiles(itemDirectory)
     }

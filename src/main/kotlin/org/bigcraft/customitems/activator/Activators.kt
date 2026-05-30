@@ -1,6 +1,7 @@
 package org.bigcraft.customitems.activator
 
 import com.destroystokyo.paper.event.player.PlayerLaunchProjectileEvent
+import me.wyne.wutils.common.kotlin.config.deep
 import me.wyne.wutils.config.configurables.AttributeConfigurable
 import me.wyne.wutils.config.configurables.attribute.AttributeFactory
 import me.wyne.wutils.config.configurables.attribute.AttributeMap
@@ -65,15 +66,15 @@ private fun AttributeMap.cheese(amount: Int): AttributeMap {
 }
 
 private fun createItemIdentifier(key: String, config: ConfigurationSection) =
-    runCatching { ItemIdentifiers.valueOf(config.getString("$key.identifier", "PLAYER")!!).identifier }
+    runCatching { ItemIdentifiers.valueOf(config.deep(key).getString("identifier", "PLAYER")!!).identifier }
         .getOrDefault(ItemIdentifiers.PLAYER.identifier)
 
 private fun createActivatorAttributes(key: String, config: ConfigurationSection) =
-    AttributeConfigurable(ImmutableAttributeContainer(ACTIVATOR_ATTRIBUTE_MAP, config.getConfigurationSection(key)))
+    AttributeConfigurable(ImmutableAttributeContainer(ACTIVATOR_ATTRIBUTE_MAP, config.deep(key)))
         .getSet(ActivatorAttribute::class.java)
 
 private fun createActivatorConditions(key: String, config: ConfigurationSection) =
-    AttributeConfigurable(ImmutableAttributeContainer(ACTIVATOR_CONDITION_MAP, config.getConfigurationSection(key)))
+    AttributeConfigurable(ImmutableAttributeContainer(ACTIVATOR_CONDITION_MAP, config.deep(key)))
         .getSet(ActivatorCondition::class.java)
 
 abstract class Activator(

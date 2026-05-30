@@ -2,7 +2,7 @@ package org.bigcraft.customitems.block
 
 import com.google.inject.Inject
 import com.google.inject.Singleton
-import me.wyne.wutils.common.event.EventRegistry
+import me.wyne.wutils.common.event.ListenerRegistry
 import me.wyne.wutils.json.JSON
 import me.wyne.wutils.json.JsonRegistry
 import org.bigcraft.customitems.CustomItems
@@ -16,7 +16,7 @@ class CustomBlockManager @Inject constructor(plugin: CustomItems) : CustomBlockR
     @JSON(path = "data/blocks.json")
     private val customBlocks = mutableMapOf<BlockKey, CustomBlock>()
 
-    val blockAttributesRegistry = EventRegistry(plugin)
+    val blockAttributesRegistry = ListenerRegistry(plugin)
 
     init {
         instance = this
