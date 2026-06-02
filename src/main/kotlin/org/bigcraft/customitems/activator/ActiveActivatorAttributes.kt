@@ -150,7 +150,7 @@ class ForceFieldAttribute(
         val location = player.location.clone().add(value.offset)
         location.world.getNearbyPlayers(location, value.radius)
             .filterNot { it == player }
-            .forEach { it.velocity = it.location.toVector().subtract(location.toVector()).multiply(value.velocity) }
+            .forEach { it.velocity = it.location.toVector().subtract(location.toVector()).normalize().multiply(value.velocity) }
     }
 
     object Factory : CompositeAttributeFactory<ForceFieldAttribute> {
@@ -184,7 +184,7 @@ class ForceAttribute(
 ) : ActivatorAttribute<me.wyne.wutils.config.configurables.animation.attribute.ForceFieldAttribute.ForceFieldData>(key, forceFieldData) {
     override fun apply(event: Event, player: Player, customItem: CustomItem, item: ItemStack) {
         val location = player.location.clone().add(value.offset)
-        player.velocity = player.location.toVector().subtract(location.toVector()).multiply(value.velocity)
+        player.velocity = player.location.toVector().subtract(location.toVector()).normalize().multiply(value.velocity)
     }
 
     object Factory : CompositeAttributeFactory<ForceAttribute> {
@@ -218,7 +218,7 @@ class RelativeForceAttribute(
 ) : ActivatorAttribute<me.wyne.wutils.config.configurables.animation.attribute.ForceFieldAttribute.ForceFieldData>(key, forceFieldData) {
     override fun apply(event: Event, player: Player, customItem: CustomItem, item: ItemStack) {
         val location = player.location.getRelative(value.offset)
-        player.velocity = player.location.toVector().subtract(location.toVector()).multiply(value.velocity)
+        player.velocity = player.location.toVector().subtract(location.toVector()).normalize().multiply(value.velocity)
     }
 
     object Factory : CompositeAttributeFactory<RelativeForceAttribute> {
