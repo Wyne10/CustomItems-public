@@ -111,6 +111,7 @@ class TrapAttribute(
         )
         region.setFlag(Flags.PVP, StateFlag.State.ALLOW)
         region.setFlag(Flags.OTHER_EXPLOSION, StateFlag.State.ALLOW)
+        region.priority = 10
         val container = WorldGuard.getInstance().platform.regionContainer
         val regions = container.get(editWorld)
         regions?.addRegion(region)
