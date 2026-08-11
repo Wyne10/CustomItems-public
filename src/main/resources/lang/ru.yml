@@ -5,6 +5,7 @@ format-composable-entry: "<gray> - %ci_<key>_name-plain%"
 
 ## Info
 info-activation: "<gray>Только что сработал эффект: %ci_<key>_name%"
+info-compass-locate: "<aqua>▶ <white>Стрелка компаса установлена на последний найденный регион по координатам: <x>, <z>"
 
 ## Error
 error-item-not-found: "<red>Предмет '<key>' не существует!"

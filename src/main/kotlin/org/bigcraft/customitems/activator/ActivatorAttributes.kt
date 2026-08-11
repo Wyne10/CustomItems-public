@@ -95,6 +95,7 @@ val ACTIVATOR_ATTRIBUTE_MAP = AttributeMap(
         "cause-entity-damage" to CauseEntityDamageAttribute.Factory,
         "create-aoe" to CreateAoeAttribute.Factory,
         "open-storage" to AttributeFactory { key, config -> StorageAttribute(key, config.getInt(key)) },
+        "locate-compass" to CompassLocatorAttribute.Factory,
         "create-trap" to TrapAttribute.Factory,
         "set-item-amount" to AttributeFactory { key, config -> ItemAmountAttribute(key, config.getIntOperation(key)) },
         "set-item-durability" to AttributeFactory { key, config -> ItemDurabilityAttribute(key, config.getIntOperation(key)) },
