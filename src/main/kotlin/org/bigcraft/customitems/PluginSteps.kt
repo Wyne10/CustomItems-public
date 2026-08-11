@@ -13,13 +13,13 @@ import me.wyne.wutils.config.Config
 import me.wyne.wutils.i18n.I18n
 import me.wyne.wutils.i18n.PluginI18nBuilder
 import me.wyne.wutils.i18n.language.component.BukkitComponentAudiences
-import me.wyne.wutils.i18n.language.interpretation.ComponentInterpreters
 import me.wyne.wutils.i18n.language.validation.EmptyValidator
 import me.wyne.wutils.json.JsonRegistry
 import me.wyne.wutils.log.*
 import net.kyori.adventure.platform.bukkit.BukkitAudiences
 import org.bigcraft.customitems.CustomItems.Companion.EMPTY_CONFIGURATION
 import org.bigcraft.customitems.CustomItems.Companion.log
+import org.bigcraft.customitems.i18n.ComponentInterpreters
 import org.bigcraft.customitems.module.*
 import org.bukkit.configuration.serialization.ConfigurationSerialization
 import java.io.File
@@ -76,9 +76,10 @@ class InitializeJson(private val gson: Gson, private val directory: File) : Plug
 object InitializeI18n : PluginStep<CustomItems> {
     override fun run(plugin: CustomItems) {
         I18n.global = PluginI18nBuilder(plugin)
-            .setLogger(CustomItems.log)
+            .setLogger(log)
             .setComponentAudience(BukkitComponentAudiences(BukkitAudiences.create(plugin)))
-            .setComponentInterpreter(ComponentInterpreters.valueOf(
+            .setComponentInterpreter(
+                ComponentInterpreters.valueOf(
                     plugin.config.getString("serializer", "MINI_MESSAGE")!!
                 ).get(EmptyValidator()))
             .setUsePlayerLanguage(plugin.config.getBoolean("usePlayerLanguage", true))
@@ -112,7 +113,7 @@ object InitializeInjector : PluginStep<CustomItems> {
 object InitializeConfig : CompositeStep<CustomItems>(ReloadConfig) {
     override fun before(plugin: CustomItems) {
         Config.global.apply {
-            logger = CustomItems.log
+            logger = log
             setConfigGenerator(plugin, "config.yml")
             generateConfig()
         }

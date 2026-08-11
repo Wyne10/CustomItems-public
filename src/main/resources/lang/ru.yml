@@ -11,6 +11,7 @@ info-compass-locate: "<aqua>▶ <white>Стрелка компаса устан�
 error-item-not-found: "<red>Предмет '<key>' не существует!"
 error-insufficient-funds: "<red>Недостаточно средств, нужно <price> %ci_<key>_name%"
 error-lootpool-already-exists: "<red>Лут пул '<key>' уже существует!"
+error-compass-locate: "<red>▶ <white>Не удалость найти подходящее сокровище. Попробуйте позже"
 
 ## Success
 success-plugin-reload: "<green>Плагин перезагружен!"

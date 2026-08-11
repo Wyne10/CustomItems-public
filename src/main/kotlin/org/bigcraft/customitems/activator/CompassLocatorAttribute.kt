@@ -30,8 +30,10 @@ class CompassLocatorAttribute(
         val candidates = value.flatMap { locator ->
             locator.availableValues(player).map { locator to it }
         }
+        var located = false
         for ((locator, valueName) in candidates.shuffled()) {
             val target = locator.locate(player, valueName) ?: continue
+            located = true
             val meta = item.itemMeta as CompassMeta
             meta.isLodestoneTracked = false
             meta.lodestone = target
@@ -41,8 +43,12 @@ class CompassLocatorAttribute(
                 "y" replace target.blockY,
                 "z" replace target.blockZ,
                 "world" replace target.world.name
-            )
-            return
+            ).sendMessage(player)
+            break
+        }
+        if (!located) {
+            customItem.cooldowns.clear()
+            player.placeholderComponent("error-compass-locate").sendMessage(player)
         }
     }
 
