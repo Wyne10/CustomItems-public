@@ -16,7 +16,7 @@ private class OptionalModule(
             Class.forName(className)
             modules.forEach { bind(it) }
         } catch (e: ClassNotFoundException) {
-            CustomItems.log.warn(exceptionMessage)
+            CustomItems.logger.warn(exceptionMessage)
         }
     }
 }

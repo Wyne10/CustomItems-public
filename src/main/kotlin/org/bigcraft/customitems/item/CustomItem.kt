@@ -142,7 +142,7 @@ class CustomItem(
                     blockAttributes.forEach { it.apply(this) }
                 }
             }.getOrElse {
-                CustomItems.log.error("Failed to load custom item {}", key, it)
+                CustomItems.logger.error("Failed to load custom item {}", key, it)
                 return CustomItem(key, ItemConfigurable(), emptySet(), emptySet(), emptySet(), mutableSetOf())
             }
     }

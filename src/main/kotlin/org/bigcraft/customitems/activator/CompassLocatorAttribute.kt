@@ -7,6 +7,7 @@ import me.wyne.wutils.config.configurables.attribute.AttributeBase
 import me.wyne.wutils.config.configurables.attribute.AttributeFactory
 import me.wyne.wutils.i18n.kotlin.placeholderComponent
 import me.wyne.wutils.i18n.kotlin.replace
+import org.bigcraft.customitems.attributeSection
 import org.bigcraft.customitems.item.CustomItem
 import org.bukkit.Location
 import org.bukkit.Material
@@ -54,7 +55,7 @@ class CompassLocatorAttribute(
 
     object Factory : AttributeFactory<CompassLocatorAttribute> {
         override fun create(key: String, config: ConfigurationSection): CompassLocatorAttribute {
-            val section = config.getConfigurationSection(key)!!
+            val section = config.attributeSection(key)!!
             val radius = if (section.contains("radius")) section.getInt("radius") else DEFAULT_RADIUS
             val locators = buildSet {
                 section.getStringList("biomes").toPatterns()?.let { add(BiomeCompassLocator("biomes", it, radius)) }

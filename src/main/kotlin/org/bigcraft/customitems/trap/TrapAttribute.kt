@@ -23,6 +23,7 @@ import me.wyne.wutils.common.scheduler.EventPromisedTask
 import me.wyne.wutils.config.configurables.attribute.AttributeFactory
 import me.wyne.wutils.config.configurables.attribute.AttributeUtils
 import org.bigcraft.customitems.CustomItems
+import org.bigcraft.customitems.attributeSection
 import org.bigcraft.customitems.activator.ActivatorAttribute
 import org.bigcraft.customitems.aoe.AoeManager
 import org.bigcraft.customitems.aoe.AreaOfEffect
@@ -144,7 +145,7 @@ class TrapAttribute(
 
     object Factory : AttributeFactory<TrapAttribute> {
         override fun create(key: String, config: ConfigurationSection): TrapAttribute {
-            val section = config.getConfigurationSection(key)!!
+            val section = config.attributeSection(key)!!
             val schemes = AttributeUtils.createAll<Scheme>(section.getConfigurationSection("schemes"), Scheme.Factory)
             return TrapAttribute(
                 key,

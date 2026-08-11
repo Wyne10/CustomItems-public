@@ -8,6 +8,7 @@ import me.wyne.wutils.config.configurables.attribute.AttributeBase
 import me.wyne.wutils.config.configurables.attribute.AttributeFactory
 import me.wyne.wutils.config.configurables.attribute.AttributeMap
 import me.wyne.wutils.config.configurables.attribute.ImmutableAttributeContainer
+import org.bigcraft.customitems.attributeSection
 import org.bigcraft.customitems.item.CustomItem
 import org.bigcraft.customitems.item.CustomItemManager
 import org.bukkit.configuration.ConfigurationSection
@@ -16,14 +17,14 @@ import java.util.UUID
 
 val COOLDOWN_MAP = AttributeMap(
     mapOf(
-        "player-cooldown" to AttributeFactory { key, config -> PlayerCooldown(key, config.getMillis("$key.duration"), createCooldownAttributes(key, config)) },
-        "global-cooldown" to AttributeFactory { key, config -> GlobalCooldown(key, config.getMillis("$key.duration"), createCooldownAttributes(key, config)) },
-        "other-cooldown" to AttributeFactory { key, config -> OtherCooldown(key, config.getStringList("$key.items").toSet(), config.getMillis("$key.duration"), createCooldownAttributes(key, config)) },
+        "player-cooldown" to AttributeFactory { key, config -> config.attributeSection(key).let { s -> PlayerCooldown(key, s?.getMillis("duration") ?: 0L, createCooldownAttributes(s)) } },
+        "global-cooldown" to AttributeFactory { key, config -> config.attributeSection(key).let { s -> GlobalCooldown(key, s?.getMillis("duration") ?: 0L, createCooldownAttributes(s)) } },
+        "other-cooldown" to AttributeFactory { key, config -> config.attributeSection(key).let { s -> OtherCooldown(key, s?.getStringList("items").orEmpty().toSet(), s?.getMillis("duration") ?: 0L, createCooldownAttributes(s)) } },
     )
 )
 
-private fun createCooldownAttributes(key: String, config: ConfigurationSection) =
-    AttributeConfigurable(ImmutableAttributeContainer(COOLDOWN_ATTRIBUTE_MAP, config.getConfigurationSection(key)))
+private fun createCooldownAttributes(section: ConfigurationSection?) =
+    AttributeConfigurable(ImmutableAttributeContainer(COOLDOWN_ATTRIBUTE_MAP, section))
         .getSet(CooldownAttribute::class.java)
 
 abstract class Cooldown(

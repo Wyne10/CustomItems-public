@@ -23,7 +23,7 @@ abstract class AbstractManager<V> : Loadable {
         loadedMap.clear()
         val section = config.getConfigurationSection(sectionKey) ?: return
         section.getKeys(false).forEach { key ->
-            CustomItems.log.debug("Loading key '{}' from '{}'", key, section.name)
+            CustomItems.logger.debug("Loading key '{}' from '{}'", key, section.name)
             loadedMap[key] = valueLoader.fromConfig(section.getConfigurationSection(key)!!)
         }
     }

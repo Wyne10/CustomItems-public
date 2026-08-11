@@ -8,6 +8,7 @@ import me.wyne.wutils.common.inventory.InventoryUtils
 import me.wyne.wutils.common.kotlin.item.dropActuallyNaturally
 import me.wyne.wutils.config.configurables.attribute.AttributeFactory
 import me.wyne.wutils.config.configurables.attribute.AttributeMap
+import org.bigcraft.customitems.attributeSection
 import org.bigcraft.customitems.item.CustomItemManager
 import org.bigcraft.customitems.item.RegisterableCustomItemAttribute
 import org.bukkit.Material
@@ -212,7 +213,7 @@ class RandomSpawnerAttribute(
                     .associate { EntityType.valueOf(it[0]) to it[1].toInt() }
                 return RandomSpawnerAttribute(key, types, emptyMap())
             } else {
-                val section = config.getConfigurationSection(key) ?: return RandomSpawnerAttribute(key, emptyMap(), emptyMap())
+                val section = config.attributeSection(key) ?: return RandomSpawnerAttribute(key, emptyMap(), emptyMap())
                 val types = section.getStringList("spawn")
                     .map { Args(it) }
                     .associate { EntityType.valueOf(it[0]) to it[1].toInt() }

@@ -32,6 +32,7 @@ import me.wyne.wutils.i18n.kotlin.replace
 import me.wyne.wutils.i18n.language.replacement.ComponentReplacement
 import net.kyori.adventure.sound.Sound
 import org.bigcraft.customitems.CustomItems
+import org.bigcraft.customitems.attributeSection
 import org.bigcraft.customitems.aoe.AoeManager
 import org.bigcraft.customitems.aoe.AreaOfEffect
 import org.bigcraft.customitems.block.CustomBlockManager
@@ -551,7 +552,7 @@ class CreateAoeAttribute(
 
     object Factory : AttributeFactory<CreateAoeAttribute> {
         override fun create(key: String, config: ConfigurationSection): CreateAoeAttribute {
-            val section = config.getConfigurationSection(key)!!
+            val section = config.attributeSection(key)!!
             return CreateAoeAttribute(
                 key,
                 section.getString("key")!!,

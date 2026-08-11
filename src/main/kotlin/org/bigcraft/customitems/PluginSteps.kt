@@ -6,6 +6,8 @@ import com.google.inject.Guice
 import com.google.inject.Stage
 import me.wyne.wutils.common.loadable.Loader
 import me.wyne.wutils.common.plugin.CompositeStep
+import me.wyne.wutils.common.plugin.LevelWrapper
+import me.wyne.wutils.common.plugin.LoggerWrapper
 import me.wyne.wutils.common.plugin.PluginStep
 import me.wyne.wutils.common.plugin.Step
 import me.wyne.wutils.common.plugin.StepScope
@@ -15,15 +17,13 @@ import me.wyne.wutils.i18n.PluginI18nBuilder
 import me.wyne.wutils.i18n.language.component.BukkitComponentAudiences
 import me.wyne.wutils.i18n.language.validation.EmptyValidator
 import me.wyne.wutils.json.JsonRegistry
-import me.wyne.wutils.log.*
 import net.kyori.adventure.platform.bukkit.BukkitAudiences
 import org.bigcraft.customitems.CustomItems.Companion.EMPTY_CONFIGURATION
-import org.bigcraft.customitems.CustomItems.Companion.log
+import org.bigcraft.customitems.CustomItems.Companion.logger
 import org.bigcraft.customitems.i18n.ComponentInterpreters
 import org.bigcraft.customitems.module.*
 import org.bukkit.configuration.serialization.ConfigurationSerialization
 import java.io.File
-import java.util.concurrent.Executors
 
 @Step(priority = 0, scope = StepScope.LOAD)
 object RegisterLootPool : PluginStep<CustomItems> {
@@ -41,24 +41,9 @@ object LoadDefaultConfig : PluginStep<CustomItems> {
 }
 
 @Step(priority = 1, scope = StepScope.ENABLE)
-class InitializeLogger(private val logDirectory: File) : PluginStep<CustomItems> {
-    @Suppress("DEPRECATION")
+object InitializeLogger : PluginStep<CustomItems> {
     override fun run(plugin: CustomItems) {
-        Log.global = Log.builder()
-            .setLogger(plugin.logger)
-            .setLevel(JulLevel.valueOf(plugin.config.getString("logLevel", "INFO")!!).level)
-            .setLogDirectory(logDirectory)
-            .setFileWriteExecutor(Executors.newSingleThreadExecutor())
-            .build()
-        Log.global.deleteOlderLogs()
-
-        log = Log4jFactory.createLogger(
-            plugin,
-            Log4jFactory.DEFAULT_FILE_MESSAGE_PATTERN,
-            Level.valueOf(plugin.config.getString("logLevel", "INFO")!!),
-            logDirectory.path,
-            Log.global
-        )
+        logger = LoggerWrapper(plugin.slF4JLogger, LevelWrapper.valueOf(plugin.config.getString("logLevel", "INFO")!!))
     }
 }
 
@@ -76,7 +61,7 @@ class InitializeJson(private val gson: Gson, private val directory: File) : Plug
 object InitializeI18n : PluginStep<CustomItems> {
     override fun run(plugin: CustomItems) {
         I18n.global = PluginI18nBuilder(plugin)
-            .setLogger(log)
+            .setLogger(logger)
             .setComponentAudience(BukkitComponentAudiences(BukkitAudiences.create(plugin)))
             .setComponentInterpreter(
                 ComponentInterpreters.valueOf(
@@ -104,7 +89,7 @@ object InitializeInjector : PluginStep<CustomItems> {
                 AbstractMenusModule
             )
         } catch (e: CreationException) {
-            log.error("Guice injector creation exception", e)
+            logger.error("Guice injector creation exception", e)
         }
     }
 }
@@ -113,7 +98,7 @@ object InitializeInjector : PluginStep<CustomItems> {
 object InitializeConfig : CompositeStep<CustomItems>(ReloadConfig) {
     override fun before(plugin: CustomItems) {
         Config.global.apply {
-            logger = log
+            this.logger = CustomItems.logger
             setConfigGenerator(plugin, "config.yml")
             generateConfig()
         }
@@ -139,7 +124,7 @@ object Load : PluginStep<CustomItems> {
 object Disable : CompositeStep<CustomItems>(Write)
 
 @Step(scope = StepScope.RELOAD)
-object Reload : CompositeStep<CustomItems>(ReloadConfig, InitializeLoader, InitializeI18n, Write, Load)
+object Reload : CompositeStep<CustomItems>(ReloadConfig, InitializeLogger, InitializeLoader, InitializeI18n, Write, Load)
 
 object Write : PluginStep<CustomItems> {
     override fun run(plugin: CustomItems) {

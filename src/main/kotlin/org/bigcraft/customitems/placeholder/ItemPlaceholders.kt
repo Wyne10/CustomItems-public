@@ -30,7 +30,7 @@ class ItemPlaceholders @Inject constructor(
         val args = Args(params, "_")
 
         if (args.size() < 2) {
-            CustomItems.log.error("Not enough arguments for custom items placeholder. Required: 2")
+            CustomItems.logger.error("Not enough arguments for custom items placeholder. Required: 2")
             return null
         }
 
