@@ -8,17 +8,22 @@ import me.wyne.wutils.config.configurables.attribute.AttributeBase
 import me.wyne.wutils.config.configurables.attribute.AttributeFactory
 import me.wyne.wutils.config.configurables.attribute.AttributeMap
 import me.wyne.wutils.config.configurables.attribute.ImmutableAttributeContainer
+import org.bigcraft.customitems.CustomItems
 import org.bigcraft.customitems.attributeSection
 import org.bigcraft.customitems.item.CustomItem
 import org.bigcraft.customitems.item.CustomItemManager
+import org.bukkit.NamespacedKey
 import org.bukkit.configuration.ConfigurationSection
 import org.bukkit.entity.Player
+import org.bukkit.inventory.ItemStack
+import org.bukkit.persistence.PersistentDataType
 import java.util.UUID
 
 val COOLDOWN_MAP = AttributeMap(
     mapOf(
         "player-cooldown" to AttributeFactory { key, config -> config.attributeSection(key).let { s -> PlayerCooldown(key, s?.getMillis("duration") ?: 0L, createCooldownAttributes(s)) } },
         "global-cooldown" to AttributeFactory { key, config -> config.attributeSection(key).let { s -> GlobalCooldown(key, s?.getMillis("duration") ?: 0L, createCooldownAttributes(s)) } },
+        "item-cooldown" to AttributeFactory { key, config -> config.attributeSection(key).let { s -> ItemCooldown(key, s?.getMillis("duration") ?: 0L, createCooldownAttributes(s)) } },
         "other-cooldown" to AttributeFactory { key, config -> config.attributeSection(key).let { s -> OtherCooldown(key, s?.getStringList("items").orEmpty().toSet(), s?.getMillis("duration") ?: 0L, createCooldownAttributes(s)) } },
     )
 )
@@ -32,17 +37,19 @@ abstract class Cooldown(
     durationMillis: Long,
     private val attributes: Set<CooldownAttribute<*>>
 ) : AttributeBase<Long>(key, durationMillis) {
-    open fun isCooldowned(player: Player, customItem: CustomItem): Boolean {
-        attributes.forEach { it.onTest(player, customItem, this) }
+    open fun isCooldowned(player: Player, customItem: CustomItem, item: ItemStack): Boolean {
+        attributes.forEach { it.onTest(player, customItem, item, this) }
         return false
     }
 
-    open fun apply(player: Player, customItem: CustomItem) {
-        attributes.forEach { it.onApply(player, customItem, this) }
+    open fun apply(player: Player, customItem: CustomItem, item: ItemStack) {
+        attributes.forEach { it.onApply(player, customItem, item, this) }
     }
 
-    abstract fun getRemainingMillis(player: Player): Long
-    abstract fun getRemainingFormat(player: Player, format: String): String
+    abstract fun reset(player: Player, item: ItemStack)
+
+    abstract fun getRemainingMillis(player: Player, item: ItemStack): Long
+    abstract fun getRemainingFormat(player: Player, item: ItemStack, format: String): String
 }
 
 class PlayerCooldown(
@@ -53,21 +60,24 @@ class PlayerCooldown(
 
     private val cooldownMap = CooldownMap<UUID>()
 
-    override fun isCooldowned(player: Player, customItem: CustomItem): Boolean {
+    override fun isCooldowned(player: Player, customItem: CustomItem, item: ItemStack): Boolean {
         if (cooldownMap.isCooldowned(player.uniqueId))
-            super.isCooldowned(player, customItem)
+            super.isCooldowned(player, customItem, item)
         return cooldownMap.isCooldowned(player.uniqueId)
     }
 
-    override fun apply(player: Player, customItem: CustomItem) {
-        super.apply(player, customItem)
+    override fun apply(player: Player, customItem: CustomItem, item: ItemStack) {
+        super.apply(player, customItem, item)
         cooldownMap.put(player.uniqueId, value)
     }
 
-    override fun getRemainingMillis(player: Player): Long =
+    override fun reset(player: Player, item: ItemStack) =
+        cooldownMap.remove(player.uniqueId)
+
+    override fun getRemainingMillis(player: Player, item: ItemStack): Long =
         cooldownMap.getRemaining(player.uniqueId)
 
-    override fun getRemainingFormat(player: Player, format: String): String =
+    override fun getRemainingFormat(player: Player, item: ItemStack, format: String): String =
         cooldownMap.getRemainingStringFormat(player.uniqueId, format)
 
 }
@@ -80,22 +90,68 @@ class GlobalCooldown(
 
     private val cooldown = Period()
 
-    override fun isCooldowned(player: Player, customItem: CustomItem): Boolean {
+    override fun isCooldowned(player: Player, customItem: CustomItem, item: ItemStack): Boolean {
         if (!cooldown.isExpired)
-            super.isCooldowned(player, customItem)
+            super.isCooldowned(player, customItem, item)
         return !cooldown.isExpired
     }
 
-    override fun apply(player: Player, customItem: CustomItem) {
-        super.apply(player, customItem)
+    override fun apply(player: Player, customItem: CustomItem, item: ItemStack) {
+        super.apply(player, customItem, item)
         cooldown.put(value)
     }
 
-    override fun getRemainingMillis(player: Player): Long =
+    override fun reset(player: Player, item: ItemStack) =
+        cooldown.stop()
+
+    override fun getRemainingMillis(player: Player, item: ItemStack): Long =
         cooldown.getRemaining()
 
-    override fun getRemainingFormat(player: Player, format: String): String =
+    override fun getRemainingFormat(player: Player, item: ItemStack, format: String): String =
         cooldown.getRemainingStringFormat(format)
+
+}
+
+class ItemCooldown(
+    key: String,
+    durationMillis: Long,
+    attributes: Set<CooldownAttribute<*>>
+) : Cooldown(key, durationMillis, attributes) {
+
+    private val tagKey = NamespacedKey(
+        CustomItems.instance,
+        "cooldown-${key.lowercase().replace(Regex("[^a-z0-9._-]"), "-")}"
+    )
+
+    private fun readPeriod(item: ItemStack): Period {
+        val finishAt = item.itemMeta?.persistentDataContainer?.get(tagKey, PersistentDataType.LONG)
+            ?: return Period()
+        return Period(finishAt)
+    }
+
+    override fun isCooldowned(player: Player, customItem: CustomItem, item: ItemStack): Boolean {
+        val cooldowned = !readPeriod(item).isExpired
+        if (cooldowned)
+            super.isCooldowned(player, customItem, item)
+        return cooldowned
+    }
+
+    override fun apply(player: Player, customItem: CustomItem, item: ItemStack) {
+        super.apply(player, customItem, item)
+        item.editMeta { meta ->
+            meta.persistentDataContainer.set(tagKey, PersistentDataType.LONG, System.currentTimeMillis() + value)
+        }
+    }
+
+    override fun reset(player: Player, item: ItemStack) {
+        item.editMeta { meta -> meta.persistentDataContainer.remove(tagKey) }
+    }
+
+    override fun getRemainingMillis(player: Player, item: ItemStack): Long =
+        readPeriod(item).getRemaining()
+
+    override fun getRemainingFormat(player: Player, item: ItemStack, format: String): String =
+        readPeriod(item).getRemainingStringFormat(format)
 
 }
 
@@ -106,17 +162,19 @@ class OtherCooldown(
     private val attributes: Set<CooldownAttribute<*>>
 ) : Cooldown(key, durationMillis, attributes) {
 
-    override fun isCooldowned(player: Player, customItem: CustomItem): Boolean = false
+    override fun isCooldowned(player: Player, customItem: CustomItem, item: ItemStack): Boolean = false
 
-    override fun apply(player: Player, customItem: CustomItem) {
+    override fun apply(player: Player, customItem: CustomItem, item: ItemStack) {
         otherItems.mapNotNull { CustomItemManager.instance.getItem(it) }.forEach {
             val cooldown = PlayerCooldown("other-cooldown-${customItem.key}", durationMillis, attributes)
             it.cooldowns.add(cooldown)
-            cooldown.apply(player, it)
+            cooldown.apply(player, it, item)
         }
     }
 
-    override fun getRemainingMillis(player: Player): Long = 0
-    override fun getRemainingFormat(player: Player, format: String) = format
+    override fun reset(player: Player, item: ItemStack) = Unit
+
+    override fun getRemainingMillis(player: Player, item: ItemStack): Long = 0
+    override fun getRemainingFormat(player: Player, item: ItemStack, format: String) = format
 
 }

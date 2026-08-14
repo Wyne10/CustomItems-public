@@ -57,7 +57,7 @@ class PotionTypeCondition(key: String, types: Set<PotionEffectType>) : Activator
 
 class CustomItemCooldownCondition(key: String, isActive: Boolean) : ActivatorCondition<Boolean>(key, isActive) {
     override fun isApplicable(event: Event, player: Player, customItem: CustomItem, item: ItemStack) =
-        customItem.cooldowns.any { it.isCooldowned(player, customItem) } == value
+        customItem.cooldowns.any { it.isCooldowned(player, customItem, item) } == value
 }
 
 class ConsumedItemCustomCondition(key: String, isActive: Boolean) : ActivatorCondition<Boolean>(key, isActive) {

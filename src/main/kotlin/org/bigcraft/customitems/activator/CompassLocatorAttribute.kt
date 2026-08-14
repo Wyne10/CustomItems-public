@@ -31,6 +31,19 @@ class CompassLocatorAttribute(
         val candidates = value.flatMap { locator ->
             locator.availableValues(player).map { locator to it }
         }
+        if (value.isEmpty()) {
+            val meta = item.itemMeta as CompassMeta
+            if (meta.lodestone != null) {
+                val target = meta.lodestone!!
+                player.placeholderComponent("info-compass-locate",
+                    "x" replace target.blockX,
+                    "y" replace target.blockY,
+                    "z" replace target.blockZ,
+                    "world" replace target.world.name
+                ).sendMessage(player)
+            }
+            return
+        }
         var located = false
         for ((locator, valueName) in candidates.shuffled()) {
             val target = locator.locate(player, valueName) ?: continue
@@ -39,7 +52,7 @@ class CompassLocatorAttribute(
             meta.isLodestoneTracked = false
             meta.lodestone = target
             item.itemMeta = meta
-            player.placeholderComponent("info-compass-locate",
+            player.placeholderComponent("success-compass-locate",
                 "x" replace target.blockX,
                 "y" replace target.blockY,
                 "z" replace target.blockZ,
@@ -48,7 +61,7 @@ class CompassLocatorAttribute(
             break
         }
         if (!located) {
-            customItem.cooldowns.clear()
+            customItem.cooldowns.forEach { it.reset(player, item) }
             player.placeholderComponent("error-compass-locate").sendMessage(player)
         }
     }
@@ -104,7 +117,7 @@ class BiomeCompassLocator(
     override fun candidates(player: Player): Collection<Biome> = Biome.entries
     override fun nameOf(candidate: Biome): String = candidate.key.toString()
     override fun resolve(player: Player, candidate: Biome): Location? =
-        player.world.locateNearestBiome(player.location, candidate, radius)
+        player.world.locateNearestBiome(player.location, candidate, radius, 32)
 }
 
 class StructureCompassLocator(

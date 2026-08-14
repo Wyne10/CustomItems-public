@@ -17,3 +17,4 @@ error-compass-locate: "<red>▶ <white>Не удалость найти подх
 success-plugin-reload: "<green>Плагин перезагружен!"
 success-item-give: "<item-name> [<item-amount>] <green>выдан <targets>!"
 success-lootpool-create: "<green>Лут пул '<key>' создан"
+success-compass-locate: "<#05dcea>▶️ </#05dcea><#e7e7e7>Найдено сокровище по координатам: </#e7e7e7><#05dcea><x></#05dcea><#e7e7e7>, </#e7e7e7><#05dcea><z></#05dcea><#e7e7e7>. Теперь этот компас будет снова доступен только через 8 часов."
