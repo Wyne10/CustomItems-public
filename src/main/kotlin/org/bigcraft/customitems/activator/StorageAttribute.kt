@@ -10,6 +10,7 @@ import org.bigcraft.customitems.listener.isNullOrAir
 import org.bukkit.Bukkit
 import org.bukkit.Material
 import org.bukkit.NamespacedKey
+import org.bukkit.block.Container
 import org.bukkit.entity.Player
 import org.bukkit.event.Event
 import org.bukkit.event.EventHandler
@@ -28,6 +29,7 @@ import org.bukkit.event.player.PlayerSwapHandItemsEvent
 import org.bukkit.inventory.EquipmentSlot
 import org.bukkit.inventory.Inventory
 import org.bukkit.inventory.ItemStack
+import org.bukkit.inventory.meta.BlockStateMeta
 import org.bukkit.persistence.PersistentDataType
 import kotlin.collections.remove
 
@@ -44,7 +46,7 @@ class StorageAttribute(
     }
 
     override fun isApplicable(event: Event, player: Player, customItem: CustomItem, item: ItemStack): Boolean =
-        event is PlayerInteractEvent
+        event is PlayerInteractEvent && (item.itemMeta as? BlockStateMeta)?.blockState is Container
 
     override fun apply(event: Event, player: Player, customItem: CustomItem, item: ItemStack) {
         event as PlayerInteractEvent
@@ -144,23 +146,30 @@ class StorageAttribute(
     }
 
     private fun writeInventory(inventory: Inventory, item: ItemStack) {
-        if (inventory.all { it == FILLER || it.isNullOrAir() }) {
-            item.editMeta { meta ->
-                meta.persistentDataContainer.remove(STORAGE_KEY)
-            }
-            return
+        val meta = item.itemMeta as? BlockStateMeta ?: return
+        val container = meta.blockState as? Container ?: return
+        val containerInventory = container.inventory
+        for (i in 0 until containerInventory.size) {
+            val content = inventory.getItem(i)
+            containerInventory.setItem(i, if (content == FILLER) null else content)
         }
-        val serialized = SERIALIZER.serialize(inventory, null, null)
-        val string = serialized.asString
-        item.editMeta { meta ->
-            meta.persistentDataContainer.set(STORAGE_KEY, PersistentDataType.STRING, string)
-        }
+        meta.blockState = container
+        meta.persistentDataContainer.remove(STORAGE_KEY)
+        item.itemMeta = meta
     }
 
     private fun readInventory(inventory: Inventory, item: ItemStack) {
-        val string = item.itemMeta.persistentDataContainer.get(STORAGE_KEY, PersistentDataType.STRING) ?: return
-        val deserialized = SERIALIZER.deserialize(JsonPrimitive(string), null, null)
-        inventory.setContents(deserialized.storageContents)
+        val meta = item.itemMeta as? BlockStateMeta ?: return
+        val legacy = meta.persistentDataContainer.get(STORAGE_KEY, PersistentDataType.STRING)
+        if (legacy != null) {
+            inventory.setContents(SERIALIZER.deserialize(JsonPrimitive(legacy), null, null).storageContents)
+            return
+        }
+        val container = meta.blockState as? Container ?: return
+        val containerInventory = container.inventory
+        for (i in 0 until minOf(inventory.size, containerInventory.size)) {
+            inventory.setItem(i, containerInventory.getItem(i))
+        }
     }
 
     companion object {
