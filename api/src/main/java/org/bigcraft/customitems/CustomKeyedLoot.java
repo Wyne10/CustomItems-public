@@ -16,6 +16,17 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * A single-entry {@link LootPool} keyed to a CustomItems item, analogous to LootPool's own
+ * {@code KeyedLoot} but resolving its item dynamically through {@link CustomItemsApi} instead
+ * of always yielding the stored {@code loot}.
+ * <p>
+ * {@code key} is looked up against {@link CustomItemsApi#getProvider()} on every access via
+ * {@link #getCustomItem()}; when a matching custom item is registered, its freshly created item
+ * stack replaces {@code loot}'s item (keeping {@code loot}'s weight and amount range) so that
+ * later edits to the custom item definition are reflected without updating this record. If no
+ * custom item is registered under {@code key}, {@code loot} is used as-is.
+ */
 public record CustomKeyedLoot(@NotNull String key, @NotNull Loot loot) implements ConfigurationSerializable, LootPool {
 
     public CustomKeyedLoot(@NotNull CustomKeyedLoot customKeyedLoot) {
@@ -40,10 +51,17 @@ public record CustomKeyedLoot(@NotNull String key, @NotNull Loot loot) implement
         return new CustomKeyedLoot((String) args.get("key"), (Loot) args.get("loot"));
     }
 
+    /**
+     * @return the custom item registered under {@link #key()}, or {@code null} if none is registered
+     */
     public @Nullable CustomItemApi getCustomItem() {
         return CustomItemsApi.getProvider().getItem(key);
     }
 
+    /**
+     * @return {@link #loot()} with its item replaced by {@link #getCustomItem()}'s item stack when
+     * a matching custom item is registered, otherwise {@link #loot()} unchanged
+     */
     public @NotNull Loot getLoot() {
         var item = getCustomItem();
         if (item == null)
