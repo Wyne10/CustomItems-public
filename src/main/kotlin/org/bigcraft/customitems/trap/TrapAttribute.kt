@@ -20,7 +20,7 @@ import me.wyne.wutils.common.Ticks
 import me.wyne.wutils.common.kotlin.config.getMillis
 import me.wyne.wutils.common.range.LocationRange
 import me.wyne.wutils.common.scheduler.EventPromisedTask
-import me.wyne.wutils.config.configurables.attribute.AttributeFactory
+import org.bigcraft.customitems.api.spi.ConfigFactory
 import me.wyne.wutils.config.configurables.attribute.AttributeUtils
 import org.bigcraft.customitems.CustomItems
 import me.wyne.wutils.common.kotlin.config.deep
@@ -143,7 +143,7 @@ class TrapAttribute(
         )
     }
 
-    object Factory : AttributeFactory<TrapAttribute> {
+    object Factory : ConfigFactory<TrapAttribute> {
         override fun create(key: String, config: ConfigurationSection): TrapAttribute {
             val section = config.deep(key)
             val schemes = AttributeUtils.createAll<Scheme>(

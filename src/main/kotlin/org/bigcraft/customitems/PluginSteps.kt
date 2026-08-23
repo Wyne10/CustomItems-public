@@ -11,17 +11,24 @@ import me.wyne.wutils.common.plugin.LoggerWrapper
 import me.wyne.wutils.common.plugin.PluginStep
 import me.wyne.wutils.common.plugin.Step
 import me.wyne.wutils.common.plugin.StepScope
+import me.wyne.wutils.common.scheduler.Schedulers
 import me.wyne.wutils.config.Config
 import me.wyne.wutils.i18n.I18n
 import me.wyne.wutils.i18n.PluginI18nBuilder
 import me.wyne.wutils.i18n.language.component.BukkitComponentAudiences
 import me.wyne.wutils.i18n.language.validation.EmptyValidator
+import org.bigcraft.customitems.api.CustomItemsApi
 import me.wyne.wutils.json.JsonRegistry
 import net.kyori.adventure.platform.bukkit.BukkitAudiences
 import org.bigcraft.customitems.CustomItems.Companion.EMPTY_CONFIGURATION
 import org.bigcraft.customitems.CustomItems.Companion.logger
 import me.wyne.wutils.i18n.language.interpretation.ComponentInterpreters
+import org.bigcraft.customitems.activator.registerActivatorAttributes
+import org.bigcraft.customitems.activator.registerItemIdentifiers
+import org.bigcraft.customitems.activator.condition.registerActivatorConditions
+import org.bigcraft.customitems.item.registerItemAttributes
 import org.bigcraft.customitems.module.*
+import org.bigcraft.customitems.spi.Registries
 import org.bukkit.configuration.serialization.ConfigurationSerialization
 import java.io.File
 
@@ -75,6 +82,17 @@ object InitializeI18n : PluginStep<CustomItems> {
 }
 
 @Step(priority = 4, scope = StepScope.ENABLE)
+object RegisterVocabulary : PluginStep<CustomItems> {
+    override fun run(plugin: CustomItems) {
+        registerItemAttributes(Registries.itemAttributeFactories)
+        registerItemIdentifiers(Registries.itemIdentifierInstances)
+        registerActivatorAttributes(Registries.activatorAttributeFactories)
+        registerActivatorConditions(Registries.activatorConditionFactories)
+        CustomItemsApi.setRegistries(Registries)
+    }
+}
+
+@Step(priority = 5, scope = StepScope.ENABLE)
 object InitializeInjector : PluginStep<CustomItems> {
     override fun run(plugin: CustomItems) {
         try {
@@ -94,7 +112,7 @@ object InitializeInjector : PluginStep<CustomItems> {
     }
 }
 
-@Step(priority = 5, scope = StepScope.ENABLE)
+@Step(priority = 6, scope = StepScope.ENABLE)
 object InitializeConfig : CompositeStep<CustomItems>(ReloadConfig) {
     override fun before(plugin: CustomItems) {
         Config.global.apply {
@@ -105,17 +123,34 @@ object InitializeConfig : CompositeStep<CustomItems>(ReloadConfig) {
     }
 }
 
-@Step(priority = 6, scope = StepScope.ENABLE)
+@Step(priority = 7, scope = StepScope.ENABLE)
 object InitializeLoader : PluginStep<CustomItems> {
     override fun run(plugin: CustomItems) {
         Loader.global.registerConfig(Loader.DEFAULT_PATH, plugin.config)
     }
 }
 
-@Step(priority = 7, scope = StepScope.ENABLE)
+/**
+ * Items are loaded a tick after enabling rather than during it, so that plugins depending on
+ * CustomItems have had their own `onEnable` to register into [Registries] first.
+ */
+@Step(priority = 8, scope = StepScope.ENABLE)
 object Load : PluginStep<CustomItems> {
     override fun run(plugin: CustomItems) {
+        LoadJson.run(plugin)
+        Schedulers.sync().runLater({ LoadItems.run(plugin) }, 1)
+    }
+}
+
+object LoadJson : PluginStep<CustomItems> {
+    override fun run(plugin: CustomItems) {
         JsonRegistry.global.load()
+    }
+}
+
+object LoadItems : PluginStep<CustomItems> {
+    override fun run(plugin: CustomItems) {
+        Registries.close()
         Loader.global.load(plugin)
     }
 }
@@ -124,7 +159,7 @@ object Load : PluginStep<CustomItems> {
 object Disable : CompositeStep<CustomItems>(Write)
 
 @Step(scope = StepScope.RELOAD)
-object Reload : CompositeStep<CustomItems>(ReloadConfig, InitializeLogger, InitializeLoader, InitializeI18n, Write, Load)
+object Reload : CompositeStep<CustomItems>(ReloadConfig, InitializeLogger, InitializeLoader, InitializeI18n, Write, LoadJson, LoadItems)
 
 object Write : PluginStep<CustomItems> {
     override fun run(plugin: CustomItems) {

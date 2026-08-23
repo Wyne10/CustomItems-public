@@ -7,6 +7,7 @@ import me.wyne.wutils.common.kotlin.config.COMMA_DELIMITER
 import me.wyne.wutils.common.range.ClosedIntRange
 import me.wyne.wutils.config.configurables.attribute.AttributeBase
 import me.wyne.wutils.config.configurables.attribute.AttributeFactory
+import org.bigcraft.customitems.spi.ItemAttributeRegistry
 import me.wyne.wutils.config.configurables.attribute.CompositeAttribute
 import me.wyne.wutils.config.configurables.attribute.CompositeAttributeFactory
 import me.wyne.wutils.config.configurables.attribute.common.StringCollectionAttribute
@@ -21,14 +22,14 @@ import org.bukkit.inventory.meta.ItemMeta
 import org.bukkit.persistence.PersistentDataType
 import kotlin.collections.get
 
-val ITEM_ATTRIBUTE_MAP = mapOf(
-    "nbt" to AttributeFactory { key, config -> NbtTagAttribute(key, NBT.parseNBT(config.getString(key))) },
-    "pdc-tag" to PdcTagAttribute.Factory,
-    "pdc-tags" to AttributeFactory(::PdcTagsAttribute),
-    "compositor" to StringCollectionAttribute.SetFactory(),
-    "random-amount" to AttributeFactory { key, config -> RandomAmountAttribute(key, ClosedIntRange.getIntRange(config.getString(key)!!)) },
-    "random-durability" to AttributeFactory { key, config -> RandomDurabilityAttribute(key, ClosedIntRange.getIntRange(config.getString(key)!!)) }
-)
+internal fun registerItemAttributes(registry: ItemAttributeRegistry) {
+    registry.registerNative("nbt", AttributeFactory { key, config -> NbtTagAttribute(key, NBT.parseNBT(config.getString(key))) })
+    registry.registerNative("pdc-tag", PdcTagAttribute.Factory)
+    registry.registerNative("pdc-tags", AttributeFactory(::PdcTagsAttribute))
+    registry.registerNative("compositor", StringCollectionAttribute.SetFactory())
+    registry.registerNative("random-amount", AttributeFactory { key, config -> RandomAmountAttribute(key, ClosedIntRange.getIntRange(config.getString(key)!!)) })
+    registry.registerNative("random-durability", AttributeFactory { key, config -> RandomDurabilityAttribute(key, ClosedIntRange.getIntRange(config.getString(key)!!)) })
+}
 
 class NbtTagAttribute(
     key: String,

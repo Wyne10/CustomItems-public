@@ -11,7 +11,7 @@ import me.wyne.wutils.common.kotlin.config.getMillis
 import me.wyne.wutils.common.range.iterator.CircleEdgeIterator
 import me.wyne.wutils.common.vector.VectorUtils
 import me.wyne.wutils.config.configurables.ItemConfigurable
-import me.wyne.wutils.config.configurables.attribute.CompositeAttributeFactory
+import org.bigcraft.customitems.api.spi.CompositeConfigFactory
 import me.wyne.wutils.config.configurables.attribute.ImmutableAttributeContainer
 import me.wyne.wutils.config.configurables.item.attribute.EnchantmentAttribute
 import me.wyne.wutils.config.configurables.item.attribute.MaterialAttribute
@@ -45,7 +45,7 @@ class PlayerExplosionAttribute(
         player.location.world.createExplosion(player.eyeLocation.getRelative(value.first), value.second, setFire, breakBlocks)
     }
 
-    object Factory : CompositeAttributeFactory<PlayerExplosionAttribute> {
+    object Factory : CompositeConfigFactory<PlayerExplosionAttribute> {
         override fun fromSection(key: String, section: ConfigurationSection): PlayerExplosionAttribute =
             PlayerExplosionAttribute(
                 key,
@@ -112,7 +112,7 @@ class JackOLanternAttribute(
         ).build()
     }
 
-    object Factory : CompositeAttributeFactory<JackOLanternAttribute> {
+    object Factory : CompositeConfigFactory<JackOLanternAttribute> {
         override fun fromSection(key: String, section: ConfigurationSection): JackOLanternAttribute =
             JackOLanternAttribute(
                 key,
@@ -153,7 +153,7 @@ class ForceFieldAttribute(
             .forEach { it.velocity = it.location.toVector().subtract(location.toVector()).normalize().multiply(value.velocity) }
     }
 
-    object Factory : CompositeAttributeFactory<ForceFieldAttribute> {
+    object Factory : CompositeConfigFactory<ForceFieldAttribute> {
         override fun fromSection(key: String, section: ConfigurationSection): ForceFieldAttribute =
             ForceFieldAttribute(
                 key,
@@ -187,7 +187,7 @@ class ForceAttribute(
         player.velocity = player.location.toVector().subtract(location.toVector()).normalize().multiply(value.velocity)
     }
 
-    object Factory : CompositeAttributeFactory<ForceAttribute> {
+    object Factory : CompositeConfigFactory<ForceAttribute> {
         override fun fromSection(key: String, section: ConfigurationSection): ForceAttribute =
             ForceAttribute(
                 key,
@@ -221,7 +221,7 @@ class RelativeForceAttribute(
         player.velocity = player.location.toVector().subtract(location.toVector()).normalize().multiply(value.velocity)
     }
 
-    object Factory : CompositeAttributeFactory<RelativeForceAttribute> {
+    object Factory : CompositeConfigFactory<RelativeForceAttribute> {
         override fun fromSection(key: String, section: ConfigurationSection): RelativeForceAttribute =
             RelativeForceAttribute(
                 key,

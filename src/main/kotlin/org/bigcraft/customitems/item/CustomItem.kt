@@ -21,6 +21,7 @@ import org.bigcraft.customitems.block.BlockAttribute
 import org.bigcraft.customitems.block.CustomBlockManager
 import org.bigcraft.customitems.cooldown.COOLDOWN_MAP
 import org.bigcraft.customitems.cooldown.Cooldown
+import org.bigcraft.customitems.spi.Registries
 import org.bukkit.NamespacedKey
 import org.bukkit.block.Block
 import org.bukkit.configuration.ConfigurationSection
@@ -117,7 +118,7 @@ class CustomItem(
                 ItemConfigurable(
                     AttributeContainerBuilder()
                         .with(ItemConfigurable.ITEM_ATTRIBUTE_MAP)
-                        .with(ITEM_ATTRIBUTE_MAP)
+                        .with(Registries.itemAttributeFactories.attributeMap)
                         .build(),
                     config
                 ),

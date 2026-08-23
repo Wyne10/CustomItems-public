@@ -4,7 +4,7 @@ import com.sk89q.worldedit.bukkit.BukkitAdapter
 import com.sk89q.worldguard.WorldGuard
 import com.sk89q.worldguard.protection.regions.ProtectedRegion
 import me.wyne.wutils.config.configurables.attribute.AttributeBase
-import me.wyne.wutils.config.configurables.attribute.AttributeFactory
+import org.bigcraft.customitems.api.spi.ConfigFactory
 import me.wyne.wutils.i18n.kotlin.placeholderComponent
 import me.wyne.wutils.i18n.kotlin.replace
 import me.wyne.wutils.common.kotlin.config.deep
@@ -66,7 +66,7 @@ class CompassLocatorAttribute(
         }
     }
 
-    object Factory : AttributeFactory<CompassLocatorAttribute> {
+    object Factory : ConfigFactory<CompassLocatorAttribute> {
         override fun create(key: String, config: ConfigurationSection): CompassLocatorAttribute {
             val section = config.deep(key)
             val radius = if (section.contains("radius")) section.getInt("radius") else DEFAULT_RADIUS

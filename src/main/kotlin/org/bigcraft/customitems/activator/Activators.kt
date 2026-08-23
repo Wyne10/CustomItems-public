@@ -1,13 +1,13 @@
 package org.bigcraft.customitems.activator
 
 import com.destroystokyo.paper.event.player.PlayerLaunchProjectileEvent
-import me.wyne.wutils.config.configurables.AttributeConfigurable
+import me.wyne.wutils.common.kotlin.config.deep
 import me.wyne.wutils.config.configurables.attribute.AttributeFactory
 import me.wyne.wutils.config.configurables.attribute.AttributeMap
-import me.wyne.wutils.config.configurables.attribute.ImmutableAttributeContainer
-import me.wyne.wutils.common.kotlin.config.deep
-import org.bigcraft.customitems.activator.condition.ACTIVATOR_CONDITION_MAP
-import org.bigcraft.customitems.activator.condition.ActivatorCondition
+import org.bigcraft.customitems.api.spi.ActivatorAttribute
+import org.bigcraft.customitems.api.spi.ActivatorCondition
+import org.bigcraft.customitems.api.spi.ItemIdentifier
+import org.bigcraft.customitems.spi.Registries
 import org.bigcraft.customitems.aoe.event.AoeFinishEvent
 import org.bigcraft.customitems.item.CustomItemManager
 import org.bigcraft.customitems.item.RegisterableCustomItemAttribute
@@ -58,46 +58,48 @@ val ACTIVATOR_MAP = AttributeMap(
     )
 )
 
-private fun createItemIdentifier(key: String, config: ConfigurationSection) =
-    runCatching { ItemIdentifiers.valueOf(config.deep(key).getString("identifier", "PLAYER")!!).identifier }
-        .getOrDefault(ItemIdentifiers.PLAYER.identifier)
+private fun createItemIdentifier(key: String, config: ConfigurationSection): ItemIdentifier {
+    val name = config.deep(key).getString("identifier", PlayerItemIdentifier.key)!!
+    return Registries.itemIdentifierInstances.get(name) ?: PlayerItemIdentifier
+}
 
 private fun createActivatorAttributes(key: String, config: ConfigurationSection) =
-    AttributeConfigurable(ImmutableAttributeContainer(ACTIVATOR_ATTRIBUTE_MAP, config.deep(key)))
-        .getSet(ActivatorAttribute::class.java)
+    Registries.activatorAttributeFactories.createAllMap(config.deep(key))
 
 private fun createActivatorConditions(key: String, config: ConfigurationSection) =
-    AttributeConfigurable(ImmutableAttributeContainer(ACTIVATOR_CONDITION_MAP, config.deep(key)))
-        .getSet(ActivatorCondition::class.java)
+    Registries.activatorConditionFactories.createAll(config.deep(key))
 
 abstract class Activator(
     key: String,
     private val itemIdentifier: ItemIdentifier,
-    private val attributes: Set<ActivatorAttribute<*>>,
-    private val conditions: Set<ActivatorCondition<*>>
+    private val attributes: Map<String, ActivatorAttribute>,
+    private val conditions: Collection<ActivatorCondition>
 ) : RegisterableCustomItemAttribute<Boolean>(key, true, CustomItemManager.instance.activatorRegistry) {
 
     protected fun getItemStack(player: Player): ItemStack? =
         itemIdentifier.getItem(player, item)
 
     fun activate(event: Event, player: Player, itemStack: ItemStack) {
-        if (conditions.any { !it.isApplicable(event, player, item, itemStack) }) {
-            attributes.firstOrNull { it.key == "condition-cancel-event" }?.apply(event, player, item, itemStack)
+        if (conditions.any { !it.test(event, player, item, itemStack) }) {
+            attributes[CONDITION_CANCEL_EVENT]?.apply(event, player, item, itemStack)
             return
         }
-        attributes
-            .filter { it.key != "condition-cancel-event" }
+        attributes.asSequence()
+            .filter { it.key != CONDITION_CANCEL_EVENT }
+            .map { it.value }
             .filter { it.isApplicable(event, player, item, itemStack) }
             .forEach { it.apply(event, player, item, itemStack) }
     }
 
 }
 
+private const val CONDITION_CANCEL_EVENT = "condition-cancel-event"
+
 class RightClickActivator(
     key: String,
     itemIdentifier: ItemIdentifier,
-    attributes: Set<ActivatorAttribute<*>>,
-    conditions: Set<ActivatorCondition<*>>
+    attributes: Map<String, ActivatorAttribute>,
+    conditions: Collection<ActivatorCondition>
 ) : Activator(key, itemIdentifier, attributes, conditions) {
     @EventHandler(priority = EventPriority.HIGH)
     private fun onRightClick(event: PlayerInteractEvent) {
@@ -111,8 +113,8 @@ class RightClickActivator(
 class PlayerKillActivator(
     key: String,
     itemIdentifier: ItemIdentifier,
-    attributes: Set<ActivatorAttribute<*>>,
-    conditions: Set<ActivatorCondition<*>>
+    attributes: Map<String, ActivatorAttribute>,
+    conditions: Collection<ActivatorCondition>
 ) : Activator(key, itemIdentifier, attributes, conditions) {
     @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGH)
     private fun onDeath(event: PlayerDeathEvent) {
@@ -125,8 +127,8 @@ class PlayerKillActivator(
 class PlayerHitActivator(
     key: String,
     itemIdentifier: ItemIdentifier,
-    attributes: Set<ActivatorAttribute<*>>,
-    conditions: Set<ActivatorCondition<*>>
+    attributes: Map<String, ActivatorAttribute>,
+    conditions: Collection<ActivatorCondition>
 ) : Activator(key, itemIdentifier, attributes, conditions) {
     @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGH)
     private fun onDamage(event: EntityDamageByEntityEvent) {
@@ -140,8 +142,8 @@ class PlayerHitActivator(
 class EntityHitPlayerActivator(
     key: String,
     itemIdentifier: ItemIdentifier,
-    attributes: Set<ActivatorAttribute<*>>,
-    conditions: Set<ActivatorCondition<*>>
+    attributes: Map<String, ActivatorAttribute>,
+    conditions: Collection<ActivatorCondition>
 ) : Activator(key, itemIdentifier, attributes, conditions) {
     @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGH)
     private fun onDamage(event: EntityDamageByEntityEvent) {
@@ -155,8 +157,8 @@ class EntityHitPlayerActivator(
 class ProjectileHitPlayerActivator(
     key: String,
     itemIdentifier: ItemIdentifier,
-    attributes: Set<ActivatorAttribute<*>>,
-    conditions: Set<ActivatorCondition<*>>
+    attributes: Map<String, ActivatorAttribute>,
+    conditions: Collection<ActivatorCondition>
 ) : Activator(key, itemIdentifier, attributes, conditions) {
     @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGH)
     private fun onDamage(event: EntityDamageByEntityEvent) {
@@ -170,8 +172,8 @@ class ProjectileHitPlayerActivator(
 class PlayerHitEntityActivator(
     key: String,
     itemIdentifier: ItemIdentifier,
-    attributes: Set<ActivatorAttribute<*>>,
-    conditions: Set<ActivatorCondition<*>>
+    attributes: Map<String, ActivatorAttribute>,
+    conditions: Collection<ActivatorCondition>
 ) : Activator(key, itemIdentifier, attributes, conditions) {
     @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGH)
     private fun onDamage(event: EntityDamageByEntityEvent) {
@@ -185,8 +187,8 @@ class PlayerHitEntityActivator(
 class LaunchProjectileActivator(
     key: String,
     itemIdentifier: ItemIdentifier,
-    attributes: Set<ActivatorAttribute<*>>,
-    conditions: Set<ActivatorCondition<*>>
+    attributes: Map<String, ActivatorAttribute>,
+    conditions: Collection<ActivatorCondition>
 ) : Activator(key, itemIdentifier, attributes, conditions) {
     @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGH)
     private fun onLaunch(event: PlayerLaunchProjectileEvent) {
@@ -198,8 +200,8 @@ class LaunchProjectileActivator(
 class PlayerDamageActivator(
     key: String,
     itemIdentifier: ItemIdentifier,
-    attributes: Set<ActivatorAttribute<*>>,
-    conditions: Set<ActivatorCondition<*>>
+    attributes: Map<String, ActivatorAttribute>,
+    conditions: Collection<ActivatorCondition>
 ) : Activator(key, itemIdentifier, attributes, conditions) {
     @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGH)
     private fun onDamage(event: EntityDamageEvent) {
@@ -212,8 +214,8 @@ class PlayerDamageActivator(
 class PlayerPotionEffectActivator(
     key: String,
     itemIdentifier: ItemIdentifier,
-    attributes: Set<ActivatorAttribute<*>>,
-    conditions: Set<ActivatorCondition<*>>
+    attributes: Map<String, ActivatorAttribute>,
+    conditions: Collection<ActivatorCondition>
 ) : Activator(key, itemIdentifier, attributes, conditions) {
     @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGH)
     private fun onPotion(event: EntityPotionEffectEvent) {
@@ -226,8 +228,8 @@ class PlayerPotionEffectActivator(
 class PlayerConsumeItemActivator(
     key: String,
     itemIdentifier: ItemIdentifier,
-    attributes: Set<ActivatorAttribute<*>>,
-    conditions: Set<ActivatorCondition<*>>
+    attributes: Map<String, ActivatorAttribute>,
+    conditions: Collection<ActivatorCondition>
 ) : Activator(key, itemIdentifier, attributes, conditions) {
     @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGH)
     private fun onConsume(event: PlayerItemConsumeEvent) {
@@ -239,8 +241,8 @@ class PlayerConsumeItemActivator(
 class BlockBreakActivator(
     key: String,
     itemIdentifier: ItemIdentifier,
-    attributes: Set<ActivatorAttribute<*>>,
-    conditions: Set<ActivatorCondition<*>>
+    attributes: Map<String, ActivatorAttribute>,
+    conditions: Collection<ActivatorCondition>
 ) : Activator(key, itemIdentifier, attributes, conditions) {
     @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGH)
     private fun onBreak(event: BlockBreakEvent) {
@@ -252,8 +254,8 @@ class BlockBreakActivator(
 class BlockPlaceActivator(
     key: String,
     itemIdentifier: ItemIdentifier,
-    attributes: Set<ActivatorAttribute<*>>,
-    conditions: Set<ActivatorCondition<*>>
+    attributes: Map<String, ActivatorAttribute>,
+    conditions: Collection<ActivatorCondition>
 ) : Activator(key, itemIdentifier, attributes, conditions) {
     @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGH)
     private fun onPlace(event: BlockPlaceEvent) {
@@ -265,8 +267,8 @@ class BlockPlaceActivator(
 class PlayerResurrectActivator(
     key: String,
     itemIdentifier: ItemIdentifier,
-    attributes: Set<ActivatorAttribute<*>>,
-    conditions: Set<ActivatorCondition<*>>
+    attributes: Map<String, ActivatorAttribute>,
+    conditions: Collection<ActivatorCondition>
 ) : Activator(key, itemIdentifier, attributes, conditions) {
     @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGH)
     private fun onResurrect(event: EntityResurrectEvent) {
@@ -279,8 +281,8 @@ class PlayerResurrectActivator(
 class PlayerMoveActivator(
     key: String,
     itemIdentifier: ItemIdentifier,
-    attributes: Set<ActivatorAttribute<*>>,
-    conditions: Set<ActivatorCondition<*>>
+    attributes: Map<String, ActivatorAttribute>,
+    conditions: Collection<ActivatorCondition>
 ) : Activator(key, itemIdentifier, attributes, conditions) {
     @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGH)
     private fun onMove(event: PlayerMoveEvent) {
@@ -293,8 +295,8 @@ class PlayerMoveActivator(
 class PlayerCommandActivator(
     key: String,
     itemIdentifier: ItemIdentifier,
-    attributes: Set<ActivatorAttribute<*>>,
-    conditions: Set<ActivatorCondition<*>>
+    attributes: Map<String, ActivatorAttribute>,
+    conditions: Collection<ActivatorCondition>
 ) : Activator(key, itemIdentifier, attributes, conditions) {
     @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGH)
     private fun onCommand(event: PlayerCommandPreprocessEvent) {
@@ -306,8 +308,8 @@ class PlayerCommandActivator(
 class CreateTrapActivator(
     key: String,
     itemIdentifier: ItemIdentifier,
-    attributes: Set<ActivatorAttribute<*>>,
-    conditions: Set<ActivatorCondition<*>>
+    attributes: Map<String, ActivatorAttribute>,
+    conditions: Collection<ActivatorCondition>
 ) : Activator(key, itemIdentifier, attributes, conditions) {
     @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGH)
     private fun onTrapCreation(event: CreateTrapEvent) {
@@ -319,8 +321,8 @@ class CreateTrapActivator(
 class AoeFinishActivator(
     key: String,
     itemIdentifier: ItemIdentifier,
-    attributes: Set<ActivatorAttribute<*>>,
-    conditions: Set<ActivatorCondition<*>>
+    attributes: Map<String, ActivatorAttribute>,
+    conditions: Collection<ActivatorCondition>
 ) : Activator(key, itemIdentifier, attributes, conditions) {
     @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGH)
     private fun onAoeFinish(event: AoeFinishEvent) {
@@ -334,8 +336,8 @@ class AoeFinishActivator(
 class PlayerDropItemActivator(
     key: String,
     itemIdentifier: ItemIdentifier,
-    attributes: Set<ActivatorAttribute<*>>,
-    conditions: Set<ActivatorCondition<*>>
+    attributes: Map<String, ActivatorAttribute>,
+    conditions: Collection<ActivatorCondition>
 ) : Activator(key, itemIdentifier, attributes, conditions) {
     @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGH)
     private fun onItemDrop(event: PlayerDropItemEvent) {
@@ -348,8 +350,8 @@ class PlayerDropItemActivator(
 class PlayerDeathActivator(
     key: String,
     itemIdentifier: ItemIdentifier,
-    attributes: Set<ActivatorAttribute<*>>,
-    conditions: Set<ActivatorCondition<*>>
+    attributes: Map<String, ActivatorAttribute>,
+    conditions: Collection<ActivatorCondition>
 ) : Activator(key, itemIdentifier, attributes, conditions) {
     @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGH)
     private fun onDeath(event: PlayerDeathEvent) {

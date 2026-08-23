@@ -22,6 +22,7 @@ class CustomItems : CompositeJavaPlugin<CustomItems>() {
                     .create(), dataFolder),
             InitializeLogger,
             InitializeI18n,
+            RegisterVocabulary,
             InitializeInjector,
             InitializeConfig,
             InitializeLoader,

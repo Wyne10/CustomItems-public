@@ -1,64 +1,60 @@
 package org.bigcraft.customitems.activator
 
-import org.bigcraft.customitems.item.CustomItem
+import org.bigcraft.customitems.api.CustomItemApi
+import org.bigcraft.customitems.api.spi.InstanceRegistry
+import org.bigcraft.customitems.api.spi.ItemIdentifier
 import org.bigcraft.storm.api.StormApi
 import org.bukkit.Material
 import org.bukkit.entity.Player
 import org.bukkit.inventory.EquipmentSlot
 import org.bukkit.inventory.ItemStack
 
-interface ItemIdentifier {
-    fun getItem(player: Player, customItem: CustomItem): ItemStack?
+internal fun registerItemIdentifiers(registry: InstanceRegistry<ItemIdentifier>) {
+    registry.register(EmptyItemIdentifier)
+    registry.register(PlayerItemIdentifier)
+    registry.register(HoldItemIdentifier)
+    registry.register(MainHandItemIdentifier)
+    registry.register(OffHandItemIdentifier)
+    registry.register(EffectOrPlayerItemIdentifier)
 }
 
 object EmptyItemIdentifier : ItemIdentifier {
-    override fun getItem(player: Player, customItem: CustomItem) = ItemStack(Material.AIR)
+    override fun getKey() = "EMPTY"
+    override fun getItem(player: Player, item: CustomItemApi): ItemStack = ItemStack(Material.AIR)
 }
 
 object PlayerItemIdentifier : ItemIdentifier {
-    override fun getItem(player: Player, customItem: CustomItem): ItemStack? =
-        customItem.getItem(player.inventory)
+    override fun getKey() = "PLAYER"
+    override fun getItem(player: Player, item: CustomItemApi): ItemStack? =
+        item.getItem(player.inventory)
 }
 
 object HoldItemIdentifier : ItemIdentifier {
-    override fun getItem(player: Player, customItem: CustomItem): ItemStack? {
-        return if (customItem.isCustomItem(player.inventory.getItem(EquipmentSlot.HAND)))
-            player.inventory.getItem(EquipmentSlot.HAND)
-        else if (customItem.isCustomItem(player.inventory.getItem(EquipmentSlot.OFF_HAND)))
-            player.inventory.getItem(EquipmentSlot.OFF_HAND)
-        else null
-    }
+    override fun getKey() = "HOLD"
+    override fun getItem(player: Player, item: CustomItemApi): ItemStack? =
+        player.inventory.getItem(EquipmentSlot.HAND).takeIf(item::isCustomItem)
+            ?: player.inventory.getItem(EquipmentSlot.OFF_HAND).takeIf(item::isCustomItem)
 }
 
 object MainHandItemIdentifier : ItemIdentifier {
-    override fun getItem(player: Player, customItem: CustomItem): ItemStack? {
-        return if (customItem.isCustomItem(player.inventory.getItem(EquipmentSlot.HAND)))
-            player.inventory.getItem(EquipmentSlot.HAND)
-        else null
-    }
+    override fun getKey() = "MAIN"
+    override fun getItem(player: Player, item: CustomItemApi): ItemStack? =
+        player.inventory.getItem(EquipmentSlot.HAND).takeIf(item::isCustomItem)
 }
 
 object OffHandItemIdentifier : ItemIdentifier {
-    override fun getItem(player: Player, customItem: CustomItem): ItemStack? {
-        return if (customItem.isCustomItem(player.inventory.getItem(EquipmentSlot.OFF_HAND)))
-            player.inventory.getItem(EquipmentSlot.OFF_HAND)
-        else null
-    }
+    override fun getKey() = "OFF"
+    override fun getItem(player: Player, item: CustomItemApi): ItemStack? =
+        player.inventory.getItem(EquipmentSlot.OFF_HAND).takeIf(item::isCustomItem)
 }
 
 object EffectOrPlayerItemIdentifier : ItemIdentifier {
-    override fun getItem(player: Player, customItem: CustomItem): ItemStack? {
-        val effect = StormApi.getEffectRegistry().getEffectInstance(customItem.key) ?: return PlayerItemIdentifier.getItem(player, customItem)
-        if (StormApi.getEffectManager().isAffected(player, effect.key)) return EmptyItemIdentifier.getItem(player, customItem)
-        return PlayerItemIdentifier.getItem(player, customItem)
+    override fun getKey() = "EFFECT_OR_PLAYER"
+    override fun getItem(player: Player, item: CustomItemApi): ItemStack? {
+        val effect = StormApi.getEffectRegistry().getEffectInstance(item.key)
+            ?: return PlayerItemIdentifier.getItem(player, item)
+        if (StormApi.getEffectManager().isAffected(player, effect.key))
+            return EmptyItemIdentifier.getItem(player, item)
+        return PlayerItemIdentifier.getItem(player, item)
     }
-}
-
-enum class ItemIdentifiers(val identifier: ItemIdentifier) {
-    EMPTY(EmptyItemIdentifier),
-    PLAYER(PlayerItemIdentifier),
-    HOLD(HoldItemIdentifier),
-    MAIN(MainHandItemIdentifier),
-    OFF(OffHandItemIdentifier),
-    EFFECT_OR_PLAYER(EffectOrPlayerItemIdentifier),
 }
