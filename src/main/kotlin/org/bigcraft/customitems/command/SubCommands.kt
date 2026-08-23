@@ -127,7 +127,7 @@ fun itemKeyArgument(itemManager: CustomItemManager): Argument<String> =
         .replaceSuggestions(ArgumentSuggestions.stringCollection { itemManager.itemPaths })
 
 fun assertItemExists(itemManager: CustomItemManager, key: String, sender: CommandSender) {
-    if (!itemManager.mapKeys.contains(key))
+    if (!itemManager.contains(key))
         throw CommandAPIBukkit.failWithBaseComponents(
             *sender.placeholderComponent("error-item-not-found", "key" replace key).bungee()
         )

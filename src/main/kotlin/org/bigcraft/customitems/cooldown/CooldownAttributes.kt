@@ -17,7 +17,7 @@ val COOLDOWN_ATTRIBUTE_MAP = AttributeMap(
     )
 )
 
-abstract class CooldownAttribute<V>(key: String, value: V) : AttributeBase<V>(key, value) {
+abstract class CooldownAttribute<V : Any>(key: String, value: V) : AttributeBase<V>(key, value) {
     open fun onTest(player: Player, customItem: CustomItem, item: ItemStack, cooldown: Cooldown) = Unit
     open fun onApply(player: Player, customItem: CustomItem, item: ItemStack, cooldown: Cooldown) = Unit
 }

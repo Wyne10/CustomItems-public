@@ -26,8 +26,8 @@ val ITEM_ATTRIBUTE_MAP = mapOf(
     "pdc-tag" to PdcTagAttribute.Factory,
     "pdc-tags" to AttributeFactory(::PdcTagsAttribute),
     "compositor" to StringCollectionAttribute.SetFactory(),
-    "random-amount" to AttributeFactory { key, config -> RandomAmountAttribute(key, ClosedIntRange.getIntRange(config.getString(key))) },
-    "random-durability" to AttributeFactory { key, config -> RandomDurabilityAttribute(key, ClosedIntRange.getIntRange(config.getString(key))) }
+    "random-amount" to AttributeFactory { key, config -> RandomAmountAttribute(key, ClosedIntRange.getIntRange(config.getString(key)!!)) },
+    "random-durability" to AttributeFactory { key, config -> RandomDurabilityAttribute(key, ClosedIntRange.getIntRange(config.getString(key)!!)) }
 )
 
 class NbtTagAttribute(

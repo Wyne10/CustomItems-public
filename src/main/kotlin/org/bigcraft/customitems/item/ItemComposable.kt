@@ -1,6 +1,7 @@
 package org.bigcraft.customitems.item
 
 import me.wyne.wutils.i18n.I18n
+import org.bigcraft.customitems.i18n
 import me.wyne.wutils.i18n.kotlin.replace
 import me.wyne.wutils.i18n.language.component.PlaceholderLocalizedComponent
 import org.bukkit.inventory.ItemStack
@@ -62,6 +63,6 @@ class DefaultItemComposable(
 
     override fun getComposedList(compositor: ItemStack, localeContainer: Any?): List<PlaceholderLocalizedComponent> =
         getComposed(compositor)
-            .map { I18n.global.accessor(localeContainer, "format-composable-entry")
+            .map { i18n.accessor(localeContainer, "format-composable-entry")
                     .getPlaceholderComponent(I18n.toPlayer(localeContainer), "key" replace it) }
 }

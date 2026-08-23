@@ -9,7 +9,7 @@ import me.wyne.wutils.config.configurables.attribute.AttributeFactory
 import me.wyne.wutils.config.configurables.attribute.AttributeMap
 import me.wyne.wutils.config.configurables.attribute.ImmutableAttributeContainer
 import org.bigcraft.customitems.CustomItems
-import org.bigcraft.customitems.attributeSection
+import me.wyne.wutils.common.kotlin.config.deep
 import org.bigcraft.customitems.item.CustomItem
 import org.bigcraft.customitems.item.CustomItemManager
 import org.bukkit.NamespacedKey
@@ -21,14 +21,14 @@ import java.util.UUID
 
 val COOLDOWN_MAP = AttributeMap(
     mapOf(
-        "player-cooldown" to AttributeFactory { key, config -> config.attributeSection(key).let { s -> PlayerCooldown(key, s?.getMillis("duration") ?: 0L, createCooldownAttributes(s)) } },
-        "global-cooldown" to AttributeFactory { key, config -> config.attributeSection(key).let { s -> GlobalCooldown(key, s?.getMillis("duration") ?: 0L, createCooldownAttributes(s)) } },
-        "item-cooldown" to AttributeFactory { key, config -> config.attributeSection(key).let { s -> ItemCooldown(key, s?.getMillis("duration") ?: 0L, createCooldownAttributes(s)) } },
-        "other-cooldown" to AttributeFactory { key, config -> config.attributeSection(key).let { s -> OtherCooldown(key, s?.getStringList("items").orEmpty().toSet(), s?.getMillis("duration") ?: 0L, createCooldownAttributes(s)) } },
+        "player-cooldown" to AttributeFactory { key, config -> config.deep(key).let { s -> PlayerCooldown(key, s.getMillis("duration", 0L), createCooldownAttributes(s)) } },
+        "global-cooldown" to AttributeFactory { key, config -> config.deep(key).let { s -> GlobalCooldown(key, s.getMillis("duration", 0L), createCooldownAttributes(s)) } },
+        "item-cooldown" to AttributeFactory { key, config -> config.deep(key).let { s -> ItemCooldown(key, s.getMillis("duration", 0L), createCooldownAttributes(s)) } },
+        "other-cooldown" to AttributeFactory { key, config -> config.deep(key).let { s -> OtherCooldown(key, s.getStringList("items").toSet(), s.getMillis("duration", 0L), createCooldownAttributes(s)) } },
     )
 )
 
-private fun createCooldownAttributes(section: ConfigurationSection?) =
+private fun createCooldownAttributes(section: ConfigurationSection) =
     AttributeConfigurable(ImmutableAttributeContainer(COOLDOWN_ATTRIBUTE_MAP, section))
         .getSet(CooldownAttribute::class.java)
 

@@ -20,7 +20,7 @@ import me.wyne.wutils.json.JsonRegistry
 import net.kyori.adventure.platform.bukkit.BukkitAudiences
 import org.bigcraft.customitems.CustomItems.Companion.EMPTY_CONFIGURATION
 import org.bigcraft.customitems.CustomItems.Companion.logger
-import org.bigcraft.customitems.i18n.ComponentInterpreters
+import me.wyne.wutils.i18n.language.interpretation.ComponentInterpreters
 import org.bigcraft.customitems.module.*
 import org.bukkit.configuration.serialization.ConfigurationSerialization
 import java.io.File
@@ -52,7 +52,7 @@ class InitializeJson(private val gson: Gson, private val directory: File) : Plug
     override fun run(plugin: CustomItems) {
         JsonRegistry.global.apply {
             gson = this@InitializeJson.gson
-            directory = this@InitializeJson.directory
+            setDirectory(this@InitializeJson.directory)
         }
     }
 }
@@ -65,7 +65,7 @@ object InitializeI18n : PluginStep<CustomItems> {
             .setComponentAudience(BukkitComponentAudiences(BukkitAudiences.create(plugin)))
             .setComponentInterpreter(
                 ComponentInterpreters.valueOf(
-                    plugin.config.getString("serializer", "MINI_MESSAGE")!!
+                    plugin.config.getString("serializer", "ITEM_MINI_MESSAGE")!!
                 ).get(EmptyValidator()))
             .setUsePlayerLanguage(plugin.config.getBoolean("usePlayerLanguage", true))
             .loadLanguage("lang/ru.yml")

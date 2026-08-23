@@ -32,7 +32,8 @@ import me.wyne.wutils.i18n.kotlin.replace
 import me.wyne.wutils.i18n.language.replacement.ComponentReplacement
 import net.kyori.adventure.sound.Sound
 import org.bigcraft.customitems.CustomItems
-import org.bigcraft.customitems.attributeSection
+import org.bigcraft.customitems.i18n
+import me.wyne.wutils.common.kotlin.config.deep
 import org.bigcraft.customitems.aoe.AoeManager
 import org.bigcraft.customitems.aoe.AreaOfEffect
 import org.bigcraft.customitems.block.CustomBlockManager
@@ -106,7 +107,7 @@ val ACTIVATOR_ATTRIBUTE_MAP = AttributeMap(
     )
 )
 
-abstract class ActivatorAttribute<V>(key: String, value: V) : AttributeBase<V>(key, value) {
+abstract class ActivatorAttribute<V : Any>(key: String, value: V) : AttributeBase<V>(key, value) {
     open fun isApplicable(event: Event, player: Player, customItem: CustomItem, item: ItemStack) = true
     abstract fun apply(event: Event, player: Player, customItem: CustomItem, item: ItemStack)
 }
@@ -398,7 +399,7 @@ class PlayerSoundAttribute(
     sound: Sound
 ) : ActivatorAttribute<Sound>(key, sound) {
     override fun apply(event: Event, player: Player, customItem: CustomItem, item: ItemStack) {
-        I18n.global.audiences.player(player).playSound(value)
+        i18n.audiences.player(player).playSound(value)
     }
 }
 
@@ -552,13 +553,16 @@ class CreateAoeAttribute(
 
     object Factory : AttributeFactory<CreateAoeAttribute> {
         override fun create(key: String, config: ConfigurationSection): CreateAoeAttribute {
-            val section = config.attributeSection(key)!!
+            val section = config.deep(key)
             return CreateAoeAttribute(
                 key,
                 section.getString("key")!!,
                 section.getDouble("radius"),
                 section.getMillis("duration"),
-                AnimationParticleAttribute.Factory().fromSection("particle", section.getConfigurationSection("particle")).value
+                AnimationParticleAttribute.Factory().fromSection(
+                    "particle",
+                    requireNotNull(section.getConfigurationSection("particle")) { "'create-aoe' requires a 'particle' section" }
+                ).value
             )
         }
     }

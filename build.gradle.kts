@@ -2,9 +2,9 @@ import net.minecrell.pluginyml.bukkit.BukkitPluginDescription
 import org.codehaus.plexus.util.Os
 
 plugins {
-    kotlin("jvm") version "2.3.20"
+    kotlin("jvm") version "2.4.10"
     alias(libs.plugins.shadow)
-    alias(libs.plugins.runPaper)
+    alias(libs.plugins.runPaperFork)
     alias(libs.plugins.pluginYml)
 }
 
@@ -57,12 +57,10 @@ tasks {
 
     runServer {
         val minecraftVersion: String = if (Os.isFamily(Os.FAMILY_WINDOWS) || isDebug) "1.19.4" else "1.16.5"
-        val viaVersion = "5.9.1"
+        val viaVersion = "5.11.0"
         val commandApiVersion = "9.4.3"
         downloadPlugins {
-            // https://dev.bukkit.org/projects/worldedit/files/4793142/download
-            // https://dev.bukkit.org/projects/worldguard/files/3342964/download
-            //url("https://download.luckperms.net/1620/bukkit/loader/LuckPerms-Bukkit-5.5.32.jar")
+            url("https://download.luckperms.net/1664/bukkit/loader/LuckPerms-Bukkit-5.5.77.jar")
             github("PlaceholderAPI", "PlaceholderAPI", "2.12.2", "PlaceholderAPI-2.12.2.jar")
             github("dmulloy2", "ProtocolLib", "5.4.0", "ProtocolLib.jar")
             github("ViaVersion", "ViaVersion", viaVersion, "ViaVersion-$viaVersion.jar")
@@ -70,6 +68,8 @@ tasks {
             github("NeverMined-Entertainment", "CommandAPI", commandApiVersion, "CommandAPI-$commandApiVersion.jar")
             modrinth("nbtapi", "2.15.0")
         }
+        runDirectory(layout.projectDirectory.dir("run-$minecraftVersion").asFile)
+        serverTemplates(layout.projectDirectory.dir("run-template").asFile)
         minecraftVersion(minecraftVersion)
     }
 

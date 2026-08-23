@@ -89,7 +89,7 @@ val ACTIVATOR_CONDITION_MAP = AttributeMap(
     )
 )
 
-abstract class ActivatorCondition<V>(key: String, value: V) : AttributeBase<V>(key, value) {
+abstract class ActivatorCondition<V : Any>(key: String, value: V) : AttributeBase<V>(key, value) {
     abstract fun isApplicable(event: Event, player: Player, customItem: CustomItem, item: ItemStack): Boolean
 }
 

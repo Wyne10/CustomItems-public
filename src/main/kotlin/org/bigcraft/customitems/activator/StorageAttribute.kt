@@ -1,5 +1,7 @@
 package org.bigcraft.customitems.activator
 
+import com.google.gson.JsonDeserializationContext
+import com.google.gson.JsonElement
 import com.google.gson.JsonPrimitive
 import me.wyne.wutils.common.event.RegisterableListener
 import me.wyne.wutils.common.serialization.Base64InventorySerializer
@@ -30,6 +32,7 @@ import org.bukkit.inventory.EquipmentSlot
 import org.bukkit.inventory.Inventory
 import org.bukkit.inventory.ItemStack
 import org.bukkit.inventory.meta.BlockStateMeta
+import java.lang.reflect.Type
 import org.bukkit.persistence.PersistentDataType
 import kotlin.collections.remove
 
@@ -162,7 +165,7 @@ class StorageAttribute(
         val meta = item.itemMeta as? BlockStateMeta ?: return
         val legacy = meta.persistentDataContainer.get(STORAGE_KEY, PersistentDataType.STRING)
         if (legacy != null) {
-            inventory.setContents(SERIALIZER.deserialize(JsonPrimitive(legacy), null, null).storageContents)
+            inventory.setContents(SERIALIZER.deserialize(JsonPrimitive(legacy), Inventory::class.java, UNUSED_CONTEXT).storageContents)
             return
         }
         val container = meta.blockState as? Container ?: return
@@ -175,6 +178,12 @@ class StorageAttribute(
     companion object {
         private val STORAGE_KEY = NamespacedKey(CustomItems.instance, "storage")
         private val SERIALIZER = Base64InventorySerializer()
+
+        // Base64InventorySerializer ignores both arguments, but Gson's interface declares them non-null.
+        private val UNUSED_CONTEXT = object : JsonDeserializationContext {
+            override fun <T> deserialize(json: JsonElement, typeOfT: Type): T =
+                throw UnsupportedOperationException()
+        }
         private val FILLER = ItemStack(Material.BLACK_STAINED_GLASS_PANE).apply {
             editMeta { meta -> meta.setDisplayName(" "); }
         }

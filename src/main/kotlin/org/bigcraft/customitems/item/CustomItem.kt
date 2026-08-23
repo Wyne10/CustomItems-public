@@ -2,14 +2,16 @@ package org.bigcraft.customitems.item
 
 import me.wyne.wutils.config.configurables.AttributeConfigurable
 import me.wyne.wutils.config.configurables.ItemConfigurable
+import me.wyne.wutils.common.kotlin.config.deep
 import me.wyne.wutils.config.configurables.attribute.AttributeContainerBuilder
+import me.wyne.wutils.config.configurables.attribute.AttributeMap
+import me.wyne.wutils.config.configurables.attribute.GenericFactory
 import me.wyne.wutils.config.configurables.attribute.ImmutableAttributeContainer
 import me.wyne.wutils.config.configurables.item.ContextItemStackAttribute
 import me.wyne.wutils.config.configurables.item.ItemAttributeContext
 import me.wyne.wutils.config.configurables.item.ItemStackAttribute
 import me.wyne.wutils.i18n.kotlin.replace
 import me.wyne.wutils.i18n.language.replacement.ComponentReplacement
-import org.bigcraft.customitems.ConfigurableFactory
 import org.bigcraft.customitems.CustomItems
 import org.bigcraft.customitems.activator.ACTIVATOR_MAP
 import org.bigcraft.customitems.activator.Activator
@@ -44,7 +46,7 @@ class CustomItem(
     override fun getKey(): String = key
 
     override fun createItemStack(player: Player?): ItemStack {
-        val itemStack = itemAttributes.build(player)
+        val itemStack = itemAttributes.build(ItemAttributeContext(player))
         itemStack.editMeta { meta -> meta.persistentDataContainer.set(ITEM_TAG_KEY, PersistentDataType.STRING, key) }
         updateView(
             itemStack,
@@ -105,46 +107,35 @@ class CustomItem(
     override infix fun getItems(inventory: Inventory): List<ItemStack> =
         inventory.filterNotNull().filter { isCustomItem(it) }
 
-    object Factory : ConfigurableFactory<CustomItem> {
-        override fun fromConfig(config: ConfigurationSection): CustomItem =
-            fromConfig(config.name, config)
+    object Factory : GenericFactory<CustomItem> {
+        override fun create(key: String, config: ConfigurationSection): CustomItem =
+            fromConfig(key, config.deep(key))
 
         fun fromConfig(key: String, config: ConfigurationSection): CustomItem =
-            runCatching {
-                CustomItem(
-                    key,
-                    ItemConfigurable(
-                        AttributeContainerBuilder()
-                            .with(ItemConfigurable.ITEM_ATTRIBUTE_MAP)
-                            .with(ITEM_ATTRIBUTE_MAP)
-                            .build(),
-                        config
-                    ),
-                    AttributeConfigurable(
-                        ImmutableAttributeContainer(RESTRICTION_MAP),
-                        config.getConfigurationSection(RESTRICTION_SECTION_KEY)
-                    ).getSet(Restriction::class.java),
-                    AttributeConfigurable(
-                        ImmutableAttributeContainer(ACTIVATOR_MAP),
-                        config.getConfigurationSection(ACTIVATOR_SECTION_KEY)
-                    ).getSet(Activator::class.java),
-                    AttributeConfigurable(
-                        ImmutableAttributeContainer(BLOCK_ATTRIBUTE_MAP),
-                        config.getConfigurationSection(BLOCK_SECTION_KEY)
-                    ).getSet(BlockAttribute::class.java),
-                    AttributeConfigurable(
-                        ImmutableAttributeContainer(COOLDOWN_MAP),
-                        config.getConfigurationSection(COOLDOWN_SECTION_KEY)
-                    ).getSet(Cooldown::class.java),
-                ).apply {
-                    restrictions.forEach { it.apply(this) }
-                    activators.forEach { it.apply(this) }
-                    blockAttributes.forEach { it.apply(this) }
-                }
-            }.getOrElse {
-                CustomItems.logger.error("Failed to load custom item {}", key, it)
-                return CustomItem(key, ItemConfigurable(), emptySet(), emptySet(), emptySet(), mutableSetOf())
+            CustomItem(
+                key,
+                ItemConfigurable(
+                    AttributeContainerBuilder()
+                        .with(ItemConfigurable.ITEM_ATTRIBUTE_MAP)
+                        .with(ITEM_ATTRIBUTE_MAP)
+                        .build(),
+                    config
+                ),
+                config.attributes(RESTRICTION_SECTION_KEY, RESTRICTION_MAP, Restriction::class.java),
+                config.attributes(ACTIVATOR_SECTION_KEY, ACTIVATOR_MAP, Activator::class.java),
+                config.attributes(BLOCK_SECTION_KEY, BLOCK_ATTRIBUTE_MAP, BlockAttribute::class.java),
+                config.attributes(COOLDOWN_SECTION_KEY, COOLDOWN_MAP, Cooldown::class.java).toMutableSet(),
+            ).apply {
+                restrictions.forEach { it.apply(this) }
+                activators.forEach { it.apply(this) }
+                blockAttributes.forEach { it.apply(this) }
             }
+
+        private fun <T> ConfigurationSection.attributes(sectionKey: String, map: AttributeMap, type: Class<T>): Set<T> =
+            AttributeConfigurable(
+                ImmutableAttributeContainer(map),
+                getConfigurationSection(sectionKey) ?: CustomItems.EMPTY_CONFIGURATION
+            ).getSet(type)
     }
 
     companion object {

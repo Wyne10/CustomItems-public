@@ -2,6 +2,7 @@ package org.bigcraft.customitems.trap
 
 import com.sk89q.worldedit.extent.clipboard.Clipboard
 import com.sk89q.worldedit.extent.clipboard.io.ClipboardFormats
+import me.wyne.wutils.common.kotlin.config.deep
 import me.wyne.wutils.config.configurables.AttributeConfigurable
 import me.wyne.wutils.config.configurables.attribute.AttributeBase
 import me.wyne.wutils.config.configurables.attribute.AttributeFactory
@@ -40,7 +41,7 @@ class Scheme(
         }
 
         private fun createSchemeSelectors(key: String, config: ConfigurationSection) =
-            AttributeConfigurable(ImmutableAttributeContainer(SCHEME_SELECTOR_MAP, config.getConfigurationSection(key)))
+            AttributeConfigurable(ImmutableAttributeContainer(SCHEME_SELECTOR_MAP, config.deep(key)))
                 .getSet(SchemeSelector::class.java)
     }
 

@@ -5,7 +5,7 @@ import me.wyne.wutils.config.configurables.AttributeConfigurable
 import me.wyne.wutils.config.configurables.attribute.AttributeFactory
 import me.wyne.wutils.config.configurables.attribute.AttributeMap
 import me.wyne.wutils.config.configurables.attribute.ImmutableAttributeContainer
-import org.bigcraft.customitems.attributeSection
+import me.wyne.wutils.common.kotlin.config.deep
 import org.bigcraft.customitems.activator.condition.ACTIVATOR_CONDITION_MAP
 import org.bigcraft.customitems.activator.condition.ActivatorCondition
 import org.bigcraft.customitems.aoe.event.AoeFinishEvent
@@ -58,23 +58,16 @@ val ACTIVATOR_MAP = AttributeMap(
     )
 )
 
-private fun AttributeMap.cheese(amount: Int): AttributeMap {
-    for (i in 1..amount) {
-        keyMap.toMap().forEach { (key, factory) -> put("$key-$i", factory) }
-    }
-    return this
-}
-
 private fun createItemIdentifier(key: String, config: ConfigurationSection) =
-    runCatching { ItemIdentifiers.valueOf(config.attributeSection(key)?.getString("identifier", "PLAYER")!!).identifier }
+    runCatching { ItemIdentifiers.valueOf(config.deep(key).getString("identifier", "PLAYER")!!).identifier }
         .getOrDefault(ItemIdentifiers.PLAYER.identifier)
 
 private fun createActivatorAttributes(key: String, config: ConfigurationSection) =
-    AttributeConfigurable(ImmutableAttributeContainer(ACTIVATOR_ATTRIBUTE_MAP, config.attributeSection(key)))
+    AttributeConfigurable(ImmutableAttributeContainer(ACTIVATOR_ATTRIBUTE_MAP, config.deep(key)))
         .getSet(ActivatorAttribute::class.java)
 
 private fun createActivatorConditions(key: String, config: ConfigurationSection) =
-    AttributeConfigurable(ImmutableAttributeContainer(ACTIVATOR_CONDITION_MAP, config.attributeSection(key)))
+    AttributeConfigurable(ImmutableAttributeContainer(ACTIVATOR_CONDITION_MAP, config.deep(key)))
         .getSet(ActivatorCondition::class.java)
 
 abstract class Activator(

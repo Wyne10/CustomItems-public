@@ -8,7 +8,7 @@ interface CustomItemAttribute {
     fun apply(item: CustomItem)
 }
 
-abstract class RegisterableCustomItemAttribute<V>(
+abstract class RegisterableCustomItemAttribute<V : Any>(
     key: String,
     value: V,
     private val eventRegistry: EventRegistry,

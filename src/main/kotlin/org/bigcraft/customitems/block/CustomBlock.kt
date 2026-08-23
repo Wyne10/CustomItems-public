@@ -11,8 +11,8 @@ data class CustomBlock(
     val key: BlockKey,
     val itemKey: String
 ) {
-    val item: CustomItem
-        get() = CustomItemManager.instance.getItem(itemKey)!!
+    val item: CustomItem?
+        get() = CustomItemManager.instance.getItem(itemKey)
 }
 
 data class BlockKey(val key: Long, val worldUuid: UUID) {

@@ -6,6 +6,7 @@ import me.wyne.wutils.config.configurables.item.ItemAttributeContext
 import me.wyne.wutils.config.configurables.item.attribute.LoreAttribute
 import me.wyne.wutils.config.configurables.item.attribute.NameAttribute
 import me.wyne.wutils.i18n.I18n
+import org.bigcraft.customitems.i18n
 import me.wyne.wutils.i18n.language.component.PlaceholderLocalizedComponent
 import net.kyori.adventure.text.Component
 import org.bigcraft.customitems.activator.Activator
@@ -29,7 +30,7 @@ class DefaultItemAttributeAccessor(
     private val blockAttributes: Set<BlockAttribute<*>>,
 ) : ItemAttributeAccessor {
     override val material: Material
-        get() = itemAttributes.getValue(ItemAttribute.MATERIAL.key, Material.STONE)
+        get() = itemAttributes.getValue(ItemAttribute.MATERIAL.key, Material.STONE) ?: Material.STONE
 
     override val isBlock: Boolean
         get() = material.isBlock && blockAttributes.isNotEmpty()
@@ -38,14 +39,19 @@ class DefaultItemAttributeAccessor(
         get() = itemAttributes.attributes.contains("compositor")
 
     override val compositorSet: Set<String>
-        get() = itemAttributes.getValue("compositor", emptySet())
+        get() = itemAttributes.getValue<Set<String>>("compositor", emptySet()) ?: emptySet()
 
     override fun getName(localeContainer: Any?): PlaceholderLocalizedComponent {
         val name = itemAttributes.getValue<String>(ItemAttribute.NAME.key)
-        if (name.isNullOrBlank()) return PlaceholderLocalizedComponent(I18n.global.component(), I18n.global.getLanguage(
-                I18n.toLocale(localeContainer)), material.translationKey, Component.translatable(material.translationKey), I18n.global.audiences,
-            I18n.toPlayer(localeContainer))
-        return I18n.global.accessor(localeContainer, itemAttributes.getValue(ItemAttribute.NAME.key))
+        if (name.isNullOrBlank()) return PlaceholderLocalizedComponent(
+            i18n.component(),
+            i18n.getLanguage(I18n.toLocale(localeContainer)),
+            material.translationKey,
+            Component.translatable(material.translationKey),
+            i18n.audiences,
+            I18n.toPlayer(localeContainer)
+        )
+        return i18n.accessor(localeContainer, name)
             .getPlaceholderComponent(I18n.toPlayer(localeContainer))
     }
 

@@ -4,8 +4,8 @@ import com.google.inject.Inject
 import com.google.inject.Singleton
 import me.wyne.wutils.common.event.EventRegistry
 import me.wyne.wutils.common.loadable.LoadableMeta
-import org.bigcraft.customitems.AbstractManager
 import org.bigcraft.customitems.CustomItems
+import org.bigcraft.customitems.LoadableProvider
 import org.bigcraft.customitems.CustomKeyedLoot
 import org.bigcraft.customitems.api.CustomItemApi
 import org.bigcraft.customitems.api.CustomItemProvider
@@ -13,7 +13,6 @@ import org.bigcraft.customitems.block.CustomBlockManager
 import org.bigcraft.customitems.item.CustomItem.Companion.ITEM_TAG_KEY
 import org.bukkit.Bukkit
 import org.bukkit.configuration.ConfigurationSection
-import org.bukkit.configuration.file.YamlConfiguration
 import org.bukkit.configuration.serialization.ConfigurationSerialization
 import org.bukkit.event.EventHandler
 import org.bukkit.event.EventPriority
@@ -25,35 +24,29 @@ import org.bukkit.event.entity.EntityChangeBlockEvent
 import org.bukkit.event.entity.EntityExplodeEvent
 import org.bukkit.inventory.ItemStack
 import org.bukkit.persistence.PersistentDataType
-import java.io.File
 
 @Singleton
 @LoadableMeta(priority = 0)
 class CustomItemManager @Inject constructor(plugin: CustomItems, private val blockManager: CustomBlockManager) :
-    AbstractManager<CustomItem>(), Listener, CustomItemProvider {
-
-    override val sectionKey = "item"
-    override val valueLoader = CustomItem.Factory
+    LoadableProvider<CustomItem>(SECTION_KEY, CustomItem.Factory), Listener, CustomItemProvider {
 
     val restrictionRegistry = EventRegistry(plugin)
     val activatorRegistry = EventRegistry(plugin)
 
-    private val itemDirectory = File(plugin.dataFolder, "$sectionKey/")
-
     val itemPaths
-        get() = loadedMap.map { it.value.path + it.value.key }.toSet()
+        get() = loadedMap.values.map { it.path + it.key }.toSet()
 
     init {
         instance = this
         Bukkit.getPluginManager().registerEvents(this, plugin)
     }
 
-    override fun getKeys(): Set<String> = mapKeys
+    override fun getKeys(): Set<String> = loadedMap.keys
 
     override fun getPaths(): Set<String> = itemPaths
 
     override fun contains(key: String): Boolean =
-        mapKeys.contains(key)
+        loadedMap.containsKey(key)
 
     override fun getItem(key: String): CustomItem? =
         loadedMap[key]
@@ -68,32 +61,10 @@ class CustomItemManager @Inject constructor(plugin: CustomItems, private val blo
         activatorRegistry.clear()
         blockManager.blockAttributesRegistry.clear()
         super.load(config)
-        loadFiles(itemDirectory)
     }
 
-    private fun loadFiles(directory: File) {
-        loadFilesRecursive(directory, "")
-    }
-
-    private fun loadFilesRecursive(directory: File, relativePath: String) {
-        if (!directory.exists())
-            directory.mkdirs()
-        directory.listFiles()?.let { files ->
-            files.filter { it.isDirectory }
-                .forEach {
-                    val newPath = if (relativePath.isEmpty()) it.name else "$relativePath.${it.name}"
-                    loadFilesRecursive(it, newPath)
-                }
-            files.filter { it.isFile }
-                .forEach { file ->
-                    val key = file.nameWithoutExtension
-                    val customItem = CustomItem.Factory.fromConfig(key, YamlConfiguration.loadConfiguration(file))
-                    loadedMap[key] = customItem
-                    if (relativePath.isNotEmpty()) {
-                        customItem.path = "$relativePath."
-                    }
-                }
-        }
+    override fun onLoaded(key: String, value: CustomItem, path: String) {
+        value.path = path
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
@@ -132,6 +103,8 @@ class CustomItemManager @Inject constructor(plugin: CustomItems, private val blo
     }
 
     companion object {
+        const val SECTION_KEY = "item"
+
         lateinit var instance: CustomItemManager
             private set
     }
