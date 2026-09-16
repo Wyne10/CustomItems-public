@@ -1,5 +1,6 @@
 package org.bigcraft.customitems.composition
 
+import me.wyne.wutils.common.scheduler.Schedulers
 import com.google.inject.Inject
 import com.google.inject.Singleton
 import me.wyne.wutils.common.anvil.AnvilUtils
@@ -34,7 +35,7 @@ class CompositorListener @Inject constructor(
         if (anvil.firstItem.isNullOrAir() || anvil.secondItem.isNullOrAir()) return
         if (e.result.isNotNullOrAir()) return
         if (!isInputValid(anvil.firstItem!!, anvil.secondItem!!)) return
-        Bukkit.getScheduler().runTaskLater(CustomItems.instance, Runnable {
+        Schedulers.sync().runLater({
             anvil.result = composeItems(anvil.firstItem!!.clone(), anvil.secondItem!!)
         }, 1)
     }

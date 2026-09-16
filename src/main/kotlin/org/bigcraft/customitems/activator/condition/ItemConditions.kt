@@ -44,8 +44,10 @@ class ItemTypeCondition(key: String, types: Set<Material>) : ActivatorCondition<
 }
 
 class ConsumedItemTypeCondition(key: String, types: Set<Material>) : ActivatorCondition<Set<Material>>(key, types) {
+    override fun appliesTo(event: Event) = event is PlayerItemConsumeEvent
+
     override fun isApplicable(event: Event, player: Player, customItem: CustomItem, item: ItemStack): Boolean {
-        if (event !is PlayerItemConsumeEvent) return true
+        event as PlayerItemConsumeEvent
         return event.item.type in value
     }
 }
@@ -67,15 +69,19 @@ class CustomItemCooldownCondition(key: String, isActive: Boolean) : ActivatorCon
 }
 
 class ConsumedItemCustomCondition(key: String, isActive: Boolean) : ActivatorCondition<Boolean>(key, isActive) {
+    override fun appliesTo(event: Event) = event is PlayerItemConsumeEvent
+
     override fun isApplicable(event: Event, player: Player, customItem: CustomItem, item: ItemStack): Boolean {
-        if (event !is PlayerItemConsumeEvent) return true
+        event as PlayerItemConsumeEvent
         return customItem.isCustomItem(event.item) == value
     }
 }
 
 class DroppedItemCustomCondition(key: String, isActive: Boolean) : ActivatorCondition<Boolean>(key, isActive) {
+    override fun appliesTo(event: Event) = event is PlayerDropItemEvent
+
     override fun isApplicable(event: Event, player: Player, customItem: CustomItem, item: ItemStack): Boolean {
-        if (event !is PlayerDropItemEvent) return true
+        event as PlayerDropItemEvent
         return customItem.isCustomItem(event.itemDrop.itemStack) == value
     }
 }

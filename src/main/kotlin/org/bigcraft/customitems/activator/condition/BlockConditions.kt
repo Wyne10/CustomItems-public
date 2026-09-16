@@ -9,38 +9,29 @@ import org.bukkit.event.block.BlockEvent
 import org.bukkit.inventory.ItemStack
 
 class BlockWithinAoeCondition(key: String, aoeKeys: Set<String>) : ActivatorCondition<Set<String>>(key, aoeKeys) {
+    override fun appliesTo(event: Event) = event is BlockEvent
+
     override fun isApplicable(event: Event, player: Player, customItem: CustomItem, item: ItemStack): Boolean {
-        if (event !is BlockEvent) return true
+        event as BlockEvent
         return value.flatMap { AoeManager.instance.getAoe(it) }
             .any { it.bounds.contains(event.block.location) }
     }
 }
 
-class BlockNotWithinAoeCondition(key: String, aoeKeys: Set<String>) : ActivatorCondition<Set<String>>(key, aoeKeys) {
-    override fun isApplicable(event: Event, player: Player, customItem: CustomItem, item: ItemStack): Boolean {
-        if (event !is BlockEvent) return true
-        return value.flatMap { AoeManager.instance.getAoe(it) }
-            .none { it.bounds.contains(event.block.location) }
-    }
-}
-
 class BlockTypeCondition(key: String, types: Set<Material>) : ActivatorCondition<Set<Material>>(key, types) {
+    override fun appliesTo(event: Event) = event is BlockEvent
+
     override fun isApplicable(event: Event, player: Player, customItem: CustomItem, item: ItemStack): Boolean {
-        if (event !is BlockEvent) return true
+        event as BlockEvent
         return event.block.type in value
     }
 }
 
 class BlockMetaCondition(key: String, meta: Set<String>) : ActivatorCondition<Set<String>>(key, meta) {
-    override fun isApplicable(event: Event, player: Player, customItem: CustomItem, item: ItemStack): Boolean {
-        if (event !is BlockEvent) return true
-        return value.any { event.block.hasMetadata(it) }
-    }
-}
+    override fun appliesTo(event: Event) = event is BlockEvent
 
-class NotBlockMetaCondition(key: String, meta: Set<String>) : ActivatorCondition<Set<String>>(key, meta) {
     override fun isApplicable(event: Event, player: Player, customItem: CustomItem, item: ItemStack): Boolean {
-        if (event !is BlockEvent) return true
-        return value.none { event.block.hasMetadata(it) }
+        event as BlockEvent
+        return value.any { event.block.hasMetadata(it) }
     }
 }

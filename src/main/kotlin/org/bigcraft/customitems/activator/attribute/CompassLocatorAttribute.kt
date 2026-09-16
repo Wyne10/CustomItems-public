@@ -1,14 +1,15 @@
-package org.bigcraft.customitems.activator
+package org.bigcraft.customitems.activator.attribute
 
 import com.sk89q.worldedit.bukkit.BukkitAdapter
 import com.sk89q.worldguard.WorldGuard
 import com.sk89q.worldguard.protection.regions.ProtectedRegion
+import me.wyne.wutils.common.kotlin.config.deep
 import me.wyne.wutils.config.configurables.attribute.AttributeBase
-import org.bigcraft.customitems.api.spi.ConfigFactory
-import org.bigcraft.customitems.api.spi.CooldownContext
 import me.wyne.wutils.i18n.kotlin.placeholderComponent
 import me.wyne.wutils.i18n.kotlin.replace
-import me.wyne.wutils.common.kotlin.config.deep
+import org.bigcraft.customitems.activator.ActivatorAttribute
+import org.bigcraft.customitems.api.spi.ConfigFactory
+import org.bigcraft.customitems.api.spi.CooldownContext
 import org.bigcraft.customitems.item.CustomItem
 import org.bukkit.Location
 import org.bukkit.Material

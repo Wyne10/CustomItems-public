@@ -4,11 +4,13 @@ import me.wyne.wutils.common.kotlin.config.getDoubleComparator
 import me.wyne.wutils.common.kotlin.config.getEnumSet
 import me.wyne.wutils.common.kotlin.config.getIntComparator
 import me.wyne.wutils.common.kotlin.config.getPotionTypeEnumSet
+import me.wyne.wutils.common.kotlin.doubles.test
 import org.bigcraft.customitems.api.CustomItemApi
 import org.bigcraft.customitems.api.spi.ActivatorCondition as ActivatorConditionApi
+import org.bigcraft.customitems.api.spi.ConfigFactory
 import org.bigcraft.customitems.api.spi.FactoryRegistry
-import org.bigcraft.customitems.activator.test
 import org.bigcraft.customitems.item.CustomItem
+import org.bigcraft.customitems.worldguard.RegionPatterns
 import org.bukkit.Bukkit
 import org.bukkit.Material
 import org.bukkit.block.Biome
@@ -37,24 +39,15 @@ internal fun registerActivatorConditions(registry: FactoryRegistry<ActivatorCond
     registry.register("is-health") { key, config -> HealthCondition(key, config.getDoubleComparator(key)) }
     registry.register("has-permissions") { key, config -> HasPermissionsCondition(key, config.getStringList(key).toSet()) }
     registry.register("not-has-permissions") { key, config -> NotHasPermissionsCondition(key, config.getStringList(key).toSet()) }
-    registry.register("is-target-block") { key, config -> TargetBlockCondition(key, config.getEnumSet<Material>(key)) }
-    registry.register("not-is-target-block") { key, config -> NotTargetBlockCondition(key, config.getEnumSet<Material>(key)) }
-    registry.register("is-on-block") { key, config -> OnBlockCondition(key, config.getEnumSet<Material>(key)) }
-    registry.register("not-is-on-block") { key, config -> NotOnBlockCondition(key, config.getEnumSet<Material>(key)) }
-    registry.register("is-in-biome") { key, config -> InBiomeCondition(key, config.getEnumSet<Biome>(key)) }
-    registry.register("not-is-in-biome") { key, config -> NotInBiomeCondition(key, config.getEnumSet<Biome>(key)) }
-    registry.register("is-in-world") { key, config -> InWorldCondition(key, config.getStringList(key).mapNotNull { Bukkit.getWorld(it) }.toSet()) }
-    registry.register("not-is-in-world") { key, config -> NotInWorldCondition(key, config.getStringList(key).mapNotNull { Bukkit.getWorld(it) }.toSet()) }
-    registry.register("is-within-aoe") { key, config -> WithinAoeCondition(key, config.getStringList(key).toSet()) }
-    registry.register("not-is-within-aoe") { key, config -> NotWithinAoeCondition(key, config.getStringList(key).toSet()) }
-    registry.register("block-is-within-aoe") { key, config -> BlockWithinAoeCondition(key, config.getStringList(key).toSet()) }
-    registry.register("block-not-is-within-aoe") { key, config -> BlockNotWithinAoeCondition(key, config.getStringList(key).toSet()) }
-    registry.register("is-aoe-affected") { key, config -> AoeAffectedCondition(key, config.getStringList(key).toSet()) }
-    registry.register("not-is-aoe-affected") { key, config -> NotAoeAffectedCondition(key, config.getStringList(key).toSet()) }
-    registry.register("is-within-region") { key, config -> WithinRegionCondition(key, config.getStringList(key).toSet()) }
-    registry.register("not-is-within-region") { key, config -> NotWithinRegionCondition(key, config.getStringList(key).toSet()) }
-    registry.register("is-within-top-region") { key, config -> WithinTopRegionCondition(key, config.getStringList(key).toSet()) }
-    registry.register("not-is-within-top-region") { key, config -> NotWithinTopRegionCondition(key, config.getStringList(key).toSet()) }
+    registry.registerInvertible("is-target-block") { key, config -> TargetBlockCondition(key, config.getEnumSet<Material>(key)) }
+    registry.registerInvertible("is-on-block") { key, config -> OnBlockCondition(key, config.getEnumSet<Material>(key)) }
+    registry.registerInvertible("is-in-biome") { key, config -> InBiomeCondition(key, config.getEnumSet<Biome>(key)) }
+    registry.registerInvertible("is-in-world") { key, config -> InWorldCondition(key, config.getStringList(key).mapNotNull { Bukkit.getWorld(it) }.toSet()) }
+    registry.registerInvertible("is-within-aoe") { key, config -> WithinAoeCondition(key, config.getStringList(key).toSet()) }
+    registry.registerInvertible("block-is-within-aoe", notKey = "block-not-is-within-aoe") { key, config -> BlockWithinAoeCondition(key, config.getStringList(key).toSet()) }
+    registry.registerInvertible("is-aoe-affected") { key, config -> AoeAffectedCondition(key, config.getStringList(key).toSet()) }
+    registry.registerInvertible("is-within-region") { key, config -> WithinRegionCondition(key, RegionPatterns.of(config.getStringList(key))) }
+    registry.registerInvertible("is-within-top-region") { key, config -> WithinTopRegionCondition(key, RegionPatterns.of(config.getStringList(key))) }
     registry.register("is-pvp") { key, config -> PvpCondition(key, config.getBoolean(key)) }
     registry.register("is-aoe-finished") { key, config -> AoeFinishConditions(key, config.getStringList(key).toSet()) }
     registry.register("is-weather") { key, config -> WeatherCondition(key, config.getEnumSet<Weather>(key)) }
@@ -66,8 +59,7 @@ internal fun registerActivatorConditions(registry: FactoryRegistry<ActivatorCond
     registry.register("is-item-composed") { key, config -> ItemComposedCondition(key, config.getBoolean(key)) }
     registry.register("is-item-type") { key, config -> ItemTypeCondition(key, config.getEnumSet<Material>(key)) }
     registry.register("is-block-type") { key, config -> BlockTypeCondition(key, config.getEnumSet<Material>(key)) }
-    registry.register("has-block-meta") { key, config -> BlockMetaCondition(key, config.getStringList(key).toSet()) }
-    registry.register("not-has-block-meta") { key, config -> NotBlockMetaCondition(key, config.getStringList(key).toSet()) }
+    registry.registerInvertible("has-block-meta") { key, config -> BlockMetaCondition(key, config.getStringList(key).toSet()) }
     registry.register("is-consumed-item-type") { key, config -> ConsumedItemTypeCondition(key, config.getEnumSet<Material>(key)) }
     registry.register("is-consumed-item-custom") { key, config -> ConsumedItemCustomCondition(key, config.getBoolean(key)) }
     registry.register("is-dropped-item-custom") { key, config -> DroppedItemCustomCondition(key, config.getBoolean(key)) }
@@ -81,10 +73,24 @@ internal fun registerActivatorConditions(registry: FactoryRegistry<ActivatorCond
     registry.register("is-effect-action") { key, config -> EffectActionCondition(key, config.getEnumSet<EntityPotionEffectEvent.Action>(key)) }
     registry.register("is-effect-type") { key, config -> EffectTypeCondition(key, config.getPotionTypeEnumSet(key)) }
     registry.register("is-effect-cause") { key, config -> EffectCauseCondition(key, config.getEnumSet<EntityPotionEffectEvent.Cause>(key)) }
-    registry.register("block-blacklist") { key, config -> TrapBlockCondition(key, config.getEnumSet<Material>(key)) }
-    registry.register("region-whitelist") { key, config -> TrapRegionCondition(key, config.getStringList(key).toSet()) }
-    registry.register("top-region-whitelist") { key, config -> TrapTopRegionCondition(key, config.getStringList(key).toSet()) }
     registry.register("command-whitelist") { key, config -> CommandWhitelistCondition(key, config.getStringList(key).toSet()) }
+}
+
+/**
+ * Registers a condition under [key] and its negation under [notKey], rather than writing the
+ * opposite condition by hand.
+ *
+ * Inversion flips the verdict only: a condition that does not apply to an event still does not
+ * apply, so a `not-` variant of an event-scoped condition keeps passing events it says nothing
+ * about.
+ */
+private fun FactoryRegistry<ActivatorConditionApi>.registerInvertible(
+    key: String,
+    notKey: String = "not-$key",
+    factory: ConfigFactory<out ActivatorConditionApi>,
+) {
+    register(key, factory)
+    register(notKey) { resolvedKey, config -> factory.create(resolvedKey, config).inverted() }
 }
 
 abstract class ActivatorCondition<V : Any>(val key: String, val value: V) : ActivatorConditionApi {

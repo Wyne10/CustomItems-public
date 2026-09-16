@@ -5,18 +5,3 @@ usePlayerLanguage: true
 serializer: ITEM_MINI_MESSAGE
 # OFF/FATAL/ERROR/WARN/INFO/DEBUG/TRACE/ALL
 logLevel: INFO
-
-item:
-  markov:
-    name: '<red>Максим Марков'
-    material: STICK
-    restrictions:
-      cancel-drop: true
-      cancel-rename: true
-      cancel-craft: true
-      cancel-storage: true
-    activators:
-      right-click:
-        commands:
-          - 'say По поводу моей работы, давай я начну после вайпа на хт и аг что то делать'
-        is-sneaking: true

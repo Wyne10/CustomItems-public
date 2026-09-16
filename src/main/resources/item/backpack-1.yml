@@ -1,9 +1,0 @@
-name: 'Рюкзак <gray>(I уровень)'
-material: PINK_SHULKER_BOX
-restrictions:
-  cancel-place: true
-activators:
-  right-click:
-    identifier: HOLD
-    open-storage: 2
-    player-sound: 'block.shulker_box.open'

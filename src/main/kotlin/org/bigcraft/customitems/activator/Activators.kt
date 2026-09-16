@@ -4,7 +4,6 @@ import com.destroystokyo.paper.event.player.PlayerLaunchProjectileEvent
 import org.bigcraft.customitems.api.spi.ActivatorType
 import org.bigcraft.customitems.api.spi.InstanceRegistry
 import org.bigcraft.customitems.aoe.event.AoeFinishEvent
-import org.bigcraft.customitems.trap.CreateTrapEvent
 import org.bukkit.entity.Player
 import org.bukkit.entity.Projectile
 import org.bukkit.event.EventHandler
@@ -40,7 +39,6 @@ internal fun registerActivatorTypes(registry: InstanceRegistry<ActivatorType>) {
     registry.register(PlayerResurrectActivator)
     registry.register(PlayerMoveActivator)
     registry.register(PlayerCommandActivator)
-    registry.register(CreateTrapActivator)
     registry.register(AoeFinishActivator)
     registry.register(PlayerDropItemActivator)
     registry.register(PlayerDeathActivator)
@@ -158,13 +156,6 @@ object PlayerMoveActivator : ActivatorType("player-move") {
 object PlayerCommandActivator : ActivatorType("player-command") {
     @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGH)
     fun onCommand(event: PlayerCommandPreprocessEvent) {
-        dispatch(event, event.player)
-    }
-}
-
-object CreateTrapActivator : ActivatorType("player-create-trap") {
-    @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGH)
-    fun onTrapCreation(event: CreateTrapEvent) {
         dispatch(event, event.player)
     }
 }

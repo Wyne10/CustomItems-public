@@ -61,6 +61,7 @@ public final class ActivatorBinding {
 
     private void fire(Event event, Player player, ItemStack stack) {
         for (ActivatorCondition condition : conditions) {
+            if (!condition.appliesTo(event)) continue;
             if (condition.test(event, player, item, stack)) continue;
             for (ActivatorAttribute attribute : onConditionFail) {
                 attribute.apply(event, player, item, stack);

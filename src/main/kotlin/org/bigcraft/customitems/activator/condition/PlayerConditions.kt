@@ -1,12 +1,12 @@
 package org.bigcraft.customitems.activator.condition
 
-import com.sk89q.worldedit.bukkit.BukkitAdapter
-import com.sk89q.worldguard.WorldGuard
 import me.wyne.wutils.common.comparator.DoubleComparator
 import me.wyne.wutils.common.comparator.IntComparator
-import org.bigcraft.customitems.activator.currentExp
+import me.wyne.wutils.common.kotlin.player.currentExp
 import org.bigcraft.customitems.aoe.AoeManager
 import org.bigcraft.customitems.item.CustomItem
+import org.bigcraft.customitems.worldguard.RegionPatterns
+import org.bigcraft.customitems.worldguard.regionsAt
 import org.bigcraft.customitems.AntiRelogWrapper
 import org.bukkit.Material
 import org.bukkit.World
@@ -86,6 +86,11 @@ class HasPermissionsCondition(key: String, permissions: Set<String>) : Activator
         value.all { player.hasPermission(it) }
 }
 
+/**
+ * Deliberately not the inverse of [HasPermissionsCondition]: that one requires *all* the listed
+ * permissions, so its strict negation would be "missing at least one". This requires *none* of
+ * them, which is what a blacklist wants and what the key has always meant.
+ */
 class NotHasPermissionsCondition(key: String, permissions: Set<String>) : ActivatorCondition<Set<String>>(key, permissions) {
     override fun isApplicable(event: Event, player: Player, customItem: CustomItem, item: ItemStack): Boolean =
         value.all { !player.hasPermission(it) }
@@ -96,19 +101,9 @@ class TargetBlockCondition(key: String, materials: Set<Material>) : ActivatorCon
         player.getTargetBlock(5)?.type in value
 }
 
-class NotTargetBlockCondition(key: String, materials: Set<Material>) : ActivatorCondition<Set<Material>>(key, materials) {
-    override fun isApplicable(event: Event, player: Player, customItem: CustomItem, item: ItemStack): Boolean =
-        player.getTargetBlock(5)?.type !in value
-}
-
 class OnBlockCondition(key: String, materials: Set<Material>) : ActivatorCondition<Set<Material>>(key, materials) {
     override fun isApplicable(event: Event, player: Player, customItem: CustomItem, item: ItemStack): Boolean =
         player.location.block.getRelative(BlockFace.DOWN).type in value
-}
-
-class NotOnBlockCondition(key: String, materials: Set<Material>) : ActivatorCondition<Set<Material>>(key, materials) {
-    override fun isApplicable(event: Event, player: Player, customItem: CustomItem, item: ItemStack): Boolean =
-        player.location.block.getRelative(BlockFace.DOWN).type !in value
 }
 
 class InBiomeCondition(key: String, biomes: Set<Biome>) : ActivatorCondition<Set<Biome>>(key, biomes) {
@@ -116,31 +111,15 @@ class InBiomeCondition(key: String, biomes: Set<Biome>) : ActivatorCondition<Set
         player.location.world.getBiome(player.location.blockX, player.location.blockY, player.location.blockZ) in value
 }
 
-class NotInBiomeCondition(key: String, biomes: Set<Biome>) : ActivatorCondition<Set<Biome>>(key, biomes) {
-    override fun isApplicable(event: Event, player: Player, customItem: CustomItem, item: ItemStack): Boolean =
-        player.location.world.getBiome(player.location.blockX, player.location.blockY, player.location.blockZ) !in value
-}
-
 class InWorldCondition(key: String, worlds: Set<World>) : ActivatorCondition<Set<World>>(key, worlds) {
     override fun isApplicable(event: Event, player: Player, customItem: CustomItem, item: ItemStack): Boolean =
         player.location.world in value
-}
-
-class NotInWorldCondition(key: String, worlds: Set<World>) : ActivatorCondition<Set<World>>(key, worlds) {
-    override fun isApplicable(event: Event, player: Player, customItem: CustomItem, item: ItemStack): Boolean =
-        player.location.world !in value
 }
 
 class WithinAoeCondition(key: String, aoeKeys: Set<String>) : ActivatorCondition<Set<String>>(key, aoeKeys) {
     override fun isApplicable(event: Event, player: Player, customItem: CustomItem, item: ItemStack): Boolean =
         value.flatMap { AoeManager.instance.getAoe(it) }
             .any { it.bounds.contains(player) }
-}
-
-class NotWithinAoeCondition(key: String, aoeKeys: Set<String>) : ActivatorCondition<Set<String>>(key, aoeKeys) {
-    override fun isApplicable(event: Event, player: Player, customItem: CustomItem, item: ItemStack): Boolean =
-        value.flatMap { AoeManager.instance.getAoe(it) }
-            .none { it.bounds.contains(player) }
 }
 
 class AoeAffectedCondition(key: String, aoeKeys: Set<String>) : ActivatorCondition<Set<String>>(key, aoeKeys) {
@@ -150,45 +129,14 @@ class AoeAffectedCondition(key: String, aoeKeys: Set<String>) : ActivatorConditi
             .any { it.bounds.contains(player) }
 }
 
-class NotAoeAffectedCondition(key: String, aoeKeys: Set<String>) : ActivatorCondition<Set<String>>(key, aoeKeys) {
+class WithinRegionCondition(key: String, patterns: RegionPatterns) : ActivatorCondition<RegionPatterns>(key, patterns) {
     override fun isApplicable(event: Event, player: Player, customItem: CustomItem, item: ItemStack): Boolean =
-        value.flatMap { AoeManager.instance.getAoe(it) }
-            .filter { it.owner != player }
-            .none { it.bounds.contains(player) }
+        value.matchesAny(regionsAt(player.location))
 }
 
-class WithinRegionCondition(key: String, regions: Set<String>) : ActivatorCondition<Set<String>>(key, regions) {
-    override fun isApplicable(event: Event, player: Player, customItem: CustomItem, item: ItemStack): Boolean {
-        val query = WorldGuard.getInstance().platform.regionContainer.createQuery();
-        val regions = query.getApplicableRegions(BukkitAdapter.adapt(player.location))
-        return regions?.any { it.id in value } ?: false
-    }
-}
-
-class NotWithinRegionCondition(key: String, regions: Set<String>) : ActivatorCondition<Set<String>>(key, regions) {
-    override fun isApplicable(event: Event, player: Player, customItem: CustomItem, item: ItemStack): Boolean {
-        val query = WorldGuard.getInstance().platform.regionContainer.createQuery();
-        val regions = query.getApplicableRegions(BukkitAdapter.adapt(player.location))
-        return regions?.none { it.id in value } ?: true
-    }
-}
-
-class WithinTopRegionCondition(key: String, regions: Set<String>) : ActivatorCondition<Set<String>>(key, regions) {
-    override fun isApplicable(event: Event, player: Player, customItem: CustomItem, item: ItemStack): Boolean {
-        val query = WorldGuard.getInstance().platform.regionContainer.createQuery();
-        val region = query.getApplicableRegions(BukkitAdapter.adapt(player.location))
-            .maxByOrNull { it.priority }
-        return region?.let { value.contains(region.id) } ?: false
-    }
-}
-
-class NotWithinTopRegionCondition(key: String, regions: Set<String>) : ActivatorCondition<Set<String>>(key, regions) {
-    override fun isApplicable(event: Event, player: Player, customItem: CustomItem, item: ItemStack): Boolean {
-        val query = WorldGuard.getInstance().platform.regionContainer.createQuery();
-        val region = query.getApplicableRegions(BukkitAdapter.adapt(player.location))
-            .maxByOrNull { it.priority }
-        return region?.let { !value.contains(region.id) } ?: true
-    }
+class WithinTopRegionCondition(key: String, patterns: RegionPatterns) : ActivatorCondition<RegionPatterns>(key, patterns) {
+    override fun isApplicable(event: Event, player: Player, customItem: CustomItem, item: ItemStack): Boolean =
+        value.matchesTop(regionsAt(player.location))
 }
 
 class PvpCondition(key: String, isActive: Boolean) : ActivatorCondition<Boolean>(key, isActive) {

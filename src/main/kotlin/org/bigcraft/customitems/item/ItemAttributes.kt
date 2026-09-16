@@ -117,9 +117,9 @@ class RandomDurabilityAttribute(
     durability: ClosedIntRange
 ) : AttributeBase<ClosedIntRange>(key, durability), ItemStackAttribute {
     override fun apply(item: ItemStack) {
-        val damageable = item.itemMeta as? Damageable ?: return
-        val maxDurability = item.type.maxDurability
-        damageable.damage = (maxDurability - value.random).coerceIn(0, item.type.maxDurability.toInt())
-        item.itemMeta = damageable as ItemMeta
+        val maxDurability = item.type.maxDurability.toInt()
+        item.editMeta { meta ->
+            if (meta is Damageable) meta.damage = (maxDurability - value.random).coerceIn(0, maxDurability)
+        }
     }
 }
