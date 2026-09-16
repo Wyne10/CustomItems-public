@@ -5,6 +5,7 @@ import com.sk89q.worldguard.WorldGuard
 import com.sk89q.worldguard.protection.regions.ProtectedRegion
 import me.wyne.wutils.config.configurables.attribute.AttributeBase
 import org.bigcraft.customitems.api.spi.ConfigFactory
+import org.bigcraft.customitems.api.spi.CooldownContext
 import me.wyne.wutils.i18n.kotlin.placeholderComponent
 import me.wyne.wutils.i18n.kotlin.replace
 import me.wyne.wutils.common.kotlin.config.deep
@@ -61,7 +62,7 @@ class CompassLocatorAttribute(
             break
         }
         if (!located) {
-            customItem.cooldowns.forEach { it.reset(player, item) }
+            customItem.cooldowns.resetAll(CooldownContext(player, customItem, item))
             player.placeholderComponent("error-compass-locate").sendMessage(player)
         }
     }

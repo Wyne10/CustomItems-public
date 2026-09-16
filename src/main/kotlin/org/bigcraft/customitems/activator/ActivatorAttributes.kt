@@ -19,6 +19,7 @@ import me.wyne.wutils.common.range.iterator.VectorRangeEdgeIterator
 import me.wyne.wutils.config.configurables.InteractionListConfigurable
 import me.wyne.wutils.config.configurables.animation.attribute.AnimationParticleAttribute
 import org.bigcraft.customitems.api.CustomItemApi
+import org.bigcraft.customitems.api.spi.CooldownContext
 import org.bigcraft.customitems.api.spi.ActivatorAttribute as ActivatorAttributeApi
 import org.bigcraft.customitems.api.spi.CompositeConfigFactory
 import org.bigcraft.customitems.api.spi.ConfigFactory
@@ -155,11 +156,12 @@ class CooldownCancelEventAttribute(
     value: Boolean
 ) : ActivatorAttribute<Boolean>(key, value) {
     override fun isApplicable(event: Event, player: Player, customItem: CustomItem, item: ItemStack) =
-        event is Cancellable && customItem.cooldowns.any { it.isCooldowned(player, customItem, item) }
+        event is Cancellable && customItem.cooldowns.isAnyActive(CooldownContext(player, customItem, item))
 
     override fun apply(event: Event, player: Player, customItem: CustomItem, item: ItemStack) {
         event as Cancellable
         event.isCancelled = value
+        customItem.cooldowns.notifyBlocked(CooldownContext(player, customItem, item))
     }
 }
 
@@ -177,9 +179,7 @@ class CooldownAttribute(
     cooldowns: Set<String>
 ) : ActivatorAttribute<Set<String>>(key, cooldowns) {
     override fun apply(event: Event, player: Player, customItem: CustomItem, item: ItemStack) {
-        customItem.cooldowns
-            .filter { it.key in value }
-            .forEach { it.apply(player, customItem, item) }
+        customItem.cooldowns.start(value, CooldownContext(player, customItem, item))
     }
 }
 

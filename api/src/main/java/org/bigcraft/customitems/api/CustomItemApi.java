@@ -1,5 +1,6 @@
 package org.bigcraft.customitems.api;
 
+import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
@@ -21,6 +22,11 @@ public interface CustomItemApi {
      * @return the key this item is registered under
      */
     @NotNull String getKey();
+
+    /**
+     * @return the material this item is built on
+     */
+    @NotNull Material getMaterial();
 
     /**
      * Builds a new item stack from this item's configured attributes, tagged with {@link #getKey()}.

@@ -28,6 +28,12 @@ public interface CustomItemsRegistries {
     /** Gates every activator attribute is checked against. */
     @NotNull FactoryRegistry<ActivatorCondition> activatorConditions();
 
+    /** Kinds of cooldown an item can declare. */
+    @NotNull FactoryRegistry<Cooldown> cooldowns();
+
+    /** What the player sees when a cooldown starts or blocks an activation. */
+    @NotNull FactoryRegistry<CooldownFeedback> cooldownFeedback();
+
     /** Extra steps in building an item's stack. */
     @NotNull FactoryRegistry<CustomItemStackAttribute> itemAttributes();
 

@@ -2,11 +2,14 @@ package org.bigcraft.customitems.spi
 
 import me.wyne.wutils.config.configurables.attribute.GenericFactoryMap
 import org.bigcraft.customitems.CustomItems
+import org.bigcraft.customitems.cooldown.CooldownService
 import org.bigcraft.customitems.api.spi.ActivatorAttribute
 import org.bigcraft.customitems.api.spi.ActivatorCondition
 import org.bigcraft.customitems.api.spi.ActivatorType
 import org.bigcraft.customitems.api.spi.BlockAttributeType
 import org.bigcraft.customitems.api.spi.ConfigFactory
+import org.bigcraft.customitems.api.spi.Cooldown
+import org.bigcraft.customitems.api.spi.CooldownFeedback
 import org.bigcraft.customitems.api.spi.CustomItemStackAttribute
 import org.bigcraft.customitems.api.spi.CustomItemsRegistries
 import org.bigcraft.customitems.api.spi.FactoryRegistry
@@ -35,6 +38,8 @@ object Registries : CustomItemsRegistries {
     val blockAttributeTypeInstances = KeyedInstanceRegistry<BlockAttributeType<*>>("block attribute")
     val activatorAttributeFactories = KeyedFactoryRegistry<ActivatorAttribute>("activator attribute")
     val activatorConditionFactories = KeyedFactoryRegistry<ActivatorCondition>("activator condition")
+    val cooldownFactories = KeyedFactoryRegistry<Cooldown>("cooldown")
+    val cooldownFeedbackFactories = KeyedFactoryRegistry<CooldownFeedback>("cooldown feedback")
     val itemAttributeFactories = ItemAttributeRegistry()
     val itemIdentifierInstances = KeyedInstanceRegistry<ItemIdentifier>("item identifier")
 
@@ -47,6 +52,10 @@ object Registries : CustomItemsRegistries {
     override fun activatorAttributes(): FactoryRegistry<ActivatorAttribute> = activatorAttributeFactories
 
     override fun activatorConditions(): FactoryRegistry<ActivatorCondition> = activatorConditionFactories
+
+    override fun cooldowns(): FactoryRegistry<Cooldown> = cooldownFactories
+
+    override fun cooldownFeedback(): FactoryRegistry<CooldownFeedback> = cooldownFeedbackFactories
 
     override fun itemAttributes(): FactoryRegistry<CustomItemStackAttribute> = itemAttributeFactories
 
@@ -98,6 +107,7 @@ object Registries : CustomItemsRegistries {
         activatorTypeInstances.all().forEach { it.clearBindings() }
         restrictionTypeInstances.all().forEach { it.clearBindings() }
         blockAttributeTypeInstances.all().forEach { it.clearBindings() }
+        CooldownService.clear()
         boundListeners?.close()
     }
 

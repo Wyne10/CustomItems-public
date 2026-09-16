@@ -18,9 +18,11 @@ import org.bigcraft.customitems.restriction.bindRestrictions
 import org.bigcraft.customitems.api.CustomItemApi
 import org.bigcraft.customitems.block.bindBlockAttributes
 import org.bigcraft.customitems.block.CustomBlockManager
-import org.bigcraft.customitems.cooldown.COOLDOWN_MAP
-import org.bigcraft.customitems.cooldown.Cooldown
+import org.bigcraft.customitems.cooldown.CooldownGroup
+import org.bigcraft.customitems.cooldown.createCooldowns
 import org.bigcraft.customitems.spi.Registries
+import me.wyne.wutils.config.configurables.item.ItemAttribute
+import org.bukkit.Material
 import org.bukkit.NamespacedKey
 import org.bukkit.block.Block
 import org.bukkit.configuration.ConfigurationSection
@@ -35,13 +37,16 @@ class CustomItem(
     private val key: String,
     private val itemAttributes: ItemConfigurable,
     private val hasBlockAttributes: Boolean,
-    val cooldowns: MutableSet<Cooldown>,
+    val cooldowns: CooldownGroup,
 ) : ItemAttributeAccessor by DefaultItemAttributeAccessor(itemAttributes, hasBlockAttributes),
     ItemComposable by DefaultItemComposable(key), CustomItemApi {
 
     var path: String = ""
 
     override fun getKey(): String = key
+
+    override fun getMaterial(): Material =
+        itemAttributes.getValue(ItemAttribute.MATERIAL.key, Material.STONE) ?: Material.STONE
 
     override fun createItemStack(player: Player?): ItemStack {
         val itemStack = itemAttributes.build(ItemAttributeContext(player))
@@ -120,7 +125,7 @@ class CustomItem(
                     config
                 ),
                 config.section(BLOCK_SECTION_KEY).getKeys(false).isNotEmpty(),
-                config.attributes(COOLDOWN_SECTION_KEY, COOLDOWN_MAP, Cooldown::class.java).toMutableSet(),
+                createCooldowns(key, config.section(COOLDOWN_SECTION_KEY)),
             ).apply {
                 bindRestrictions(this, config.section(RESTRICTION_SECTION_KEY))
                 bindBlockAttributes(this, config.section(BLOCK_SECTION_KEY))

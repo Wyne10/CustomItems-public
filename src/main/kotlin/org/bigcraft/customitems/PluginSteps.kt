@@ -29,6 +29,8 @@ import org.bigcraft.customitems.activator.registerItemIdentifiers
 import org.bigcraft.customitems.activator.condition.registerActivatorConditions
 import org.bigcraft.customitems.item.registerItemAttributes
 import org.bigcraft.customitems.block.registerBlockAttributeTypes
+import org.bigcraft.customitems.cooldown.registerCooldownFeedback
+import org.bigcraft.customitems.cooldown.registerCooldowns
 import org.bigcraft.customitems.restriction.registerRestrictionTypes
 import org.bigcraft.customitems.module.*
 import org.bigcraft.customitems.spi.Registries
@@ -92,6 +94,8 @@ object RegisterVocabulary : PluginStep<CustomItems> {
         registerActivatorTypes(Registries.activatorTypeInstances)
         registerRestrictionTypes(Registries.restrictionTypeInstances)
         registerBlockAttributeTypes(Registries.blockAttributeTypeInstances)
+        registerCooldowns(Registries.cooldownFactories)
+        registerCooldownFeedback(Registries.cooldownFeedbackFactories)
         registerActivatorAttributes(Registries.activatorAttributeFactories)
         registerActivatorConditions(Registries.activatorConditionFactories)
         CustomItemsApi.setRegistries(Registries)

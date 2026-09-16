@@ -1,6 +1,7 @@
 package org.bigcraft.customitems.activator.condition
 
 import me.wyne.wutils.common.comparator.IntComparator
+import org.bigcraft.customitems.api.spi.CooldownContext
 import org.bigcraft.customitems.item.CustomItem
 import org.bukkit.Material
 import org.bukkit.entity.Player
@@ -56,8 +57,12 @@ class PotionTypeCondition(key: String, types: Set<PotionEffectType>) : Activator
 }
 
 class CustomItemCooldownCondition(key: String, isActive: Boolean) : ActivatorCondition<Boolean>(key, isActive) {
-    override fun isApplicable(event: Event, player: Player, customItem: CustomItem, item: ItemStack) =
-        customItem.cooldowns.any { it.isCooldowned(player, customItem, item) } == value
+    override fun isApplicable(event: Event, player: Player, customItem: CustomItem, item: ItemStack): Boolean {
+        val context = CooldownContext(player, customItem, item)
+        val active = customItem.cooldowns.isAnyActive(context)
+        if (active && !value) customItem.cooldowns.notifyBlocked(context)
+        return active == value
+    }
 }
 
 class ConsumedItemCustomCondition(key: String, isActive: Boolean) : ActivatorCondition<Boolean>(key, isActive) {
