@@ -9,7 +9,7 @@ import org.bigcraft.customitems.CustomItems
 import org.bigcraft.customitems.item.CustomItem
 import org.bigcraft.customitems.spi.Registries
 import org.bigcraft.customitems.item.CustomItemManager
-import org.bigcraft.customitems.listener.isNullOrAir
+import org.bigcraft.customitems.composition.isNullOrAir
 import org.bukkit.Bukkit
 import org.bukkit.Material
 import org.bukkit.NamespacedKey

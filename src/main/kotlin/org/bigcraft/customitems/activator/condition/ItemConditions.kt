@@ -2,6 +2,7 @@ package org.bigcraft.customitems.activator.condition
 
 import me.wyne.wutils.common.comparator.IntComparator
 import org.bigcraft.customitems.api.spi.CooldownContext
+import org.bigcraft.customitems.composition.ComposedKeys
 import org.bigcraft.customitems.item.CustomItem
 import org.bukkit.Material
 import org.bukkit.entity.Player
@@ -34,7 +35,7 @@ class ItemEquipmentCondition(key: String, slots: Set<EquipmentSlot>) : Activator
 
 class ItemComposedCondition(key: String, isActive: Boolean) : ActivatorCondition<Boolean>(key, isActive) {
     override fun isApplicable(event: Event, player: Player, customItem: CustomItem, item: ItemStack): Boolean =
-        customItem.isComposed(item) == value
+        (customItem.key in ComposedKeys.of(item)) == value
 }
 
 class ItemTypeCondition(key: String, types: Set<Material>) : ActivatorCondition<Set<Material>>(key, types) {

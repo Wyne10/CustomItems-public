@@ -37,6 +37,9 @@ public interface CustomItemsRegistries {
     /** Extra steps in building an item's stack. */
     @NotNull FactoryRegistry<CustomItemStackAttribute> itemAttributes();
 
+    /** Adds a source of placeholders for item names and lore. */
+    void registerItemPlaceholders(@NotNull ItemPlaceholderProvider provider);
+
     /** Strategies for choosing which stack of an item an activator acts on. */
     @NotNull InstanceRegistry<ItemIdentifier> itemIdentifiers();
 

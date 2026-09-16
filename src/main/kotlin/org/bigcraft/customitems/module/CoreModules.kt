@@ -5,7 +5,8 @@ import org.bigcraft.customitems.CustomItemsApi
 import org.bigcraft.customitems.aoe.AoeManager
 import org.bigcraft.customitems.block.CustomBlockManager
 import org.bigcraft.customitems.item.CustomItemManager
-import org.bigcraft.customitems.listener.CompositorListener
+import org.bigcraft.customitems.composition.CompositionService
+import org.bigcraft.customitems.composition.CompositorListener
 
 private class CoreModule(private vararg val modules: Class<out Any>) : AbstractModule() {
     override fun configure() {
@@ -15,6 +16,6 @@ private class CoreModule(private vararg val modules: Class<out Any>) : AbstractM
 
 val CustomItemModule: AbstractModule = CoreModule(CustomItemManager::class.java, CustomBlockManager::class.java, AoeManager::class.java)
 
-val CompositorModule: AbstractModule = CoreModule(CompositorListener:: class.java)
+val CompositorModule: AbstractModule = CoreModule(CompositionService::class.java, CompositorListener::class.java)
 
 val ApiModule: AbstractModule = CoreModule(CustomItemsApi::class.java)

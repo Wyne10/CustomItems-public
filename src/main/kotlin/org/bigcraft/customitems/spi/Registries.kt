@@ -15,6 +15,7 @@ import org.bigcraft.customitems.api.spi.CustomItemsRegistries
 import org.bigcraft.customitems.api.spi.FactoryRegistry
 import org.bigcraft.customitems.api.spi.InstanceRegistry
 import org.bigcraft.customitems.api.spi.ItemIdentifier
+import org.bigcraft.customitems.api.spi.ItemPlaceholderProvider
 import org.bigcraft.customitems.api.spi.RestrictionType
 import org.bigcraft.customitems.api.spi.KeyedExtension
 import org.bukkit.configuration.ConfigurationSection
@@ -41,6 +42,8 @@ object Registries : CustomItemsRegistries {
     val cooldownFactories = KeyedFactoryRegistry<Cooldown>("cooldown")
     val cooldownFeedbackFactories = KeyedFactoryRegistry<CooldownFeedback>("cooldown feedback")
     val itemAttributeFactories = ItemAttributeRegistry()
+    val itemPlaceholderProviders: List<ItemPlaceholderProvider>
+        get() = placeholderProviders
     val itemIdentifierInstances = KeyedInstanceRegistry<ItemIdentifier>("item identifier")
 
     override fun activatorTypes(): InstanceRegistry<ActivatorType> = activatorTypeInstances
@@ -52,6 +55,13 @@ object Registries : CustomItemsRegistries {
     override fun activatorAttributes(): FactoryRegistry<ActivatorAttribute> = activatorAttributeFactories
 
     override fun activatorConditions(): FactoryRegistry<ActivatorCondition> = activatorConditionFactories
+
+    private val placeholderProviders = mutableListOf<ItemPlaceholderProvider>()
+
+    override fun registerItemPlaceholders(provider: ItemPlaceholderProvider) {
+        if (rejectIfClosed("item placeholder provider", provider::class.java.name)) return
+        placeholderProviders += provider
+    }
 
     override fun cooldowns(): FactoryRegistry<Cooldown> = cooldownFactories
 

@@ -1,8 +1,10 @@
-package org.bigcraft.customitems.listener
+package org.bigcraft.customitems.composition
 
 import com.google.inject.Inject
 import com.google.inject.Singleton
 import me.wyne.wutils.common.anvil.AnvilUtils
+import me.wyne.wutils.common.kotlin.item.isNotNullOrAir
+import me.wyne.wutils.common.kotlin.item.isNullOrAir
 import org.bigcraft.customitems.CustomItems
 import org.bigcraft.customitems.item.CustomItemManager
 import org.bukkit.Bukkit
@@ -18,7 +20,8 @@ import org.bukkit.inventory.ItemStack
 @Singleton
 class CompositorListener @Inject constructor(
     plugin: CustomItems,
-    private val itemManager: CustomItemManager
+    private val itemManager: CustomItemManager,
+    private val composition: CompositionService,
 ) : Listener {
 
     init {
@@ -45,20 +48,12 @@ class CompositorListener @Inject constructor(
         AnvilUtils.getResult(e)
     }
 
-    private fun composeItems(compositor: ItemStack, composable: ItemStack): ItemStack {
-        val composable = itemManager.getItem(composable)!!
-        return composable.compose(compositor)
-    }
+    private fun composeItems(compositor: ItemStack, composable: ItemStack): ItemStack =
+        composition.compose(itemManager.getItem(composable)!!, compositor)
 
     private fun isInputValid(compositor: ItemStack, composable: ItemStack): Boolean {
-        val composable = itemManager.getItem(composable) ?: return false
-        if (!composable.isComposable(compositor)) return false
-        if (composable.isComposed(compositor)) return false
-        return true
+        val item = itemManager.getItem(composable) ?: return false
+        return composition.isComposable(item, compositor) && !composition.isComposed(item, compositor)
     }
 
 }
-
-fun ItemStack?.isNullOrAir() = this == null || this.type == Material.AIR
-
-fun ItemStack?.isNotNullOrAir() = this != null && this.type != Material.AIR

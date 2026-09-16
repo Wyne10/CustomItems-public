@@ -12,6 +12,7 @@ import me.wyne.wutils.common.kotlin.config.getIntOperation
 import me.wyne.wutils.common.kotlin.config.getMillis
 import me.wyne.wutils.common.kotlin.config.getPotionTypeEnumSet
 import me.wyne.wutils.common.kotlin.item.damageNaturally
+import me.wyne.wutils.common.scheduler.Schedulers
 import me.wyne.wutils.common.operation.DoubleOperation
 import me.wyne.wutils.common.operation.IntOperation
 import me.wyne.wutils.common.range.LocationRange
@@ -41,7 +42,6 @@ import org.bigcraft.customitems.aoe.AreaOfEffect
 import org.bigcraft.customitems.block.CustomBlockManager
 import org.bigcraft.customitems.item.CustomItem
 import org.bigcraft.customitems.item.CustomItemManager
-import org.bigcraft.customitems.item._durability
 import org.bigcraft.customitems.trap.TrapAttribute
 import org.bukkit.Bukkit
 import org.bukkit.configuration.ConfigurationSection
@@ -124,17 +124,8 @@ class UpdateViewAttribute(
     value: Boolean
 ) : ActivatorAttribute<Boolean>(key, value) {
     override fun apply(event: Event, player: Player, customItem: CustomItem, item: ItemStack) {
-        if (value)
-            Bukkit.getScheduler().runTask(CustomItems.instance, Runnable {
-                customItem.updateView(
-                    item,
-                    ItemAttributeContext(
-                        player,
-                        arrayOf("durability" replace item._durability),
-                        emptyArray<ComponentReplacement>()
-                    )
-                ) // TODO Might add context replacements as attributes
-            })
+        if (!value) return
+        Schedulers.sync().run { customItem.refreshView(item, player) }
     }
 }
 
