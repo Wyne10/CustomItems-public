@@ -17,6 +17,7 @@ import me.wyne.wutils.config.configurables.item.attribute.EnchantmentAttribute
 import me.wyne.wutils.config.configurables.item.attribute.MaterialAttribute
 import org.bigcraft.customitems.CustomItems
 import org.bigcraft.customitems.item.CustomItem
+import org.bigcraft.customitems.spi.Registries
 import org.bigcraft.customitems.item.CustomItemManager
 import org.bukkit.Bukkit
 import org.bukkit.Location
@@ -75,7 +76,7 @@ class JackOLanternAttribute(
 ) : ActivatorAttribute<Pair<Double, Long>>(key, radius to durationMillis), RegisterableListener {
 
     init {
-        CustomItemManager.instance.activatorRegistry.register(this)
+        Registries.registerBoundListener(this)
     }
 
     override fun apply(event: Event, player: Player, customItem: CustomItem, item: ItemStack) {
@@ -98,7 +99,7 @@ class JackOLanternAttribute(
 
     // Fail safe
     @EventHandler
-    private fun onDisconnect(event: PlayerQuitEvent) {
+    fun onDisconnect(event: PlayerQuitEvent) {
         if (event.player.inventory.getItem(EquipmentSlot.HEAD) != JACK_O_LANTERN_ITEM) return
         event.player.inventory.setItem(EquipmentSlot.HEAD, null)
     }

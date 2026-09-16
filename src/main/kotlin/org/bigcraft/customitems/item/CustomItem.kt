@@ -13,11 +13,10 @@ import me.wyne.wutils.config.configurables.item.ItemStackAttribute
 import me.wyne.wutils.i18n.kotlin.replace
 import me.wyne.wutils.i18n.language.replacement.ComponentReplacement
 import org.bigcraft.customitems.CustomItems
-import org.bigcraft.customitems.activator.ACTIVATOR_MAP
-import org.bigcraft.customitems.activator.Activator
+import org.bigcraft.customitems.activator.bindActivators
+import org.bigcraft.customitems.restriction.bindRestrictions
 import org.bigcraft.customitems.api.CustomItemApi
-import org.bigcraft.customitems.block.BLOCK_ATTRIBUTE_MAP
-import org.bigcraft.customitems.block.BlockAttribute
+import org.bigcraft.customitems.block.bindBlockAttributes
 import org.bigcraft.customitems.block.CustomBlockManager
 import org.bigcraft.customitems.cooldown.COOLDOWN_MAP
 import org.bigcraft.customitems.cooldown.Cooldown
@@ -35,11 +34,9 @@ import org.bukkit.persistence.PersistentDataType
 class CustomItem(
     private val key: String,
     private val itemAttributes: ItemConfigurable,
-    private val restrictions: Set<Restriction>,
-    private val activators: Set<Activator>,
-    private val blockAttributes: Set<BlockAttribute<*>>,
+    private val hasBlockAttributes: Boolean,
     val cooldowns: MutableSet<Cooldown>,
-) : ItemAttributeAccessor by DefaultItemAttributeAccessor(itemAttributes, restrictions, activators, blockAttributes),
+) : ItemAttributeAccessor by DefaultItemAttributeAccessor(itemAttributes, hasBlockAttributes),
     ItemComposable by DefaultItemComposable(key), CustomItemApi {
 
     var path: String = ""
@@ -122,21 +119,19 @@ class CustomItem(
                         .build(),
                     config
                 ),
-                config.attributes(RESTRICTION_SECTION_KEY, RESTRICTION_MAP, Restriction::class.java),
-                config.attributes(ACTIVATOR_SECTION_KEY, ACTIVATOR_MAP, Activator::class.java),
-                config.attributes(BLOCK_SECTION_KEY, BLOCK_ATTRIBUTE_MAP, BlockAttribute::class.java),
+                config.section(BLOCK_SECTION_KEY).getKeys(false).isNotEmpty(),
                 config.attributes(COOLDOWN_SECTION_KEY, COOLDOWN_MAP, Cooldown::class.java).toMutableSet(),
             ).apply {
-                restrictions.forEach { it.apply(this) }
-                activators.forEach { it.apply(this) }
-                blockAttributes.forEach { it.apply(this) }
+                bindRestrictions(this, config.section(RESTRICTION_SECTION_KEY))
+                bindBlockAttributes(this, config.section(BLOCK_SECTION_KEY))
+                bindActivators(this, config.section(ACTIVATOR_SECTION_KEY))
             }
 
         private fun <T> ConfigurationSection.attributes(sectionKey: String, map: AttributeMap, type: Class<T>): Set<T> =
-            AttributeConfigurable(
-                ImmutableAttributeContainer(map),
-                getConfigurationSection(sectionKey) ?: CustomItems.EMPTY_CONFIGURATION
-            ).getSet(type)
+            AttributeConfigurable(ImmutableAttributeContainer(map), section(sectionKey)).getSet(type)
+
+        private fun ConfigurationSection.section(sectionKey: String): ConfigurationSection =
+            getConfigurationSection(sectionKey) ?: CustomItems.EMPTY_CONFIGURATION
     }
 
     companion object {

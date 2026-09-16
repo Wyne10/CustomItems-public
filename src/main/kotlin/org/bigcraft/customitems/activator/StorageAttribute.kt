@@ -7,6 +7,7 @@ import me.wyne.wutils.common.event.RegisterableListener
 import me.wyne.wutils.common.serialization.Base64InventorySerializer
 import org.bigcraft.customitems.CustomItems
 import org.bigcraft.customitems.item.CustomItem
+import org.bigcraft.customitems.spi.Registries
 import org.bigcraft.customitems.item.CustomItemManager
 import org.bigcraft.customitems.listener.isNullOrAir
 import org.bukkit.Bukkit
@@ -45,7 +46,7 @@ class StorageAttribute(
     private val inventories = mutableMapOf<Inventory, Int>()
 
     init {
-        CustomItemManager.instance.activatorRegistry.register(this)
+        Registries.registerBoundListener(this)
     }
 
     override fun isApplicable(event: Event, player: Player, customItem: CustomItem, item: ItemStack): Boolean =
@@ -68,7 +69,7 @@ class StorageAttribute(
     }
 
     @EventHandler
-    private fun onInventoryOpen(event: InventoryOpenEvent) {
+    fun onInventoryOpen(event: InventoryOpenEvent) {
         if (!inventories.contains(event.inventory)) return
         val size = (value * 3) + ((value - 1).coerceAtLeast(0) * 3)
         for (i in SLOT_INDICES.size - 1 downTo size) {
@@ -78,7 +79,7 @@ class StorageAttribute(
     }
 
     @EventHandler
-    private fun onInventoryClose(event: InventoryCloseEvent) {
+    fun onInventoryClose(event: InventoryCloseEvent) {
         if (!inventories.contains(event.inventory)) return
         val inventory = players.remove(event.player)
         val itemSlot = inventories.remove(event.inventory)!!
@@ -87,7 +88,7 @@ class StorageAttribute(
     }
 
     @EventHandler
-    private fun onPlayerDeath(event: PlayerDeathEvent) {
+    fun onPlayerDeath(event: PlayerDeathEvent) {
         val inventory = players.remove(event.entity) ?: return
         val itemSlot = inventories.remove(inventory) ?: return
         val item = event.entity.inventory.getItem(itemSlot) ?: return
@@ -95,7 +96,7 @@ class StorageAttribute(
     }
 
     @EventHandler
-    private fun onInventoryClick(event: InventoryClickEvent) {
+    fun onInventoryClick(event: InventoryClickEvent) {
         val inventory = players[event.whoClicked as Player] ?: return
         val slot = inventories[inventory]
         if (event.currentItem == FILLER) event.isCancelled = true
@@ -117,19 +118,19 @@ class StorageAttribute(
     }
 
     @EventHandler
-    private fun onCommandPreprocess(event: PlayerCommandPreprocessEvent) {
+    fun onCommandPreprocess(event: PlayerCommandPreprocessEvent) {
         if (!players.containsKey(event.player)) return
         event.isCancelled = true
     }
 
     @EventHandler
-    private fun onHandSwap(event: PlayerSwapHandItemsEvent) {
+    fun onHandSwap(event: PlayerSwapHandItemsEvent) {
         if (!players.containsKey(event.player)) return
         event.isCancelled = true
     }
 
     @EventHandler
-    private fun onItemDrop(event: PlayerDropItemEvent) {
+    fun onItemDrop(event: PlayerDropItemEvent) {
         val inventory = players[event.player] ?: return
         val item = event.player.inventory.getItem(inventories[inventory]!!)
         if (item.isNullOrAir())
@@ -137,13 +138,13 @@ class StorageAttribute(
     }
 
     @EventHandler
-    private fun onPlayerInteractAtEntity(event: PlayerInteractAtEntityEvent) {
+    fun onPlayerInteractAtEntity(event: PlayerInteractAtEntityEvent) {
         if (!players.containsKey(event.player)) return
         event.isCancelled = true
     }
 
     @EventHandler
-    private fun onPlayerInteractEntity(event: PlayerInteractEntityEvent) {
+    fun onPlayerInteractEntity(event: PlayerInteractEntityEvent) {
         if (!players.containsKey(event.player)) return
         event.isCancelled = true
     }

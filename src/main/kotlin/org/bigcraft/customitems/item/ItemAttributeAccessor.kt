@@ -9,8 +9,6 @@ import me.wyne.wutils.i18n.I18n
 import org.bigcraft.customitems.i18n
 import me.wyne.wutils.i18n.language.component.PlaceholderLocalizedComponent
 import net.kyori.adventure.text.Component
-import org.bigcraft.customitems.activator.Activator
-import org.bigcraft.customitems.block.BlockAttribute
 import org.bukkit.Material
 import org.bukkit.inventory.ItemStack
 
@@ -25,15 +23,13 @@ interface ItemAttributeAccessor {
 
 class DefaultItemAttributeAccessor(
     private val itemAttributes: ItemConfigurable,
-    private val restrictions: Set<Restriction>,
-    private val activators: Set<Activator>,
-    private val blockAttributes: Set<BlockAttribute<*>>,
+    private val hasBlockAttributes: Boolean,
 ) : ItemAttributeAccessor {
     override val material: Material
         get() = itemAttributes.getValue(ItemAttribute.MATERIAL.key, Material.STONE) ?: Material.STONE
 
     override val isBlock: Boolean
-        get() = material.isBlock && blockAttributes.isNotEmpty()
+        get() = material.isBlock && hasBlockAttributes
 
     override val isCompositor: Boolean
         get() = itemAttributes.attributes.contains("compositor")

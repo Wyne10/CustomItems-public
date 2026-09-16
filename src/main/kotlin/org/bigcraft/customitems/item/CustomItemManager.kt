@@ -2,7 +2,6 @@ package org.bigcraft.customitems.item
 
 import com.google.inject.Inject
 import com.google.inject.Singleton
-import me.wyne.wutils.common.event.EventRegistry
 import me.wyne.wutils.common.loadable.LoadableMeta
 import org.bigcraft.customitems.CustomItems
 import org.bigcraft.customitems.LoadableProvider
@@ -12,7 +11,6 @@ import org.bigcraft.customitems.api.CustomItemProvider
 import org.bigcraft.customitems.block.CustomBlockManager
 import org.bigcraft.customitems.item.CustomItem.Companion.ITEM_TAG_KEY
 import org.bukkit.Bukkit
-import org.bukkit.configuration.ConfigurationSection
 import org.bukkit.configuration.serialization.ConfigurationSerialization
 import org.bukkit.event.EventHandler
 import org.bukkit.event.EventPriority
@@ -29,9 +27,6 @@ import org.bukkit.persistence.PersistentDataType
 @LoadableMeta(priority = 0)
 class CustomItemManager @Inject constructor(plugin: CustomItems, private val blockManager: CustomBlockManager) :
     LoadableProvider<CustomItem>(SECTION_KEY, CustomItem.Factory), Listener, CustomItemProvider {
-
-    val restrictionRegistry = EventRegistry(plugin)
-    val activatorRegistry = EventRegistry(plugin)
 
     val itemPaths
         get() = loadedMap.values.map { it.path + it.key }.toSet()
@@ -54,13 +49,6 @@ class CustomItemManager @Inject constructor(plugin: CustomItems, private val blo
     override fun getItem(item: ItemStack?): CustomItem? {
         if (item == null || !item.hasItemMeta()) return null
         return loadedMap[item.itemMeta.persistentDataContainer.get(ITEM_TAG_KEY, PersistentDataType.STRING)]
-    }
-
-    override fun load(config: ConfigurationSection) {
-        restrictionRegistry.clear()
-        activatorRegistry.clear()
-        blockManager.blockAttributesRegistry.clear()
-        super.load(config)
     }
 
     override fun onLoaded(key: String, value: CustomItem, path: String) {

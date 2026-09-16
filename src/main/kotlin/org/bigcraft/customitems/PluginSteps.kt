@@ -24,9 +24,12 @@ import org.bigcraft.customitems.CustomItems.Companion.EMPTY_CONFIGURATION
 import org.bigcraft.customitems.CustomItems.Companion.logger
 import me.wyne.wutils.i18n.language.interpretation.ComponentInterpreters
 import org.bigcraft.customitems.activator.registerActivatorAttributes
+import org.bigcraft.customitems.activator.registerActivatorTypes
 import org.bigcraft.customitems.activator.registerItemIdentifiers
 import org.bigcraft.customitems.activator.condition.registerActivatorConditions
 import org.bigcraft.customitems.item.registerItemAttributes
+import org.bigcraft.customitems.block.registerBlockAttributeTypes
+import org.bigcraft.customitems.restriction.registerRestrictionTypes
 import org.bigcraft.customitems.module.*
 import org.bigcraft.customitems.spi.Registries
 import org.bukkit.configuration.serialization.ConfigurationSerialization
@@ -86,6 +89,9 @@ object RegisterVocabulary : PluginStep<CustomItems> {
     override fun run(plugin: CustomItems) {
         registerItemAttributes(Registries.itemAttributeFactories)
         registerItemIdentifiers(Registries.itemIdentifierInstances)
+        registerActivatorTypes(Registries.activatorTypeInstances)
+        registerRestrictionTypes(Registries.restrictionTypeInstances)
+        registerBlockAttributeTypes(Registries.blockAttributeTypeInstances)
         registerActivatorAttributes(Registries.activatorAttributeFactories)
         registerActivatorConditions(Registries.activatorConditionFactories)
         CustomItemsApi.setRegistries(Registries)
@@ -151,12 +157,20 @@ object LoadJson : PluginStep<CustomItems> {
 object LoadItems : PluginStep<CustomItems> {
     override fun run(plugin: CustomItems) {
         Registries.close()
+        Registries.registerDispatchers(plugin)
+        Registries.clearBindings()
         Loader.global.load(plugin)
     }
 }
 
 @Step(scope = StepScope.DISABLE)
-object Disable : CompositeStep<CustomItems>(Write)
+object Disable : CompositeStep<CustomItems>(Write, UnregisterDispatchers)
+
+object UnregisterDispatchers : PluginStep<CustomItems> {
+    override fun run(plugin: CustomItems) {
+        Registries.unregisterDispatchers()
+    }
+}
 
 @Step(scope = StepScope.RELOAD)
 object Reload : CompositeStep<CustomItems>(ReloadConfig, InitializeLogger, InitializeLoader, InitializeI18n, Write, LoadJson, LoadItems)

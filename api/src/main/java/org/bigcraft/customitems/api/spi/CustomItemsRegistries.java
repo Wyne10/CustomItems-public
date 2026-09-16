@@ -13,6 +13,15 @@ import org.jetbrains.annotations.NotNull;
  */
 public interface CustomItemsRegistries {
 
+    /** Kinds of activator — an event plus the rule for finding the player it concerns. */
+    @NotNull InstanceRegistry<ActivatorType> activatorTypes();
+
+    /** Kinds of restriction — things a custom item is not allowed to take part in. */
+    @NotNull InstanceRegistry<RestrictionType<?>> restrictions();
+
+    /** Kinds of behaviour a custom item takes on once placed as a block. */
+    @NotNull InstanceRegistry<BlockAttributeType<?>> blockAttributes();
+
     /** Effects an activator runs when it fires. */
     @NotNull FactoryRegistry<ActivatorAttribute> activatorAttributes();
 
