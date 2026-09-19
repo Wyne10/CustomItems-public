@@ -19,8 +19,8 @@ import me.wyne.wutils.i18n.kotlin.replaceComponent
 import org.bigcraft.customitems.CustomItems
 import org.bigcraft.customitems.CustomKeyedLoot
 import org.bigcraft.customitems.item.CustomItemManager
-import org.bigcraft.lootpool.api.Loot
-import org.bigcraft.lootpool.api.LootPoolApi
+import me.wyne.lootpool.api.Loot
+import me.wyne.lootpool.api.LootPoolApi
 import org.bukkit.Bukkit
 import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player

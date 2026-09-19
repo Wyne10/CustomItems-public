@@ -2,8 +2,8 @@ package org.bigcraft.customitems;
 
 import org.bigcraft.customitems.api.CustomItemApi;
 import org.bigcraft.customitems.api.CustomItemsApi;
-import org.bigcraft.lootpool.api.Loot;
-import org.bigcraft.lootpool.api.LootPool;
+import me.wyne.lootpool.api.Loot;
+import me.wyne.lootpool.api.LootPool;
 import org.bukkit.NamespacedKey;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.inventory.Inventory;

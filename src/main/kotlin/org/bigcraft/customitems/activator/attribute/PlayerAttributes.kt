@@ -80,9 +80,9 @@ class PlayerExpAttribute(
     operation: IntOperation
 ) : ActivatorAttribute<IntOperation>(key, operation) {
     override fun apply(event: Event, player: Player, customItem: CustomItem, item: ItemStack) {
-        val currentExp = player.currentExp
-        player.exp = 0f
-        player.level = 0
-        player.giveExp(value.evaluate(currentExp))
+        player.currentExp = value.evaluate(player.currentExp.clampToInt()).coerceAtLeast(0).toLong()
     }
 }
+
+/** Total experience in an `Int`, for the `Int`-only WUtils operations and comparators. */
+fun Long.clampToInt(): Int = coerceIn(Int.MIN_VALUE.toLong(), Int.MAX_VALUE.toLong()).toInt()

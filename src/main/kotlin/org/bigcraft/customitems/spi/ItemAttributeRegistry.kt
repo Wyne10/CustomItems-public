@@ -16,10 +16,8 @@ import org.bukkit.inventory.ItemStack
  */
 class ItemAttributeRegistry : FactoryRegistry<CustomItemStackAttribute> {
 
-    private val factories = LinkedHashMap<String, AttributeFactory<*>>()
-
     val attributeMap: Map<String, AttributeFactory<*>>
-        get() = factories
+        field = LinkedHashMap<String, AttributeFactory<*>>()
 
     override fun register(key: String, factory: ConfigFactory<out CustomItemStackAttribute>) {
         if (Registries.rejectIfClosed("item attribute", key)) return
@@ -30,12 +28,12 @@ class ItemAttributeRegistry : FactoryRegistry<CustomItemStackAttribute> {
 
     /** Registers a WUtils attribute directly, for the built-ins that need the richer contract. */
     fun registerNative(key: String, factory: AttributeFactory<*>) {
-        factories[key] = factory
+        attributeMap[key] = factory
     }
 
-    override fun contains(key: String): Boolean = factories.containsKey(key)
+    override fun contains(key: String): Boolean = attributeMap.containsKey(key)
 
-    override fun keys(): Set<String> = factories.keys
+    override fun keys(): Set<String> = attributeMap.keys
 
 }
 

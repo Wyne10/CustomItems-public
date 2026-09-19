@@ -43,7 +43,7 @@ object Registries : CustomItemsRegistries {
     val cooldownFeedbackFactories = KeyedFactoryRegistry<CooldownFeedback>("cooldown feedback")
     val itemAttributeFactories = ItemAttributeRegistry()
     val itemPlaceholderProviders: List<ItemPlaceholderProvider>
-        get() = placeholderProviders
+        field = mutableListOf<ItemPlaceholderProvider>()
     val itemIdentifierInstances = KeyedInstanceRegistry<ItemIdentifier>("item identifier")
 
     override fun activatorTypes(): InstanceRegistry<ActivatorType> = activatorTypeInstances
@@ -56,11 +56,9 @@ object Registries : CustomItemsRegistries {
 
     override fun activatorConditions(): FactoryRegistry<ActivatorCondition> = activatorConditionFactories
 
-    private val placeholderProviders = mutableListOf<ItemPlaceholderProvider>()
-
     override fun registerItemPlaceholders(provider: ItemPlaceholderProvider) {
         if (rejectIfClosed("item placeholder provider", provider::class.java.name)) return
-        placeholderProviders += provider
+        itemPlaceholderProviders += provider
     }
 
     override fun cooldowns(): FactoryRegistry<Cooldown> = cooldownFactories

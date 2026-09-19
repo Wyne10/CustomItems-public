@@ -3,7 +3,7 @@ package org.bigcraft.customitems.activator
 import org.bigcraft.customitems.api.CustomItemApi
 import org.bigcraft.customitems.api.spi.InstanceRegistry
 import org.bigcraft.customitems.api.spi.ItemIdentifier
-import org.bigcraft.storm.api.StormApi
+import me.wyne.storm.api.StormApi
 import org.bukkit.Material
 import org.bukkit.entity.Player
 import org.bukkit.inventory.EquipmentSlot

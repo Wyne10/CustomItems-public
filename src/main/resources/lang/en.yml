@@ -5,13 +5,16 @@ format-composable-entry: "<gray> - %ci_<key>_name-plain%"
 
 ## Info
 info-activation: "<gray>Effect invoked: %ci_<key>_name%"
+info-compass-locate: "<aqua>▶ <white>Compass needle set to the last region found at: <x>, <z>"
 
 ## Error
 error-item-not-found: "<red>Item '<key>' doesn't exist!"
 error-insufficient-funds: "<red>Insufficient funds, required <price> %ci_<key>_name%"
 error-lootpool-already-exists: "<red>Loot pool '<key>' already exists!"
+error-compass-locate: "<red>▶ <white>Couldn't find a suitable treasure. Try again later"
 
 ## Success
 success-plugin-reload: "<green>Plugin reloaded!"
 success-item-give: "<item-name> [<item-amount>] <green>given to <targets>!"
 success-lootpool-create: "<green>Loot pool '<key>' created"
+success-compass-locate: "<#05dcea>▶️ </#05dcea><#e7e7e7>Treasure found at: </#e7e7e7><#05dcea><x></#05dcea><#e7e7e7>, </#e7e7e7><#05dcea><z></#05dcea><#e7e7e7>. This compass will be available again in 8 hours."

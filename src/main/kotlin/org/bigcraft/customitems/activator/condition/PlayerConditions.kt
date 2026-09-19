@@ -3,6 +3,7 @@ package org.bigcraft.customitems.activator.condition
 import me.wyne.wutils.common.comparator.DoubleComparator
 import me.wyne.wutils.common.comparator.IntComparator
 import me.wyne.wutils.common.kotlin.player.currentExp
+import org.bigcraft.customitems.activator.attribute.clampToInt
 import org.bigcraft.customitems.aoe.AoeManager
 import org.bigcraft.customitems.item.CustomItem
 import org.bigcraft.customitems.worldguard.RegionPatterns
@@ -68,7 +69,7 @@ class LevelCondition(key: String, comparator: IntComparator) : ActivatorConditio
 
 class ExpCondition(key: String, comparator: IntComparator) : ActivatorCondition<IntComparator>(key, comparator) {
     override fun isApplicable(event: Event, player: Player, customItem: CustomItem, item: ItemStack): Boolean =
-        value.compare(player.currentExp)
+        value.compare(player.currentExp.clampToInt())
 }
 
 class FoodLevelCondition(key: String, comparator: IntComparator) : ActivatorCondition<IntComparator>(key, comparator) {
