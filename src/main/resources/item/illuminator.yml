@@ -1,4 +1,4 @@
-name: 'Иллюминатор'
+name: 'Illuminator'
 material: SEA_LANTERN
 restrictions:
   cancel-place: true

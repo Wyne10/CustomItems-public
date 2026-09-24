@@ -1,4 +1,4 @@
-name: '<gold>Гравитация'
+name: '<gold>Gravity'
 material: FEATHER
 restrictions:
   cancel-craft: true

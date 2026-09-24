@@ -1,4 +1,4 @@
-name: '<red>Взрывная штучка'
+name: '<red>Explosive Charge'
 material: FIRE_CHARGE
 glow: true
 restrictions:

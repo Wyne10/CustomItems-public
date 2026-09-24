@@ -1,4 +1,4 @@
-name: '<gray>Взрывчатое вещество'
+name: '<gray>Explosive Compound'
 material: CLAY
 restrictions:
   cancel-smelt: true

@@ -1,4 +1,4 @@
-name: '<gold>Справедливость'
+name: '<gold>Justice'
 material: POTION
 restrictions:
   cancel-storage: [BREWING]

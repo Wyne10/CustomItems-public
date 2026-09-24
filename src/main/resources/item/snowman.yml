@@ -1,4 +1,4 @@
-name: 'Снеговик'
+name: 'Snowman'
 material: SNOW_BLOCK
 glow: true
 restrictions:

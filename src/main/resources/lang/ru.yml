@@ -5,16 +5,16 @@ format-composable-entry: "<gray> - %ci_<key>_name-plain%"
 
 ## Info
 info-activation: "<gray>Только что сработал эффект: %ci_<key>_name%"
-info-compass-locate: "<aqua>▶ <white>Стрелка компаса установлена на последний найденный регион по координатам: <x>, <z>"
+info-compass-locate: "<aqua>▶ <white>Компас уже указывает на точку: <x>, <z>"
 
 ## Error
 error-item-not-found: "<red>Предмет '<key>' не существует!"
 error-insufficient-funds: "<red>Недостаточно средств, нужно <price> %ci_<key>_name%"
 error-lootpool-already-exists: "<red>Лут пул '<key>' уже существует!"
-error-compass-locate: "<red>▶ <white>Не удалость найти подходящее сокровище. Попробуйте позже"
+error-compass-locate: "<red>▶ <white>Не удалось найти цель для этого компаса. Попробуйте позже"
 
 ## Success
 success-plugin-reload: "<green>Плагин перезагружен!"
 success-item-give: "<item-name> [<item-amount>] <green>выдан <targets>!"
 success-lootpool-create: "<green>Лут пул '<key>' создан"
-success-compass-locate: "<#05dcea>▶️ </#05dcea><#e7e7e7>Найдено сокровище по координатам: </#e7e7e7><#05dcea><x></#05dcea><#e7e7e7>, </#e7e7e7><#05dcea><z></#05dcea><#e7e7e7>. Теперь этот компас будет снова доступен только через 8 часов."
+success-compass-locate: "<#05dcea>▶️ </#05dcea><#e7e7e7>Цель найдена по координатам: </#e7e7e7><#05dcea><x></#05dcea><#e7e7e7>, </#e7e7e7><#05dcea><z></#05dcea><#e7e7e7>. Компас теперь указывает путь."

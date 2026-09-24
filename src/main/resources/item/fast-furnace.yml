@@ -1,4 +1,4 @@
-name: '<light_purple>Быстрая печка'
+name: '<light_purple>Fast Furnace'
 material: FURNACE
 glow: true
 block:

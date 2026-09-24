@@ -1,4 +1,4 @@
-name: '<gold>Загадочное яйцо призыва'
+name: '<gold>Mysterious Spawn Egg'
 material: SKELETON_SPAWN_EGG
 activators:
   right-click:

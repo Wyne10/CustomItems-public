@@ -1,4 +1,4 @@
-name: '<green>Пузырь опыта'
+name: '<green>Repair Bottle'
 material: EXPERIENCE_BOTTLE
 restrictions:
   cancel-projectile: true

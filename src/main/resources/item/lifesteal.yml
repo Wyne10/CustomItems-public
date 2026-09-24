@@ -1,4 +1,4 @@
-name: '<red>Вампиризм'
+name: '<red>Lifesteal'
 material: WITHER_SKELETON_SKULL
 restrictions:
   cancel-place: true

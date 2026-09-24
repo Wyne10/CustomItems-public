@@ -1,4 +1,4 @@
-name: '<gold>Загадочный спавер'
+name: '<gold>Mysterious Spawner'
 material: SPAWNER
 block:
   drop-drop: true

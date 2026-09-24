@@ -1,4 +1,4 @@
-name: '<light_purple>Телекинез'
+name: '<light_purple>Telekinesis'
 material: HONEY_BLOCK
 restrictions:
   cancel-craft: true

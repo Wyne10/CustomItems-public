@@ -1,4 +1,4 @@
-name: '<gold>АнтиФантом'
+name: '<gold>Anti-Phantom'
 material: PHANTOM_MEMBRANE
 restrictions:
   cancel-storage: [BREWING, ANVIL]

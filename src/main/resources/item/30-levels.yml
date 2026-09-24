@@ -1,4 +1,4 @@
-name: '<green>30 ур. опыта <gray>(+1395 xp)'
+name: '<green>30 XP Levels <gray>(+1395 xp)'
 material: EXPERIENCE_BOTTLE
 restrictions:
   cancel-projectile: true

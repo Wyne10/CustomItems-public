@@ -1,4 +1,4 @@
-name: '<gold>Охотник'
+name: '<gold>Hunter'
 material: DIAMOND_SWORD
 restrictions:
   cancel-craft: true

@@ -1,4 +1,4 @@
-name: 'Артефакт'
+name: 'Artifact'
 material: CONDUIT
 compositor:
   - 'hunter'
@@ -11,6 +11,6 @@ compositor:
   - 'lifesteal'
   - 'justice'
 lore:
-  - '<gray>Совмещенные эффекты:<composed-list>'
+  - '<gray>Combined effects:<composed-list>'
 restrictions:
   cancel-place: true

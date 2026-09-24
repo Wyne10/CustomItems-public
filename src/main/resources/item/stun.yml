@@ -1,4 +1,4 @@
-name: 'Стан'
+name: 'Stun'
 material: NETHER_STAR
 restrictions:
   cancel-craft: true
