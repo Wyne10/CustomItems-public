@@ -2,16 +2,14 @@ package org.bigcraft.customitems.item
 
 import com.google.inject.Inject
 import com.google.inject.Singleton
+import me.wyne.wutils.common.kotlin.config.saveDirectoryResource
 import me.wyne.wutils.common.loadable.LoadableMeta
 import org.bigcraft.customitems.CustomItems
 import org.bigcraft.customitems.LoadableProvider
-import org.bigcraft.customitems.CustomKeyedLoot
-import org.bigcraft.customitems.api.CustomItemApi
 import org.bigcraft.customitems.api.CustomItemProvider
 import org.bigcraft.customitems.block.CustomBlockManager
 import org.bigcraft.customitems.item.CustomItem.Companion.ITEM_TAG_KEY
 import org.bukkit.Bukkit
-import org.bukkit.configuration.serialization.ConfigurationSerialization
 import org.bukkit.event.EventHandler
 import org.bukkit.event.EventPriority
 import org.bukkit.event.Listener
@@ -34,6 +32,7 @@ class CustomItemManager @Inject constructor(plugin: CustomItems, private val blo
     init {
         instance = this
         Bukkit.getPluginManager().registerEvents(this, plugin)
+        plugin.saveDirectoryResource(directory)
     }
 
     override fun getKeys(): Set<String> = loadedMap.keys
