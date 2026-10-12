@@ -6,6 +6,7 @@ import me.wyne.lootpool.api.Loot;
 import me.wyne.lootpool.api.LootPool;
 import org.bukkit.NamespacedKey;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
+import org.bukkit.configuration.serialization.SerializableAs;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
@@ -26,6 +27,7 @@ import java.util.Map;
  * later edits to the custom item definition are reflected without updating this record. If no
  * custom item is registered under {@code key}, {@code loot} is used as-is.
  */
+@SerializableAs("CustomKeyedLoot")
 public record CustomKeyedLoot(@NotNull String key, @NotNull Loot loot) implements ConfigurationSerializable, LootPool {
 
     public CustomKeyedLoot(@NotNull CustomKeyedLoot customKeyedLoot) {
