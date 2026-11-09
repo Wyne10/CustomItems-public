@@ -9,12 +9,12 @@ import me.wyne.customitems.placeholder.ItemPlaceholders
 private class OptionalModule(
     private val className: String,
     private val exceptionMessage: String = "$className not found, module ignored",
-    private vararg val modules: Class<out Any>
+    private val modules: () -> List<Class<out Any>> = { emptyList() }
 ) : AbstractModule() {
     override fun configure() {
         try {
             Class.forName(className)
-            modules.forEach { bind(it) }
+            modules().forEach { bind(it) }
         } catch (e: ClassNotFoundException) {
             CustomItems.logger.warn(exceptionMessage)
         }
@@ -23,18 +23,15 @@ private class OptionalModule(
 
 val PlaceholderModule: AbstractModule = OptionalModule(
     className = "me.clip.placeholderapi.PlaceholderAPI",
-    exceptionMessage = "PlaceholderAPI not found, placeholders are not registered",
-    ItemPlaceholders::class.java
-)
+    exceptionMessage = "PlaceholderAPI not found, placeholders are not registered"
+) { listOf(ItemPlaceholders::class.java) }
 
 val CommandModule: AbstractModule = OptionalModule(
     className = "dev.jorel.commandapi.CommandAPI",
-    exceptionMessage = "CommandAPI not found, commands are not registered",
-    CustomItemsCommand::class.java
-)
+    exceptionMessage = "CommandAPI not found, commands are not registered"
+) { listOf(CustomItemsCommand::class.java) }
 
 val AbstractMenusModule: AbstractModule = OptionalModule(
     className = "ru.abstractmenus.api.AbstractMenusPlugin",
-    exceptionMessage = "AbstractMenus not found, item property is not registered",
-    AbstractMenusRegistry::class.java
-)
+    exceptionMessage = "AbstractMenus not found, item property is not registered"
+) { listOf(AbstractMenusRegistry::class.java) }
