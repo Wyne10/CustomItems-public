@@ -278,7 +278,7 @@ The sink takes three kinds, and the difference is when the value is resolved:
 
 ## Consuming items without extending them
 
-Reading custom items needs no registration and no timing care—just `depend`:
+Reading custom items needs no registration—just `depend`:
 
 ```java
 CustomItemProvider provider = CustomItemsApi.getProvider();
@@ -295,6 +295,10 @@ CustomItemApi held = provider.getItem(player.getInventory().getItemInMainHand())
 `CustomItemsApi.getBlockRegistry()` does the same for placed custom blocks—`isCustomBlock`, `getBlock`, `placeBlock` and `breakBlock`.
 
 Every getter on `CustomItemsApi` returns `null` until CustomItems has enabled, so a `softdepend` consumer should check.
+
+Mind the timing, though. Items are built [one tick after the server finishes enabling plugins](#when-to-register), so during your own `onEnable` the provider exists but holds no items yet—`getItem("grenade")` returns `null` there. Look items up when you need them (in a command, a listener, a scheduled task) rather than resolving them once in `onEnable` and caching the result. If you need to know whether the items are ready yet, check `CustomItemsApi.getRegistries().isOpen()`: it turns `false` at the moment items are loaded.
+
+A reload rebuilds every item, so a `CustomItemApi` you hold across a `/customitems reload` is stale. Keep the key and look it up again.
 
 ## Checking your work
 

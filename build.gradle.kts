@@ -95,8 +95,7 @@ bukkit {
     author = findProperty("author").toString()
     main = "me.wyne.customitems.CustomItems"
     apiVersion = "1.16"
-    loadBefore = listOf("LootPool")
-    softDepend = listOf("PlaceholderAPI", "CommandAPI", "NBTAPI", "WorldEdit", "WorldGuard", "AbstractMenus", "Storm", "AntiRelog")
+    softDepend = listOf("PlaceholderAPI", "CommandAPI", "NBTAPI", "WorldEdit", "WorldGuard", "AbstractMenus", "Storm", "AntiRelog", "LootPool")
     permissions {
         register("customitems.*") {
             children = listOf("customitems.reload", "customitems.give", "customitems.exchange")

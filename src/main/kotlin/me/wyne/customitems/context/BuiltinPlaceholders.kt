@@ -2,7 +2,6 @@ package me.wyne.customitems.context
 
 import me.wyne.wutils.common.cooldown.Period
 import me.wyne.wutils.i18n.I18n
-import me.wyne.wutils.i18n.kotlin.miniMessage
 import me.wyne.wutils.i18n.kotlin.replace
 import me.wyne.customitems.api.CustomItemApi
 import me.wyne.customitems.api.spi.CooldownContext
@@ -24,7 +23,7 @@ internal fun registerBuiltinPlaceholders(register: (ItemPlaceholderProvider) -> 
 /** `<durability>`, `<max-durability>` and `<amount>`, read off the stack itself. */
 object StackPlaceholders : ItemPlaceholderProvider {
     override fun contribute(sink: ItemPlaceholderSink, item: CustomItemApi, stack: ItemStack, player: Player?) {
-        sink.text("durability", stack.durability.toString())
+        sink.text("durability", stack.remainingDurability.toString())
         sink.text("max-durability", stack.type.maxDurability.toString())
         sink.text("amount", stack.amount.toString())
     }
@@ -57,5 +56,5 @@ object ComposedListPlaceholder : ItemPlaceholderProvider {
 }
 
 /** Durability as "hits left", matching how the `<durability>` placeholder has always read. */
-val ItemStack.durability: Int
+val ItemStack.remainingDurability: Int
     get() = type.maxDurability - ((itemMeta as? Damageable)?.damage ?: 0)
