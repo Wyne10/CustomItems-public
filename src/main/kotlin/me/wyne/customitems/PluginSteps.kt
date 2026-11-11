@@ -41,6 +41,7 @@ import java.io.File
 @Step(priority = 0, scope = StepScope.LOAD)
 object RegisterLootPool : PluginStep<CustomItems> {
     override fun run(plugin: CustomItems) {
+        if (!LootPoolSupport.IS_LOOTPOOL_PRESENT) return
         ConfigurationSerialization.registerClass(CustomKeyedLoot::class.java)
     }
 }

@@ -4,6 +4,7 @@ import com.google.inject.Inject
 import com.google.inject.Singleton
 import dev.jorel.commandapi.CommandAPICommand
 import me.wyne.customitems.CustomItems
+import me.wyne.customitems.LootPoolSupport
 import me.wyne.customitems.item.CustomItemManager
 
 @Singleton
@@ -17,13 +18,14 @@ class CustomItemsCommand @Inject constructor(
     }
 
     private fun registerCommand() {
-        CommandAPICommand("customitems")
+        val command = CommandAPICommand("customitems")
             .withAliases("ci")
             .withSubcommand(ReloadCommand(plugin)())
             .withSubcommand(GiveCommand(itemManager)())
             .withSubcommand(ExchangeCommand(itemManager)())
-            .withSubcommand(LootCommand(itemManager)())
-            .register(plugin)
+        if (LootPoolSupport.IS_LOOTPOOL_PRESENT)
+            command.withSubcommand(LootCommand(itemManager)())
+        command.register(plugin)
     }
 
 }
